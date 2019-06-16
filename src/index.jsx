@@ -1,9 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import '@blueprintjs/icons/lib/css/blueprint-icons.css'
+import '@blueprintjs/core/lib/css/blueprint.css'
+
 function App() {
   return (
-    <div>
+    <div className="bp3-dark">
       <h1>Test23</h1>
     </div>
   )
@@ -14,5 +17,4 @@ ReactDOM.render(<App />, rootElement)
 
 rootElement?.test
 
-rootElement
-  |> console.log
+rootElement |> console.log
