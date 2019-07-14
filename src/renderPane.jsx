@@ -18,9 +18,15 @@ export default function RenderPane() {
 
     paneElem.current.appendChild(app.view);
 
-    let hexagon = Hexagon.create({ x: 200, y: 200 });
+    const tileSize = 50
+    // pointy
+    app.stage.addChild(Hexagon.create({ x: 200 - (tileSize / 2 * Math.sqrt(3)), y: 200 - (tileSize * 4 / 3), orientation: Hexagon.ORIENTATION.POINTY }))
+    app.stage.addChild(Hexagon.create({ x: 200, y: 200, orientation: Hexagon.ORIENTATION.POINTY }))
+    app.stage.addChild(Hexagon.create({ x: 200 - (tileSize * Math.sqrt(3)), y: 200, orientation: Hexagon.ORIENTATION.POINTY }))
 
-    app.stage.addChild(hexagon);
+    // flat
+    app.stage.addChild(Hexagon.create({ x: 400, y: 400, orientation: Hexagon.ORIENTATION.FLAT }))
+    app.stage.addChild(Hexagon.create({ x: 300, y: 350, orientation: Hexagon.ORIENTATION.FLAT }))
   }, []);
 
   return <StyledPane ref={paneElem} />
