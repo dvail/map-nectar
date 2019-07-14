@@ -38,6 +38,7 @@
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
     "@blueprintjs/icons": "^3.9.0",
+    "lodash": "^4.17.14",
     "pixi.js": "^5.0.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
