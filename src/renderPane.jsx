@@ -19,11 +19,23 @@ export default function RenderPane() {
 
     paneElem.current.appendChild(app.view)
 
-    let pointyGrid = HexagonGrid.create({ x: 200, y: 200, tileSize: 50, orientation: Hexagon.ORIENTATION.POINTY, angle: 0.68 })
-    let flatGrid = HexagonGrid.create({ x: 400, y: 400, tileSize: 50, orientation: Hexagon.ORIENTATION.FLAT })
+    let pointyGrid = HexagonGrid.create({ x: 150, y: 100, tileSize: 35, orientation: Hexagon.ORIENTATION.POINTY, angle: 0.68 })
+    let flatGrid = HexagonGrid.create({ x: 350, y: 300, tileSize: 35, orientation: Hexagon.ORIENTATION.FLAT, angle: 0.68 })
 
-    pointyGrid.getTiles().forEach(tile => app.stage.addChild(tile))
-    flatGrid.getTiles().forEach(tile => app.stage.addChild(tile))
+    // TODO This might not an efficent way to implement zIndex
+    // Look into PIXI-layers plugin if performance becomes and issue, or when time
+    let pointyTiles = new PIXI.Container()
+    pointyTiles.sortableChildren = true
+
+    let flatTiles = new PIXI.Container()
+    flatTiles.sortableChildren = true
+
+    app.stage.addChild(pointyTiles)
+    app.stage.addChild(flatTiles)
+
+    pointyGrid.getTiles().forEach(tile => pointyTiles.addChild(tile))
+    flatGrid.getTiles().forEach(tile => flatTiles.addChild(tile))
+
   }, [])
 
   return <StyledPane ref={paneElem} />
