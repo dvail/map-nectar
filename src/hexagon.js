@@ -23,7 +23,8 @@ const defaultAltitude = 20
 
 const COORDS = {}
 
-// TODO Are these being memoized correctly? No!
+const coordinateMemoKey = ({ radius, angle, height }) => `${radius}:${angle}:${height}`
+
 /* eslint-disable indent */
 COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
@@ -55,7 +56,7 @@ COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
   ]
 
   return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
-})
+}, coordinateMemoKey)
 
 COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
@@ -94,7 +95,7 @@ COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
   ]
 
   return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
-})
+}, coordinateMemoKey)
 /* eslint-enable indent */
 
 function create({
