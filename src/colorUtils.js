@@ -12,6 +12,15 @@ function darken(color, amount) {
   return (r << 16) + (g << 8) + b
 }
 
+function shift(color, rShift, gShift, bShift) {
+  let r = Math.min(255, Math.max(0, ((color & 0xFF0000) >> 16) + rShift))
+  let g = Math.min(255, Math.max(0, ((color & 0x00FF00) >> 8)  + gShift))
+  let b = Math.min(255, Math.max(0,  (color & 0x0000FF)        + bShift))
+
+  return (r << 16) + (g << 8) + b
+}
+
 export default {
   darken,
+  shift,
 }

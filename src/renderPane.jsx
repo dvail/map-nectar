@@ -25,7 +25,7 @@ export default function RenderPane() {
     let timer = 0;
     app.ticker.add(delta => {
       timer += delta;
-      if (timer > 50) {
+      if (timer > 10) {
         hexGrid.setRotation(hexGrid.getRotation() + 30);
         timer = 0;
       }

@@ -105,7 +105,7 @@ function create({
   zIndex,
   height,
   radius,
-  color = 0xFF7700 + Math.abs(q + r) * 80,
+  color = ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
   orientation = ORIENTATION.POINTY,
   angle = 1.0,
 }) {
