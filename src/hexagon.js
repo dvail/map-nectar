@@ -24,72 +24,80 @@ const defaultAltitude = 20
 const COORDS = {}
 
 // TODO Are these being memoized correctly? No!
+/* eslint-disable indent */
 COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
-  const { width } = dimensions(radius, ORIENTATION.POINTY)
+  let { width } = dimensions(radius, ORIENTATION.POINTY)
+  let altitude = defaultAltitude * height
+  let halfWidth = width / 2
+  let halfRadius = radius / 2
 
-  const TILE_FACE = [
-    -width / 2, ((radius / 2) * angle) - (defaultAltitude * height),
-    -width / 2, ((-radius / 2) * angle) - (defaultAltitude * height),
-    0, ((-radius) * angle) - (defaultAltitude * height),
-    width / 2, ((-radius / 2) * angle) - (defaultAltitude * height),
-    width / 2, ((radius / 2) * angle) - (defaultAltitude * height),
-    0, ((radius) * angle) - (defaultAltitude * height),
+  let TILE_FACE = [
+    -halfWidth,  halfRadius * angle - altitude,
+    -halfWidth, -halfRadius * angle - altitude,
+             0,     -radius * angle - altitude,
+     halfWidth, -halfRadius * angle - altitude,
+     halfWidth,  halfRadius * angle - altitude,
+             0,      radius * angle - altitude,
   ]
 
-  const pointyCoords = {}
+  let pointyCoords = {}
 
   pointyCoords.TILE_FACE = TILE_FACE
   pointyCoords.LEFT_VERT = [
-    TILE_FACE[0], TILE_FACE[1],
-    TILE_FACE[0], TILE_FACE[1] + (defaultAltitude * height),
-    TILE_FACE[10], TILE_FACE[11] + (defaultAltitude * height),
+    TILE_FACE[0],  TILE_FACE[1],
+    TILE_FACE[0],  TILE_FACE[1]  + altitude,
+    TILE_FACE[10], TILE_FACE[11] + altitude,
     TILE_FACE[10], TILE_FACE[11],
   ]
   pointyCoords.RIGHT_VERT = [
     TILE_FACE[10], TILE_FACE[11],
-    TILE_FACE[10], TILE_FACE[11] + (defaultAltitude * height),
-    TILE_FACE[8], TILE_FACE[9] + (defaultAltitude * height),
-    TILE_FACE[8], TILE_FACE[9],
+    TILE_FACE[10], TILE_FACE[11] + altitude,
+    TILE_FACE[8],  TILE_FACE[9]  + altitude,
+    TILE_FACE[8],  TILE_FACE[9],
   ]
   return pointyCoords
 })
 
 COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
-  const { width } = dimensions(radius, ORIENTATION.POINTY)
+  let { width } = dimensions(radius, ORIENTATION.POINTY)
+  let altitude = defaultAltitude * height
+  let halfWidth = width / 2
+  let halfRadius = radius / 2
 
-  const TILE_FACE = [
-    -radius, (0 * angle) - (defaultAltitude * height),
-    -radius / 2, ((width / 2) * angle) - (defaultAltitude * height),
-    radius / 2, ((width / 2) * angle) - (defaultAltitude * height),
-    radius, (0 * angle) - (defaultAltitude * height),
-    radius / 2, ((-width / 2) * angle) - (defaultAltitude * height),
-    -radius / 2, ((-width / 2) * angle) - (defaultAltitude * height),
+  let TILE_FACE = [
+        -radius,                  0 - altitude,
+    -halfRadius,  halfWidth * angle - altitude,
+     halfRadius,  halfWidth * angle - altitude,
+         radius,                  0 - altitude,
+     halfRadius, -halfWidth * angle - altitude,
+    -halfRadius, -halfWidth * angle - altitude,
   ]
 
-  const flatCoords = {}
+  let flatCoords = {}
 
   flatCoords.TILE_FACE = TILE_FACE
   flatCoords.LEFT_VERT = [
     TILE_FACE[0], TILE_FACE[1],
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + (defaultAltitude * height),
-    TILE_FACE[0], TILE_FACE[1] + (defaultAltitude * height),
+    TILE_FACE[2], TILE_FACE[3] + altitude,
+    TILE_FACE[0], TILE_FACE[1] + altitude,
   ]
   flatCoords.CENTER_VERT = [
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + (defaultAltitude * height),
-    TILE_FACE[4], TILE_FACE[5] + (defaultAltitude * height),
+    TILE_FACE[2], TILE_FACE[3] + altitude,
+    TILE_FACE[4], TILE_FACE[5] + altitude,
     TILE_FACE[4], TILE_FACE[5],
   ]
   flatCoords.RIGHT_VERT = [
     TILE_FACE[6], TILE_FACE[7],
     TILE_FACE[4], TILE_FACE[5],
-    TILE_FACE[4], TILE_FACE[5] + (defaultAltitude * height),
-    TILE_FACE[6], TILE_FACE[7] + (defaultAltitude * height),
+    TILE_FACE[4], TILE_FACE[5] + altitude,
+    TILE_FACE[6], TILE_FACE[7] + altitude,
   ]
 
   return flatCoords
 })
+/* eslint-enable indent */
 
 function create({
   q,
