@@ -8,6 +8,7 @@ module.exports = {
   "globals": {
   },
   "rules": {
+    "arrow-parens": 0,
     "no-console": 0,
     "no-plusplus": 0,
     "no-else-return": 0,

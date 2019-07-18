@@ -1,14 +1,6 @@
 import _ from 'lodash'
+import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
-
-const DIRECTION = Object.freeze({
-  N: 'NORTH',
-  S: 'SOUTH',
-  NE: 'NORTHEAST',
-  SE: 'SOUTHEAST',
-  NW: 'NORTHWEST',
-  SW: 'SOUTHWEST',
-})
 
 const axialCoord = _.memoize(([q, r]) => [q, r].toString());
 
@@ -21,71 +13,125 @@ function getZIndex(q, r, s, orientation) {
   }
 }
 
+function orientationFromDegrees(degrees) {
+  return (degrees / 30) % 2 === 0
+    ? Hexagon.ORIENTATION.POINTY
+    : Hexagon.ORIENTATION.FLAT;
+}
+
+function getAxialViewCoords(q, r, rotation) {
+  const s = -q - r
+
+  return {
+    0: { viewQ: q, viewR: r },
+    30: { viewQ: q, viewR: r },
+    60: { viewQ: -r, viewR: -s },
+    90: { viewQ: -r, viewR: -s },
+    120: { viewQ: s, viewR: q },
+    150: { viewQ: s, viewR: q },
+    180: { viewQ: -q, viewR: -r },
+    210: { viewQ: -q, viewR: -r },
+    240: { viewQ: r, viewR: s },
+    270: { viewQ: r, viewR: s },
+    300: { viewQ: -s, viewR: -q },
+    330: { viewQ: -s, viewR: -q },
+  }[rotation]
+}
+
 function create({
-  x,
-  y,
+  gridX,
+  gridY,
   tileSize,
-  orientation = Hexagon.ORIENTATION.POINTY,
   angle = 1.0,
-  direction = DIRECTION.N,
+  gridRotation = 0,
 }) {
+  let container = new PIXI.Container()
+  let radius = tileSize
   let tiles = new Map()
+  let rotation = gridRotation
 
-  setAt(-1, -1, {})
-  setAt(0, -1, {})
-  setAt(1, -1, {})
-  setAt(-1, 0, {})
+  container.sortableChildren = true
+
+  // TODO Add this as a public API that handles raw data, and store the render data
+  // separate internally
+  addTile(-1, -1)
+  addTile(0, -1)
+  addTile(1, -1)
+  addTile(-1, 0)
   // setAt(0, 0, {})
-  setAt(1, 0, {})
-  setAt(2, 0, {})
-  setAt(3, 0, {})
-  setAt(-1, 1, {})
-  setAt(0, 1, {})
-  setAt(1, 1, {})
+  addTile(1, 0)
+  addTile(2, 0)
+  addTile(3, 0)
+  addTile(-1, 1)
+  addTile(0, 1)
+  addTile(1, 1)
 
-  setAt(-1, 2, {})
-  setAt(0, 2, {})
-  setAt(1, 2, {})
+  addTile(-1, 2)
+  addTile(0, 2)
+  addTile(1, 2)
 
   function getAt(q, r) {
     return tiles.get(axialCoord(q, r))
   }
 
-  function setAt(q, r, opts) {
-    const { width, height } = Hexagon.dimensions(tileSize, orientation)
+  function getTileCoords(q, r) {
+    const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
+    const orientation = orientationFromDegrees(rotation)
+    const { width, height } = Hexagon.dimensions(radius, orientation)
 
-    let xOffset = width * (q + (r / 2))
-    let yOffset = (height * 3 / 4) * r * angle
+    let xOffset = width * (viewQ + (viewR / 2))
+    let yOffset = (height * 3 / 4) * viewR * angle
 
     if (orientation === Hexagon.ORIENTATION.FLAT) {
-      xOffset = width * q * (3 / 4)
-      yOffset = height * (r + (q / 2)) * angle
+      xOffset = width * viewQ * (3 / 4)
+      yOffset = height * (viewR + (viewQ / 2)) * angle
     }
 
-    let hexagon = Hexagon.create({
-      x: x + xOffset,
-      y: y + yOffset,
+    return {
+      x: gridX + xOffset,
+      y: gridY + yOffset,
+      zIndex: getZIndex(viewQ, viewR, 0 - viewQ - viewR, orientation),
       orientation,
-      angle,
-      radius: tileSize,
-    })
-    hexagon.zIndex = getZIndex(q, r, 0 - q - r, orientation)
+    }
+  }
 
-    tiles.set(axialCoord([q, r]), hexagon)
+  function addTile(q, r) {
+    let { x, y, zIndex, orientation } = getTileCoords(q, r)
+    let hexagon = Hexagon.create({ q, r, x, y, zIndex, orientation, angle, radius })
+
+    tiles.set(axialCoord([q, r]), {
+      q,
+      r,
+      hexagon,
+    })
+
+    container.addChild(hexagon)
   }
 
   function getTiles() {
     return tiles
   }
 
+  function setRotation(degrees) {
+    rotation = degrees % 360
+
+    tiles.forEach(t => {
+      container.removeChild(t.hexagon)
+
+      addTile(t.q, t.r)
+    })
+  }
+
   return {
+    container,
     getAt,
-    setAt,
+    addTile,
     getTiles,
+    setRotation,
+    getRotation: () => rotation,
   }
 }
 
 export default {
   create,
-  DIRECTION,
 }

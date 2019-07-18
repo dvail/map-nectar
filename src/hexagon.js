@@ -91,10 +91,13 @@ COORDS.FLAT = _.memoize(({ radius, angle }) => {
 })
 
 function create({
+  q,
+  r,
   x,
   y,
+  zIndex,
   radius,
-  color = 0xFF7700,
+  color = 0xFF7700 + Math.abs(q + r) * 80,
   orientation = ORIENTATION.POINTY,
   angle = 1.0,
 }) {
@@ -112,37 +115,39 @@ function create({
   if (orientation === ORIENTATION.POINTY) {
     let coords = COORDS.POINTY({ angle, radius })
 
-    hexagon.beginFill(color - 0x222222)
+    hexagon.beginFill(color - 0x000066)
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(color - 0x111111)
+    hexagon.beginFill(color - 0x000033)
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
     // Draw main tile face
-    hexagon.beginFill(color + y)
+    hexagon.beginFill(color)
     hexagon.drawPolygon(coords.TILE_FACE)
     hexagon.endFill()
   } else if (orientation === ORIENTATION.FLAT) {
     let coords = COORDS.FLAT({ angle, radius })
 
-    hexagon.beginFill(color - 0x222222)
+    hexagon.beginFill(color - 0x000066)
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(color - 0x111111)
+    hexagon.beginFill(color - 0x000033)
     hexagon.drawPolygon(coords.CENTER_VERT)
     hexagon.endFill()
 
     // Draw main tile face
-    hexagon.beginFill(color + y)
+    hexagon.beginFill(color)
     hexagon.drawPolygon(coords.TILE_FACE)
     hexagon.endFill()
   } else {
     throw new Error('Invalid orientation provided');
   }
+
+  hexagon.zIndex = zIndex
 
   return hexagon
 }
