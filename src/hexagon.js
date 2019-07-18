@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js'
-
 import _ from 'lodash'
+
+import ColorUtils from './colorUtils'
 
 const ORIENTATION = {
   POINTY: 'POINTY',
@@ -122,11 +123,11 @@ function create({
   if (orientation === ORIENTATION.POINTY) {
     let coords = COORDS.POINTY({ angle, radius, height })
 
-    hexagon.beginFill(color - 0x000066)
+    hexagon.beginFill(ColorUtils.darken(color, 20))
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(color - 0x000033)
+    hexagon.beginFill(ColorUtils.darken(color, 40))
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
@@ -137,12 +138,12 @@ function create({
   } else if (orientation === ORIENTATION.FLAT) {
     let coords = COORDS.FLAT({ angle, radius, height })
 
-    hexagon.beginFill(color - 0x000066)
+    hexagon.beginFill(ColorUtils.darken(color, 40))
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(color - 0x000033)
+    hexagon.beginFill(ColorUtils.darken(color, 20))
     hexagon.drawPolygon(coords.CENTER_VERT)
     hexagon.endFill()
 

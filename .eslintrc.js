@@ -10,6 +10,7 @@ module.exports = {
   "rules": {
     "arrow-parens": 0,
     "no-console": 0,
+    "no-bitwise": 0,
     "no-plusplus": 0,
     "no-multi-spaces": 0,
     "no-else-return": 0,
