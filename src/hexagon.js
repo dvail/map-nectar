@@ -20,7 +20,6 @@ function dimensions(radius, orientation) {
 
 const defaultAltitude = 20
 
-// All of these coordinates will be relative to the actual hexagon positioning
 const COORDS = {}
 
 // TODO Are these being memoized correctly? No!
@@ -40,22 +39,21 @@ COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
              0,      radius * angle - altitude,
   ]
 
-  let pointyCoords = {}
-
-  pointyCoords.TILE_FACE = TILE_FACE
-  pointyCoords.LEFT_VERT = [
+  let LEFT_VERT = [
     TILE_FACE[0],  TILE_FACE[1],
     TILE_FACE[0],  TILE_FACE[1]  + altitude,
     TILE_FACE[10], TILE_FACE[11] + altitude,
     TILE_FACE[10], TILE_FACE[11],
   ]
-  pointyCoords.RIGHT_VERT = [
+
+  let RIGHT_VERT = [
     TILE_FACE[10], TILE_FACE[11],
     TILE_FACE[10], TILE_FACE[11] + altitude,
     TILE_FACE[8],  TILE_FACE[9]  + altitude,
     TILE_FACE[8],  TILE_FACE[9],
   ]
-  return pointyCoords
+
+  return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
 })
 
 COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
@@ -73,29 +71,28 @@ COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
     -halfRadius, -halfWidth * angle - altitude,
   ]
 
-  let flatCoords = {}
-
-  flatCoords.TILE_FACE = TILE_FACE
-  flatCoords.LEFT_VERT = [
+  let LEFT_VERT = [
     TILE_FACE[0], TILE_FACE[1],
     TILE_FACE[2], TILE_FACE[3],
     TILE_FACE[2], TILE_FACE[3] + altitude,
     TILE_FACE[0], TILE_FACE[1] + altitude,
   ]
-  flatCoords.CENTER_VERT = [
+
+  let CENTER_VERT = [
     TILE_FACE[2], TILE_FACE[3],
     TILE_FACE[2], TILE_FACE[3] + altitude,
     TILE_FACE[4], TILE_FACE[5] + altitude,
     TILE_FACE[4], TILE_FACE[5],
   ]
-  flatCoords.RIGHT_VERT = [
+
+  let RIGHT_VERT = [
     TILE_FACE[6], TILE_FACE[7],
     TILE_FACE[4], TILE_FACE[5],
     TILE_FACE[4], TILE_FACE[5] + altitude,
     TILE_FACE[6], TILE_FACE[7] + altitude,
   ]
 
-  return flatCoords
+  return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
 })
 /* eslint-enable indent */
 
