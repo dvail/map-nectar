@@ -54,22 +54,6 @@ function create({
 
   // TODO Add this as a public API that handles raw data, and store the render data
   // separate internally
-  addTile(-1, -1, 2)
-  addTile(0, -1, 2)
-  addTile(1, -1, 2)
-  addTile(-1, 0, 1)
-  // setAt(0, 0, 1)
-  addTile(1, 0, 1)
-  addTile(2, 0, 1)
-  addTile(3, 0, 1)
-  addTile(-1, 1, 3)
-  addTile(0, 1, 3)
-  addTile(1, 1, 4)
-
-  addTile(-1, 2, 1)
-  addTile(0, 2, 1)
-  addTile(1, 2, 1)
-
   function getAt(q, r) {
     return tiles.get(axialCoord(q, r))
   }

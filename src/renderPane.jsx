@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import * as PIXI from 'pixi.js'
 
 import HexagonGrid from './hexagonGrid'
+import sampleTileData from './sampleData'
 
 const StyledPane = styled.div`
   border: 1px solid black;
@@ -19,6 +20,7 @@ export default function RenderPane() {
     paneElem.current.appendChild(app.view)
 
     let hexGrid = HexagonGrid.create({ gridX: 300, gridY: 200, tileSize: 35, angle: 0.68 })
+    sampleTileData.tiles.forEach(tile => hexGrid.addTile(...tile))
 
     app.stage.addChild(hexGrid.container)
 
