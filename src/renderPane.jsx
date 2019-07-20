@@ -8,10 +8,12 @@ import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
 import sampleTileData from './sampleData'
 
+const paneWidth = 500
+const paneHeight = 500
+
 const StyledPane = styled.div`
-  border: 1px solid black;
-  min-width: 500px;
-  min-height: 500px;
+  width: ${paneWidth}px;
+  height: ${paneHeight}px;
 `
 
 export default function RenderPane() {
@@ -22,19 +24,18 @@ export default function RenderPane() {
 
     paneElem.current.appendChild(app.view)
 
-    // create viewport
     const viewport = new Viewport({
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
-      worldWidth: 1000,
-      worldHeight: 1000,
       interaction: app.renderer.plugins.interaction,
     })
 
     app.stage.addChild(viewport)
-    viewport.drag().pinch().wheel().decelerate()
 
-    let skeletonGrid = HexagonGrid.create({ gridX: 300, gridY: 200, tileSize: 35, angle: 0.68 })
+    viewport.drag().wheel()
+    viewport.moveCenter(275, 50) // TODO These are magic values...
+
+    let skeletonGrid = HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 })
 
     // TODO The performance of this probably sucks
     _.range(-10, 10).forEach(q => {
@@ -44,7 +45,7 @@ export default function RenderPane() {
     })
 
 
-    let hexGrid = HexagonGrid.create({ gridX: 300, gridY: 200, tileSize: 35, angle: 0.68 })
+    let hexGrid = HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 })
     sampleTileData.tiles.forEach(([q, r, height]) => {
       hexGrid.addTile(q, r, height, {
         fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
