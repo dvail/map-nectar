@@ -106,7 +106,8 @@ function create({
   zIndex,
   height,
   radius,
-  color = ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
+  fillColor,
+  strokeColor,
   orientation = ORIENTATION.POINTY,
   angle = 1.0,
 }) {
@@ -124,32 +125,34 @@ function create({
   if (orientation === ORIENTATION.POINTY) {
     let coords = COORDS.POINTY({ angle, radius, height })
 
-    hexagon.beginFill(ColorUtils.darken(color, 20))
+    strokeColor && hexagon.lineStyle(1, strokeColor, 0.1, 0, true)
+    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20))
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(ColorUtils.darken(color, 40))
+    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40))
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
     // Draw main tile face
-    hexagon.beginFill(color)
+    fillColor && hexagon.beginFill(fillColor)
     hexagon.drawPolygon(coords.TILE_FACE)
     hexagon.endFill()
   } else if (orientation === ORIENTATION.FLAT) {
     let coords = COORDS.FLAT({ angle, radius, height })
 
-    hexagon.beginFill(ColorUtils.darken(color, 40))
+    strokeColor && hexagon.lineStyle(1, strokeColor, 0.1, 0, true)
+    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40))
     hexagon.drawPolygon(coords.LEFT_VERT)
     hexagon.drawPolygon(coords.RIGHT_VERT)
     hexagon.endFill()
 
-    hexagon.beginFill(ColorUtils.darken(color, 20))
+    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20))
     hexagon.drawPolygon(coords.CENTER_VERT)
     hexagon.endFill()
 
     // Draw main tile face
-    hexagon.beginFill(color)
+    fillColor && hexagon.beginFill(fillColor)
     hexagon.drawPolygon(coords.TILE_FACE)
     hexagon.endFill()
   } else {

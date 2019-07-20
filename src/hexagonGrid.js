@@ -79,14 +79,15 @@ function create({
     }
   }
 
-  function addTile(q, r, height) {
+  function addTile(q, r, height, opts) {
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
-    let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius })
+    let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius, ...opts })
 
     tiles.set(axialCoord([q, r]), {
       q,
       r,
       height,
+      opts,
       hexagon,
     })
 
@@ -103,7 +104,7 @@ function create({
     tiles.forEach(t => {
       container.removeChild(t.hexagon)
 
-      addTile(t.q, t.r, t.height)
+      addTile(t.q, t.r, t.height, t.opts)
     })
   }
 
