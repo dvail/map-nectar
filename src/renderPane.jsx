@@ -8,8 +8,9 @@ import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
 import sampleTileData from './sampleData'
 
-const paneWidth = 500
-const paneHeight = 500
+// PIXI default canvas sizes
+const paneWidth = 800
+const paneHeight = 600
 
 const StyledPane = styled.div`
   width: ${paneWidth}px;
@@ -25,8 +26,6 @@ export default function RenderPane() {
     paneElem.current.appendChild(app.view)
 
     const viewport = new Viewport({
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight,
       interaction: app.renderer.plugins.interaction,
     })
 
