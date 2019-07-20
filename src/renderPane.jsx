@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import * as PIXI from 'pixi.js'
+import { Viewport } from 'pixi-viewport'
 import _ from 'lodash'
 
 import ColorUtils from './colorUtils'
@@ -21,11 +22,23 @@ export default function RenderPane() {
 
     paneElem.current.appendChild(app.view)
 
+    // create viewport
+    const viewport = new Viewport({
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight,
+      worldWidth: 1000,
+      worldHeight: 1000,
+      interaction: app.renderer.plugins.interaction,
+    })
+
+    app.stage.addChild(viewport)
+    viewport.drag().pinch().wheel().decelerate()
+
     let skeletonGrid = HexagonGrid.create({ gridX: 300, gridY: 200, tileSize: 35, angle: 0.68 })
 
     // TODO The performance of this probably sucks
-    _.range(-20, 20).forEach(q => {
-      _.range(-20, 20).forEach(r => {
+    _.range(-10, 10).forEach(q => {
+      _.range(-10, 10).forEach(r => {
         skeletonGrid.addTile(q, r, 0, { strokeColor: 0xbbbbbb })
       })
     })
@@ -38,8 +51,8 @@ export default function RenderPane() {
       })
     })
 
-    app.stage.addChild(skeletonGrid.container)
-    app.stage.addChild(hexGrid.container)
+    viewport.addChild(skeletonGrid.container)
+    viewport.addChild(hexGrid.container)
 
     let timer = 0;
     app.ticker.add(delta => {
