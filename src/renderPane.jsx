@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import _ from 'lodash'
 
+import useEffectWhenValue from './useEffectWhenValue'
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
 import sampleTileData from './sampleData'
@@ -30,7 +31,11 @@ export default function RenderPane({ rotation }) {
   }, [])
 
   useEffect(() => {
-    if (!app) return
+    hexGrid?.setRotation(rotation)
+    skeletonGrid?.setRotation(rotation)
+  }, [rotation])
+
+  useEffectWhenValue(() => {
     paneElem.current.appendChild(app.view)
 
     setViewport(new Viewport({ interaction: app.renderer.plugins.interaction }))
@@ -38,18 +43,14 @@ export default function RenderPane({ rotation }) {
     setHexGrid(HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }))
   }, [app])
 
-  useEffect(() => {
-    if (!viewport) return
-
-    console.warn(app)
+  useEffectWhenValue(() => {
     app.stage.addChild(viewport)
 
     viewport.drag().wheel()
     viewport.moveCenter(275, 50) // TODO These are magic values...
   }, [viewport])
 
-  useEffect(() => {
-    if (!skeletonGrid) return
+  useEffectWhenValue(() => {
     // TODO The performance of this probably sucks
     _.range(-10, 10).forEach(q => {
       _.range(-10, 10).forEach(r => {
@@ -60,9 +61,7 @@ export default function RenderPane({ rotation }) {
     viewport.addChild(skeletonGrid.container)
   }, [skeletonGrid])
 
-  useEffect(() => {
-    if (!hexGrid) return
-
+  useEffectWhenValue(() => {
     sampleTileData.tiles.forEach(([q, r, height]) => {
       hexGrid.addTile(q, r, height, {
         fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
@@ -71,11 +70,6 @@ export default function RenderPane({ rotation }) {
 
     viewport.addChild(hexGrid.container)
   }, [hexGrid])
-
-  useEffect(() => {
-    hexGrid?.setRotation(rotation)
-    skeletonGrid?.setRotation(rotation)
-  }, [rotation])
 
   return <StyledPane ref={paneElem} />
 }
