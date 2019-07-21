@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
@@ -14,12 +14,13 @@ const AppLayout = styled.div`
 `
 
 function App() {
+  const [rotation, setRotation] = useState(0)
   return (
     <div className="bp3-dark">
       <AppLayout>
         <h1>Apis</h1>
-        <RenderPane />
-        <Compass />
+        <RenderPane rotation={rotation} />
+        <Compass rotation={rotation} onRotationChange={setRotation} />
       </AppLayout>
     </div>
   )

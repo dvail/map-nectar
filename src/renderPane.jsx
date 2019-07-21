@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
@@ -17,25 +17,39 @@ const StyledPane = styled.div`
   height: ${paneHeight}px;
 `
 
-export default function RenderPane() {
+export default function RenderPane({ rotation }) {
   let paneElem = useRef(null)
 
-  useEffect(() => {
-    let app = new PIXI.Application()
+  let [app, setApp] = useState(null)
+  let [viewport, setViewport] = useState(null)
+  let [skeletonGrid, setSkeletonGrid] = useState(null)
+  let [hexGrid, setHexGrid] = useState(null)
 
+  useEffect(() => {
+    setApp(new PIXI.Application())
+  }, [])
+
+  useEffect(() => {
+    if (!app) return
     paneElem.current.appendChild(app.view)
 
-    const viewport = new Viewport({
-      interaction: app.renderer.plugins.interaction,
-    })
+    setViewport(new Viewport({ interaction: app.renderer.plugins.interaction }))
+    setSkeletonGrid(HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }))
+    setHexGrid(HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }))
+  }, [app])
 
+  useEffect(() => {
+    if (!viewport) return
+
+    console.warn(app)
     app.stage.addChild(viewport)
 
     viewport.drag().wheel()
     viewport.moveCenter(275, 50) // TODO These are magic values...
+  }, [viewport])
 
-    let skeletonGrid = HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 })
-
+  useEffect(() => {
+    if (!skeletonGrid) return
     // TODO The performance of this probably sucks
     _.range(-10, 10).forEach(q => {
       _.range(-10, 10).forEach(r => {
@@ -43,27 +57,25 @@ export default function RenderPane() {
       })
     })
 
+    viewport.addChild(skeletonGrid.container)
+  }, [skeletonGrid])
 
-    let hexGrid = HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 })
+  useEffect(() => {
+    if (!hexGrid) return
+
     sampleTileData.tiles.forEach(([q, r, height]) => {
       hexGrid.addTile(q, r, height, {
         fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
       })
     })
 
-    viewport.addChild(skeletonGrid.container)
     viewport.addChild(hexGrid.container)
+  }, [hexGrid])
 
-    let timer = 0;
-    app.ticker.add(delta => {
-      timer += delta;
-      if (timer > 120) {
-        skeletonGrid.setRotation(hexGrid.getRotation() + 30);
-        hexGrid.setRotation(hexGrid.getRotation() + 30);
-        timer = 0;
-      }
-    });
-  }, [])
+  useEffect(() => {
+    hexGrid?.setRotation(rotation)
+    skeletonGrid?.setRotation(rotation)
+  }, [rotation])
 
   return <StyledPane ref={paneElem} />
 }
