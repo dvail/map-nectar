@@ -33,6 +33,7 @@ export default function Compass(props) {
       {
         _.range(0, 360, 360 / 12).map(rotation => (
           <DegreeMarkerWrap
+            key={rotation}
             rotation={rotation}
           >
             <DegreeMarker

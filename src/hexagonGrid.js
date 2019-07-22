@@ -2,7 +2,7 @@ import _ from 'lodash'
 import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
 
-const axialCoord = _.memoize(([q, r]) => [q, r].toString());
+const axialCoord = (q, r) => [q, r].toString()
 
 // TODO Depending on how rotation is handled this might only need x, y, and orientaion
 function getZIndex(q, r, s, orientation) {
@@ -44,6 +44,7 @@ function create({
   tileSize,
   angle = 1.0,
   gridRotation = 0,
+  onTileClick = _.noop,
 }) {
   let container = new PIXI.Container()
   let radius = tileSize
@@ -81,15 +82,17 @@ function create({
 
   function addTile(q, r, height, opts) {
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
-    let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius, ...opts })
+    let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius, onTileClick, ...opts })
+    let key = axialCoord(q, r)
 
-    tiles.set(axialCoord([q, r]), {
-      q,
-      r,
-      height,
-      opts,
-      hexagon,
-    })
+    let existing = tiles.get(key)
+
+    if (existing) {
+      container.removeChild(existing.hexagon)
+      existing.hexagon.destroy()
+    }
+
+    tiles.set(key, { q, r, height, opts, hexagon })
 
     container.addChild(hexagon)
   }

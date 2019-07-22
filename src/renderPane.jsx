@@ -17,6 +17,8 @@ const StyledPane = styled.div`
   width: ${paneWidth}px;
   height: ${paneHeight}px;
 `
+const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.01 }
+const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }
 
 export default function RenderPane({ rotation }) {
   let paneElem = useRef(null)
@@ -25,6 +27,24 @@ export default function RenderPane({ rotation }) {
   let [viewport, setViewport] = useState(null)
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
+
+  let hexGridRef = useRef(hexGrid);
+
+  // Used to get around stale closure references in callbacks based to children
+  useEffect(() => {
+    hexGridRef.current = hexGrid
+  });
+
+  function onTileClick(q, r) {
+    let { current } = hexGridRef;
+    let tile = current.getAt(q, r)
+    let height = tile?.height + 1 || 0
+    let opts = tile ?.opts || {
+      fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
+    }
+
+    current.addTile(q, r, height, opts)
+  }
 
   useEffect(() => {
     setApp(new PIXI.Application())
@@ -39,8 +59,8 @@ export default function RenderPane({ rotation }) {
     paneElem.current.appendChild(app.view)
 
     setViewport(new Viewport({ interaction: app.renderer.plugins.interaction }))
-    setSkeletonGrid(HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }))
-    setHexGrid(HexagonGrid.create({ gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }))
+    setSkeletonGrid(HexagonGrid.create({ ...gridLayoutOps, onTileClick }))
+    setHexGrid(HexagonGrid.create({ ...gridLayoutOps, onTileClick }))
   }, [app])
 
   useEffectWhenValue(() => {
@@ -54,7 +74,7 @@ export default function RenderPane({ rotation }) {
     // TODO The performance of this probably sucks
     _.range(-10, 10).forEach(q => {
       _.range(-10, 10).forEach(r => {
-        skeletonGrid.addTile(q, r, 0, { strokeColor: 0xbbbbbb })
+        skeletonGrid.addTile(q, r, 0, skeletonTileOpts)
       })
     })
 
