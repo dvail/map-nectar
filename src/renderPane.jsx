@@ -9,15 +9,11 @@ import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
 import sampleTileData from './sampleData'
 
-// PIXI default canvas sizes
-const paneWidth = 800
-const paneHeight = 600
-
 const StyledPane = styled.div`
   width: 100%;
   height: 100%;
 `
-const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.01 }
+const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x010101, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.68 }
 
 export default function RenderPane({ rotation, viewAngle }) {
@@ -52,7 +48,6 @@ export default function RenderPane({ rotation, viewAngle }) {
   }
 
   useEffect(() => {
-    console.warn(paneElem.current)
     setApp(new PIXI.Application({ resizeTo: paneElem.current }))
   }, [])
 
@@ -85,8 +80,8 @@ export default function RenderPane({ rotation, viewAngle }) {
 
   useEffectWhenValue(() => {
     // TODO The performance of this probably sucks
-    _.range(-10, 10).forEach(q => {
-      _.range(-10, 10).forEach(r => {
+    _.range(-15, 15).forEach(q => {
+      _.range(-15, 15).forEach(r => {
         skeletonGrid.addTile(q, r, 0, skeletonTileOpts)
       })
     })
@@ -95,12 +90,6 @@ export default function RenderPane({ rotation, viewAngle }) {
   }, [skeletonGrid])
 
   useEffectWhenValue(() => {
-    sampleTileData.tiles.forEach(([q, r, height]) => {
-      hexGrid.addTile(q, r, height, {
-        fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
-      })
-    })
-
     viewport.addChild(hexGrid.container)
   }, [hexGrid])
 
