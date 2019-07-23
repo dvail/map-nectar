@@ -7,7 +7,6 @@ import _ from 'lodash'
 import useEffectWhenValue from './useEffectWhenValue'
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
-import sampleTileData from './sampleData'
 
 const StyledPane = styled.div`
   width: 100%;
