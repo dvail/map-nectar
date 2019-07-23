@@ -18,9 +18,9 @@ const StyledPane = styled.div`
   height: ${paneHeight}px;
 `
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.01 }
-const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, angle: 0.68 }
+const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.68 }
 
-export default function RenderPane({ rotation }) {
+export default function RenderPane({ rotation, viewAngle }) {
   let paneElem = useRef(null)
 
   let [app, setApp] = useState(null)
@@ -59,6 +59,11 @@ export default function RenderPane({ rotation }) {
     hexGrid?.setRotation(rotation)
     skeletonGrid?.setRotation(rotation)
   }, [rotation])
+
+  useEffect(() => {
+    hexGrid?.setAngle(viewAngle)
+    skeletonGrid?.setAngle(viewAngle)
+  }, [viewAngle])
 
   useEffectWhenValue(() => {
     paneElem.current.appendChild(app.view)

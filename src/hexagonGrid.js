@@ -42,7 +42,7 @@ function create({
   gridX,
   gridY,
   tileSize,
-  angle = 1.0,
+  viewAngle = 1.0,
   gridRotation = 0,
   onTileClick = _.noop,
 }) {
@@ -50,6 +50,7 @@ function create({
   let radius = tileSize
   let tiles = new Map()
   let rotation = gridRotation
+  let angle = viewAngle
 
   container.sortableChildren = true
 
@@ -101,14 +102,20 @@ function create({
     return tiles
   }
 
-  function setRotation(degrees) {
-    rotation = degrees % 360
-
+  function redrawTiles() {
     tiles.forEach(t => {
-      container.removeChild(t.hexagon)
-
       addTile(t.q, t.r, t.height, t.opts)
     })
+  }
+
+  function setRotation(degrees) {
+    rotation = degrees % 360
+    redrawTiles()
+  }
+
+  function setAngle(newAngle) {
+    angle = newAngle
+    redrawTiles()
   }
 
   return {
@@ -117,6 +124,7 @@ function create({
     addTile,
     getTiles,
     setRotation,
+    setAngle,
     getRotation: () => rotation,
   }
 }

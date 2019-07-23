@@ -31,27 +31,28 @@ COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
   let altitude = defaultAltitude * height
   let halfWidth = width / 2
   let halfRadius = radius / 2
+  let vertHeight = 1.0 - angle
 
   let TILE_FACE = [
-    -halfWidth,  halfRadius * angle - altitude,
-    -halfWidth, -halfRadius * angle - altitude,
-             0,     -radius * angle - altitude,
-     halfWidth, -halfRadius * angle - altitude,
-     halfWidth,  halfRadius * angle - altitude,
-             0,      radius * angle - altitude,
+    -halfWidth,  halfRadius * angle - altitude * vertHeight,
+    -halfWidth, -halfRadius * angle - altitude * vertHeight,
+             0,     -radius * angle - altitude * vertHeight,
+     halfWidth, -halfRadius * angle - altitude * vertHeight,
+     halfWidth,  halfRadius * angle - altitude * vertHeight,
+             0,      radius * angle - altitude * vertHeight,
   ]
 
   let LEFT_VERT = [
     TILE_FACE[0],  TILE_FACE[1],
-    TILE_FACE[0],  TILE_FACE[1]  + altitude,
-    TILE_FACE[10], TILE_FACE[11] + altitude,
+    TILE_FACE[0],  TILE_FACE[1]  + altitude * vertHeight,
+    TILE_FACE[10], TILE_FACE[11] + altitude * vertHeight,
     TILE_FACE[10], TILE_FACE[11],
   ]
 
   let RIGHT_VERT = [
     TILE_FACE[10], TILE_FACE[11],
-    TILE_FACE[10], TILE_FACE[11] + altitude,
-    TILE_FACE[8],  TILE_FACE[9]  + altitude,
+    TILE_FACE[10], TILE_FACE[11] + altitude * vertHeight,
+    TILE_FACE[8],  TILE_FACE[9]  + altitude * vertHeight,
     TILE_FACE[8],  TILE_FACE[9],
   ]
 
@@ -63,35 +64,36 @@ COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
   let altitude = defaultAltitude * height
   let halfWidth = width / 2
   let halfRadius = radius / 2
+  let vertHeight = 1.0 - angle
 
   let TILE_FACE = [
-        -radius,                  0 - altitude,
-    -halfRadius,  halfWidth * angle - altitude,
-     halfRadius,  halfWidth * angle - altitude,
-         radius,                  0 - altitude,
-     halfRadius, -halfWidth * angle - altitude,
-    -halfRadius, -halfWidth * angle - altitude,
+        -radius,                  0 - altitude * vertHeight,
+    -halfRadius,  halfWidth * angle - altitude * vertHeight,
+     halfRadius,  halfWidth * angle - altitude * vertHeight,
+         radius,                  0 - altitude * vertHeight,
+     halfRadius, -halfWidth * angle - altitude * vertHeight,
+    -halfRadius, -halfWidth * angle - altitude * vertHeight,
   ]
 
   let LEFT_VERT = [
     TILE_FACE[0], TILE_FACE[1],
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + altitude,
-    TILE_FACE[0], TILE_FACE[1] + altitude,
+    TILE_FACE[2], TILE_FACE[3] + altitude * vertHeight,
+    TILE_FACE[0], TILE_FACE[1] + altitude * vertHeight,
   ]
 
   let CENTER_VERT = [
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + altitude,
-    TILE_FACE[4], TILE_FACE[5] + altitude,
+    TILE_FACE[2], TILE_FACE[3] + altitude * vertHeight,
+    TILE_FACE[4], TILE_FACE[5] + altitude * vertHeight,
     TILE_FACE[4], TILE_FACE[5],
   ]
 
   let RIGHT_VERT = [
     TILE_FACE[6], TILE_FACE[7],
     TILE_FACE[4], TILE_FACE[5],
-    TILE_FACE[4], TILE_FACE[5] + altitude,
-    TILE_FACE[6], TILE_FACE[7] + altitude,
+    TILE_FACE[4], TILE_FACE[5] + altitude * vertHeight,
+    TILE_FACE[6], TILE_FACE[7] + altitude * vertHeight,
   ]
 
   return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
