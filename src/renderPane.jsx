@@ -14,8 +14,8 @@ const paneWidth = 800
 const paneHeight = 600
 
 const StyledPane = styled.div`
-  width: ${paneWidth}px;
-  height: ${paneHeight}px;
+  width: 100%;
+  height: 100%;
 `
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.01 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.68 }
@@ -52,7 +52,8 @@ export default function RenderPane({ rotation, viewAngle }) {
   }
 
   useEffect(() => {
-    setApp(new PIXI.Application())
+    console.warn(paneElem.current)
+    setApp(new PIXI.Application({ resizeTo: paneElem.current }))
   }, [])
 
   useEffect(() => {

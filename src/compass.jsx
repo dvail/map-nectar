@@ -7,8 +7,9 @@ import { Colors } from '@blueprintjs/core';
 const StyledCompass = styled.div`
   width: 150px;
   height: 150px;
-  background-color: ${Colors.DARK_GRAY2}
-  position: relative;
+  top: 0;
+  right: 0;
+  position: absolute;
 `
 
 const DegreeMarkerWrap = styled.div`
