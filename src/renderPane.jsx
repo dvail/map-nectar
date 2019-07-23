@@ -25,17 +25,22 @@ export default function RenderPane({ rotation }) {
 
   let [app, setApp] = useState(null)
   let [viewport, setViewport] = useState(null)
+  let [dragging, setDragging] = useState(false)
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
 
   let hexGridRef = useRef(hexGrid);
+  let dragRef = useRef(dragging);
 
   // Used to get around stale closure references in callbacks based to children
   useEffect(() => {
     hexGridRef.current = hexGrid
+    dragRef.current = dragging
   });
 
   function onTileClick(q, r) {
+    if (dragRef.current) return
+
     let { current } = hexGridRef;
     let tile = current.getAt(q, r)
     let height = tile?.height + 1 || 0
@@ -67,6 +72,8 @@ export default function RenderPane({ rotation }) {
     app.stage.addChild(viewport)
 
     viewport.drag().wheel()
+    viewport.on('drag-start', () => setDragging(true))
+    viewport.on('drag-end', () => setDragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
   }, [viewport])
 
