@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 
-import { Slider, Colors, Icon } from '@blueprintjs/core'
+import { Slider, Colors, Icon, Label } from '@blueprintjs/core'
 import { IconNames } from "@blueprintjs/icons";
 
 import RenderPane from './renderPane'
@@ -42,16 +42,31 @@ let TouchIcon = styled(Icon)`
   margin: 8px 0;
 `
 
+let HiddenInput = styled.input`
+  display: none;
+`
+
 function App() {
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, { tiles: {} });
   const [rotation, setRotation] = useState(0)
   const [viewAngle, setViewAngle] = useState(0.65)
 
+  function onMapLoad(e) {
+    let file = _.first(e.target.files)
+    let reader = new FileReader()
+
+    reader.onload = event => console.log(event.target.result)
+    reader.readAsText(file)
+  }
+
   return (
     <AppLayout className="bp3-dark">
       <Sidebar>
         <TouchIcon htmlTitle="Save Map" icon={IconNames.IMPORT} iconSize={20} />
-        <TouchIcon htmlTitle="Load Map" icon={IconNames.EXPORT} iconSize={20} />
+        <Label htmlFor="loadMapInput">
+          <HiddenInput id="loadMapInput" type="file" accept=".json" onChange={onMapLoad} />
+          <TouchIcon htmlTitle="Load Map" icon={IconNames.EXPORT} iconSize={20} />
+        </Label>
       </Sidebar>
       <Workspace>
         <RenderPane mapData={mapData} mapDataDispatch={mapDataDispatch} rotation={rotation} viewAngle={viewAngle} />
