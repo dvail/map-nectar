@@ -2,7 +2,7 @@ import _ from 'lodash'
 import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
 
-const axialCoord = (q, r) => [q, r].toString()
+import { tileKey } from './mapDataReducer'
 
 // TODO Depending on how rotation is handled this might only need x, y, and orientaion
 function getZIndex(q, r, s, orientation) {
@@ -57,7 +57,7 @@ function create({
   // TODO Add this as a public API that handles raw data, and store the render data
   // separate internally
   function getAt(q, r) {
-    return tiles.get(axialCoord(q, r))
+    return tiles.get(tileKey(q, r))
   }
 
   function getTileCoords(q, r) {
@@ -81,10 +81,10 @@ function create({
     }
   }
 
-  function addTile(q, r, height, opts) {
+  function renderTile({ q, r, height, opts }) {
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
     let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius, onTileClick, ...opts })
-    let key = axialCoord(q, r)
+    let key = tileKey(q, r)
 
     let existing = tiles.get(key)
 
@@ -98,14 +98,20 @@ function create({
     container.addChild(hexagon)
   }
 
+  function renderTileChange(oldTiles = {}, newTiles) {
+    Object.entries(newTiles)
+      .filter(([key, val]) => !_.isEqual(val, oldTiles[key]))
+      .forEach(([key]) => {
+        renderTile(newTiles[key])
+      })
+  }
+
   function getTiles() {
     return tiles
   }
 
   function redrawTiles() {
-    tiles.forEach(t => {
-      addTile(t.q, t.r, t.height, t.opts)
-    })
+    tiles.forEach(renderTile)
   }
 
   function setRotation(degrees) {
@@ -121,10 +127,11 @@ function create({
   return {
     container,
     getAt,
-    addTile,
+    renderTile,
     getTiles,
     setRotation,
     setAngle,
+    renderTileChange,
     getRotation: () => rotation,
   }
 }

@@ -4,9 +4,13 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import _ from 'lodash'
 
+import usePrevious from './usePrevious'
 import useEffectWhenValue from './useEffectWhenValue'
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
+import { MapDataAction } from './mapDataReducer'
+
+const { UpdateTile } = MapDataAction
 
 const StyledPane = styled.div`
   width: 100%;
@@ -15,7 +19,7 @@ const StyledPane = styled.div`
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x010101, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.68 }
 
-export default function RenderPane({ rotation, viewAngle }) {
+export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispatch }) {
   let paneElem = useRef(null)
 
   let [app, setApp] = useState(null)
@@ -24,14 +28,9 @@ export default function RenderPane({ rotation, viewAngle }) {
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
 
-  let hexGridRef = useRef(hexGrid);
-  let dragRef = useRef(dragging);
-
-  // Used to get around stale closure references in callbacks based to children
-  useEffect(() => {
-    hexGridRef.current = hexGrid
-    dragRef.current = dragging
-  });
+  let hexGridRef = useRef(hexGrid)
+  let dragRef = useRef(dragging)
+  let prevMapData = usePrevious(mapData)
 
   function onTileClick(q, r) {
     if (dragRef.current) return
@@ -43,12 +42,22 @@ export default function RenderPane({ rotation, viewAngle }) {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
 
-    current.addTile(q, r, height, opts)
+    mapDataDispatch({ type: UpdateTile, data: { q, r, height, opts } })
   }
+
+  // Used to get around stale closure references in callbacks based to children
+  useEffect(() => {
+    hexGridRef.current = hexGrid
+    dragRef.current = dragging
+  });
 
   useEffect(() => {
     setApp(new PIXI.Application({ resizeTo: paneElem.current }))
   }, [])
+
+  useEffect(() => {
+    hexGrid?.renderTileChange(prevMapData?.tiles, mapData.tiles)
+  }, [mapData.tiles])
 
   useEffect(() => {
     hexGrid?.setRotation(rotation)
@@ -81,7 +90,7 @@ export default function RenderPane({ rotation, viewAngle }) {
     // TODO The performance of this probably sucks
     _.range(-15, 15).forEach(q => {
       _.range(-15, 15).forEach(r => {
-        skeletonGrid.addTile(q, r, 0, skeletonTileOpts)
+        skeletonGrid.renderTile({ q, r, height: 0, opts: skeletonTileOpts })
       })
     })
 

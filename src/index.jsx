@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useReducer } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
@@ -10,6 +10,7 @@ import { IconNames } from "@blueprintjs/icons";
 
 import RenderPane from './renderPane'
 import Compass from './compass'
+import mapDataReducer from './mapDataReducer'
 
 const AppLayout = styled.div`
   height: 100%;
@@ -42,6 +43,7 @@ let TouchIcon = styled(Icon)`
 `
 
 function App() {
+  const [mapData, mapDataDispatch] = useReducer(mapDataReducer, { tiles: {} });
   const [rotation, setRotation] = useState(0)
   const [viewAngle, setViewAngle] = useState(0.65)
 
@@ -52,7 +54,7 @@ function App() {
         <TouchIcon htmlTitle="Load Map" icon={IconNames.EXPORT} iconSize={20} />
       </Sidebar>
       <Workspace>
-        <RenderPane rotation={rotation} viewAngle={viewAngle} />
+        <RenderPane mapData={mapData} mapDataDispatch={mapDataDispatch} rotation={rotation} viewAngle={viewAngle} />
         <Compass rotation={rotation} onRotationChange={setRotation} />
         <ViewSlider
           min={0}
