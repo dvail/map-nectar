@@ -1,6 +1,7 @@
 import React, { useState, useReducer } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
@@ -10,7 +11,8 @@ import { IconNames } from "@blueprintjs/icons";
 
 import RenderPane from './renderPane'
 import Compass from './compass'
-import mapDataReducer from './mapDataReducer'
+import mapDataReducer, { MapDataAction } from './mapDataReducer'
+import { saveObject } from './fileUtils';
 
 const AppLayout = styled.div`
   height: 100%;
@@ -55,14 +57,21 @@ function App() {
     let file = _.first(e.target.files)
     let reader = new FileReader()
 
-    reader.onload = event => console.log(event.target.result)
+    reader.onload = event => {
+      mapDataDispatch({ type: MapDataAction.LoadMap, data: JSON.parse(event.target.result) })
+    }
+
     reader.readAsText(file)
+  }
+
+  function onMapSave() {
+    saveObject(mapData, 'map.json');
   }
 
   return (
     <AppLayout className="bp3-dark">
       <Sidebar>
-        <TouchIcon htmlTitle="Save Map" icon={IconNames.IMPORT} iconSize={20} />
+        <TouchIcon htmlTitle="Save Map" icon={IconNames.IMPORT} iconSize={20} onClick={onMapSave} />
         <Label htmlFor="loadMapInput">
           <HiddenInput id="loadMapInput" type="file" accept=".json" onChange={onMapLoad} />
           <TouchIcon htmlTitle="Load Map" icon={IconNames.EXPORT} iconSize={20} />
