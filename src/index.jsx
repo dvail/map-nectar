@@ -1,18 +1,16 @@
 import React, { useState, useReducer } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import _ from 'lodash'
 
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 
-import { Slider, Colors, Icon, Label } from '@blueprintjs/core'
-import { IconNames } from "@blueprintjs/icons";
+import { Slider, Colors } from '@blueprintjs/core'
 
 import RenderPane from './renderPane'
+import Sidebar from './sidebar'
 import Compass from './compass'
-import mapDataReducer, { MapDataAction } from './mapDataReducer'
-import { saveObject } from './fileUtils';
+import mapDataReducer from './mapDataReducer'
 
 const AppLayout = styled.div`
   height: 100%;
@@ -20,12 +18,6 @@ const AppLayout = styled.div`
   display: flex;
   flex-direction: row;
   background-color: ${Colors.DARK_GRAY1};
-`
-
-let Sidebar = styled.div`
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
 `
 
 let Workspace = styled.div`
@@ -39,44 +31,14 @@ let ViewSlider = styled(Slider)`
   right: 20px;
 `
 
-let TouchIcon = styled(Icon)`
-  cursor: pointer;
-  margin: 8px 0;
-`
-
-let HiddenInput = styled.input`
-  display: none;
-`
-
 function App() {
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, { tiles: {} });
   const [rotation, setRotation] = useState(0)
   const [viewAngle, setViewAngle] = useState(0.65)
 
-  function onMapLoad(e) {
-    let file = _.first(e.target.files)
-    let reader = new FileReader()
-
-    reader.onload = event => {
-      mapDataDispatch({ type: MapDataAction.LoadMap, data: JSON.parse(event.target.result) })
-    }
-
-    reader.readAsText(file)
-  }
-
-  function onMapSave() {
-    saveObject(mapData, 'map.json');
-  }
-
   return (
     <AppLayout className="bp3-dark">
-      <Sidebar>
-        <TouchIcon htmlTitle="Save Map" icon={IconNames.IMPORT} iconSize={20} onClick={onMapSave} />
-        <Label htmlFor="loadMapInput">
-          <HiddenInput id="loadMapInput" type="file" accept=".json" onChange={onMapLoad} />
-          <TouchIcon htmlTitle="Load Map" icon={IconNames.EXPORT} iconSize={20} />
-        </Label>
-      </Sidebar>
+      <Sidebar mapData={mapData} mapDataDispatch={mapDataDispatch} />
       <Workspace>
         <RenderPane mapData={mapData} mapDataDispatch={mapDataDispatch} rotation={rotation} viewAngle={viewAngle} />
         <Compass rotation={rotation} onRotationChange={setRotation} />
