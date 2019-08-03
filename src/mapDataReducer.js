@@ -1,6 +1,7 @@
 import produce from 'immer'
 
 const UpdateTile = 'UpdateTile'
+const RemoveTile = 'RemoveTile'
 const LoadMap = 'LoadMap'
 const actions = {};
 
@@ -11,6 +12,7 @@ const defaultActionFn = state => {
 
 export const MapDataAction = {
   UpdateTile,
+  RemoveTile,
   LoadMap,
 }
 
@@ -26,6 +28,11 @@ export default function mapDataReducer(state, action) {
 actions.UpdateTile = (state, data) => produce(state, draftState => {
   let key = tileKey(data.q, data.r)
   draftState.tiles[key] = data
+})
+
+actions.RemoveTile = (state, data) => produce(state, draftState => {
+  let key = tileKey(data.q, data.r)
+  delete draftState.tiles[key]
 })
 
 actions.LoadMap = (state, data) => produce(state, draftState => {

@@ -45,20 +45,15 @@ function create({
   viewAngle = 1.0,
   gridRotation = 0,
   onTileClick = _.noop,
+  onTileRightClick = _.noop,
 }) {
   let container = new PIXI.Container()
   let radius = tileSize
-  let tiles = new Map()
+  let tiles = {}
   let rotation = gridRotation
   let angle = viewAngle
 
   container.sortableChildren = true
-
-  // TODO Add this as a public API that handles raw data, and store the render data
-  // separate internally
-  function getAt(q, r) {
-    return tiles.get(tileKey(q, r))
-  }
 
   function getTileCoords(q, r) {
     const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
@@ -83,22 +78,32 @@ function create({
 
   function renderTile({ q, r, height, opts }) {
     let key = tileKey(q, r)
-    let tile = tiles.get(key)
+    let tile = tiles[key]
     let hexagon = tile?.hexagon
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
 
     if (!tile) {
-      hexagon = Hexagon.create({ q, r, x, y, onTileClick })
+      hexagon = Hexagon.create({ q, r, x, y, onTileClick, onTileRightClick })
       container.addChild(hexagon.graphics)
     }
 
     tile = { q, r, height, opts, hexagon }
-    tiles.set(key, tile)
+    tiles[key] = tile
     tile.hexagon.draw({ x, y, zIndex, height, orientation, angle, radius, ...opts })
   }
 
   function renderTiles(newTiles) {
+    clearDeletedTiles(newTiles)
     Object.values(newTiles).forEach(renderTile)
+  }
+
+  function clearDeletedTiles(newTiles) {
+    Object.keys(tiles).forEach(key => {
+      if (newTiles[key] || !tiles[key]) return
+
+      tiles[key].hexagon.graphics.destroy()
+      delete tiles[key]
+    })
   }
 
   function getTiles() {
@@ -106,7 +111,7 @@ function create({
   }
 
   function redrawTiles() {
-    tiles.forEach(renderTile)
+    Object.values(tiles).forEach(renderTile)
   }
 
   function setRotation(degrees) {
@@ -121,7 +126,6 @@ function create({
 
   return {
     container,
-    getAt,
     renderTile,
     getTiles,
     setRotation,

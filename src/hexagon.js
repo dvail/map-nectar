@@ -104,6 +104,7 @@ function create({
   q,
   r,
   onTileClick = _.noop,
+  onTileRightClick = _.noop,
 }) {
   // TODO
   // TODO These can all share the same PIXI.GraphicsGeometry instance!
@@ -112,9 +113,8 @@ function create({
 
   hexagon.interactive = true
 
-  hexagon.on('click', () => {
-    onTileClick(q, r)
-  })
+  hexagon.on('click', ev => onTileClick(ev, q, r))
+  hexagon.on('rightclick', ev => onTileRightClick(ev, q, r))
 
   function draw({
     x,
