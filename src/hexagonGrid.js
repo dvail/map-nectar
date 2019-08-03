@@ -82,28 +82,23 @@ function create({
   }
 
   function renderTile({ q, r, height, opts }) {
-    let { x, y, zIndex, orientation } = getTileCoords(q, r)
-    let hexagon = Hexagon.create({ q, r, x, y, zIndex, height, orientation, angle, radius, onTileClick, ...opts })
     let key = tileKey(q, r)
+    let tile = tiles.get(key)
+    let hexagon = tile?.hexagon
+    let { x, y, zIndex, orientation } = getTileCoords(q, r)
 
-    let existing = tiles.get(key)
-
-    if (existing) {
-      container.removeChild(existing.hexagon)
-      existing.hexagon.destroy()
+    if (!tile) {
+      hexagon = Hexagon.create({ q, r, x, y, onTileClick })
+      container.addChild(hexagon.graphics)
     }
 
-    tiles.set(key, { q, r, height, opts, hexagon })
-
-    container.addChild(hexagon)
+    tile = { q, r, height, opts, hexagon }
+    tiles.set(key, tile)
+    tile.hexagon.draw({ x, y, zIndex, height, orientation, angle, radius, ...opts })
   }
 
-  function renderTileChange(oldTiles = {}, newTiles) {
-    Object.entries(newTiles)
-      .filter(([key, val]) => !_.isEqual(val, oldTiles[key]))
-      .forEach(([key]) => {
-        renderTile(newTiles[key])
-      })
+  function renderTiles(newTiles) {
+    Object.values(newTiles).forEach(renderTile)
   }
 
   function getTiles() {
@@ -131,7 +126,7 @@ function create({
     getTiles,
     setRotation,
     setAngle,
-    renderTileChange,
+    renderTiles,
     getRotation: () => rotation,
   }
 }

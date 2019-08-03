@@ -4,7 +4,6 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import _ from 'lodash'
 
-import usePrevious from './usePrevious'
 import useEffectWhenValue from './useEffectWhenValue'
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
@@ -35,15 +34,13 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
   let shiftRef = useRef(shiftKey)
   let shiftDragCoords = useRef(null)
 
-  let prevMapData = usePrevious(mapData)
-
   function onTileClick(q, r) {
     if (dragRef.current) return
 
     let { current } = hexGridRef;
     let tile = current.getAt(q, r)
     let height = tile?.height + 1 || 0
-    let opts = tile ?.opts || {
+    let opts = tile?.opts || {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
 
@@ -106,7 +103,7 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
   }, [])
 
   useEffect(() => {
-    hexGrid?.renderTileChange(prevMapData?.tiles, mapData.tiles)
+    hexGrid?.renderTiles(mapData.tiles)
   }, [mapData.tiles])
 
   useEffect(() => {

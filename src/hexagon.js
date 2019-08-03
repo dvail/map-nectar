@@ -103,17 +103,6 @@ COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
 function create({
   q,
   r,
-  x,
-  y,
-  zIndex,
-  height,
-  radius,
-  fillColor,
-  fillAlpha = 1.0,
-  strokeColor,
-  strokeAlpha = 0.0,
-  orientation = ORIENTATION.POINTY,
-  angle = 1.0,
   onTileClick = _.noop,
 }) {
   // TODO
@@ -121,54 +110,74 @@ function create({
   // TODO
   let hexagon = new PIXI.Graphics()
 
-  hexagon.x = x
-  hexagon.y = y
   hexagon.interactive = true
 
   hexagon.on('click', () => {
     onTileClick(q, r)
   })
 
-  if (orientation === ORIENTATION.POINTY) {
-    let coords = COORDS.POINTY({ angle, radius, height })
+  function draw({
+    x,
+    y,
+    zIndex,
+    height,
+    radius,
+    fillColor,
+    fillAlpha = 1.0,
+    strokeColor,
+    strokeAlpha = 0.0,
+    orientation = ORIENTATION.POINTY,
+    angle = 1.0,
+  }) {
+    hexagon.clear();
 
-    strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
-    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
-    hexagon.drawPolygon(coords.LEFT_VERT)
-    hexagon.endFill()
+    hexagon.x = x
+    hexagon.y = y
 
-    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
-    hexagon.drawPolygon(coords.RIGHT_VERT)
-    hexagon.endFill()
+    if (orientation === ORIENTATION.POINTY) {
+      let coords = COORDS.POINTY({ angle, radius, height })
 
-    // Draw main tile face
-    fillColor && hexagon.beginFill(fillColor, fillAlpha)
-    hexagon.drawPolygon(coords.TILE_FACE)
-    hexagon.endFill()
-  } else if (orientation === ORIENTATION.FLAT) {
-    let coords = COORDS.FLAT({ angle, radius, height })
+      strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
+      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
+      hexagon.drawPolygon(coords.LEFT_VERT)
+      hexagon.endFill()
 
-    strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
-    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
-    hexagon.drawPolygon(coords.LEFT_VERT)
-    hexagon.drawPolygon(coords.RIGHT_VERT)
-    hexagon.endFill()
+      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
+      hexagon.drawPolygon(coords.RIGHT_VERT)
+      hexagon.endFill()
 
-    fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
-    hexagon.drawPolygon(coords.CENTER_VERT)
-    hexagon.endFill()
+      // Draw main tile face
+      fillColor && hexagon.beginFill(fillColor, fillAlpha)
+      hexagon.drawPolygon(coords.TILE_FACE)
+      hexagon.endFill()
+    } else if (orientation === ORIENTATION.FLAT) {
+      let coords = COORDS.FLAT({ angle, radius, height })
 
-    // Draw main tile face
-    fillColor && hexagon.beginFill(fillColor, fillAlpha)
-    hexagon.drawPolygon(coords.TILE_FACE)
-    hexagon.endFill()
-  } else {
-    throw new Error('Invalid orientation provided');
+      strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
+      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
+      hexagon.drawPolygon(coords.LEFT_VERT)
+      hexagon.drawPolygon(coords.RIGHT_VERT)
+      hexagon.endFill()
+
+      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
+      hexagon.drawPolygon(coords.CENTER_VERT)
+      hexagon.endFill()
+
+      // Draw main tile face
+      fillColor && hexagon.beginFill(fillColor, fillAlpha)
+      hexagon.drawPolygon(coords.TILE_FACE)
+      hexagon.endFill()
+    } else {
+      throw new Error('Invalid orientation provided');
+    }
+
+    hexagon.zIndex = zIndex
   }
 
-  hexagon.zIndex = zIndex
-
-  return hexagon
+  return {
+    graphics: hexagon,
+    draw,
+  }
 }
 
 export default {
