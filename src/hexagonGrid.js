@@ -4,7 +4,6 @@ import Hexagon from './hexagon'
 
 import { tileKey } from './mapDataReducer'
 
-// TODO Depending on how rotation is handled this might only need x, y, and orientaion
 function getZIndex(q, r, s, orientation) {
   if (orientation === Hexagon.ORIENTATION.POINTY) {
     return r;
@@ -106,10 +105,6 @@ function create({
     })
   }
 
-  function getTiles() {
-    return tiles
-  }
-
   function redrawTiles() {
     Object.values(tiles).forEach(renderTile)
   }
@@ -127,11 +122,9 @@ function create({
   return {
     container,
     renderTile,
-    getTiles,
     setRotation,
     setAngle,
     renderTiles,
-    getRotation: () => rotation,
   }
 }
 
