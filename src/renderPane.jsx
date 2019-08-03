@@ -9,8 +9,10 @@ import useEffectWhenValue from './useEffectWhenValue'
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
 import { MapDataAction } from './mapDataReducer'
+import { MapViewAction } from './mapViewReducer'
 
 const { UpdateTile } = MapDataAction
+const { RotateClock, RotateCounter, IncreaseAngle, DecreaseAngle } = MapViewAction
 
 const StyledPane = styled.div`
   width: 100%;
@@ -19,7 +21,7 @@ const StyledPane = styled.div`
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x010101, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.68 }
 
-export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispatch }) {
+export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispatch, shiftKey, mapViewDispatch }) {
   let paneElem = useRef(null)
 
   let [app, setApp] = useState(null)
@@ -30,6 +32,9 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
 
   let hexGridRef = useRef(hexGrid)
   let dragRef = useRef(dragging)
+  let shiftRef = useRef(shiftKey)
+  let shiftDragCoords = useRef(null)
+
   let prevMapData = usePrevious(mapData)
 
   function onTileClick(q, r) {
@@ -45,10 +50,55 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
     mapDataDispatch({ type: UpdateTile, data: { q, r, height, opts } })
   }
 
+  function onDragStart(e) {
+    let { x, y } = e.data.global
+
+    if (!shiftDragCoords.current) {
+      shiftDragCoords.current = { x, y }
+    }
+  }
+
+  function onDragMove(e) {
+    if (!shiftRef.current) return
+
+    let { x, y } = e.data.global
+
+    if (!shiftDragCoords.current) {
+      shiftDragCoords.current = { x, y }
+    }
+
+    let deltaX = x - shiftDragCoords.current.x
+    let deltaY = y - shiftDragCoords.current.y
+
+    // TODO Configure these magic numbers?
+    let xRotations = Math.round(deltaX / 40)
+    let yRotations = Math.round(deltaY / 40)
+
+    if (xRotations || yRotations) {
+      shiftDragCoords.current.x = x
+      shiftDragCoords.current.y = y
+    }
+
+    if (xRotations !== 0) {
+      let direction = xRotations < 0 ? RotateClock : RotateCounter
+      mapViewDispatch({ type: direction })
+    }
+
+    if (yRotations !== 0) {
+      let direction = yRotations < 0 ? IncreaseAngle : DecreaseAngle
+      mapViewDispatch({ type: direction })
+    }
+  }
+
+  function onDragEnd() {
+    shiftDragCoords.current = null
+  }
+
   // Used to get around stale closure references in callbacks based to children
   useEffect(() => {
     hexGridRef.current = hexGrid
     dragRef.current = dragging
+    shiftRef.current = shiftKey
   });
 
   useEffect(() => {
@@ -68,6 +118,14 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
     hexGrid?.setAngle(viewAngle)
     skeletonGrid?.setAngle(viewAngle)
   }, [viewAngle])
+
+  useEffect(() => {
+    if (shiftKey) {
+      viewport?.plugins.pause('drag')
+    } else {
+      viewport?.plugins.resume('drag')
+    }
+  }, [shiftKey])
 
   useEffectWhenValue(() => {
     paneElem.current.appendChild(app.view)
@@ -95,6 +153,11 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
     })
 
     viewport.addChild(skeletonGrid.container)
+
+    viewport.on('pointerdown', onDragStart)
+      .on('pointerup', onDragEnd)
+      .on('pointerupoutside', onDragEnd)
+      .on('pointermove', onDragMove)
   }, [skeletonGrid])
 
   useEffectWhenValue(() => {

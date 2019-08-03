@@ -11,6 +11,9 @@ import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import mapDataReducer from './mapDataReducer'
+import mapViewReducer, { MapViewAction, AngleIncrement } from './mapViewReducer'
+
+const { SetAngle } = MapViewAction
 
 const AppLayout = styled.div`
   height: 100%;
@@ -31,24 +34,39 @@ let ViewSlider = styled(Slider)`
   right: 20px;
 `
 
+const defaultMapData = { tiles: {} }
+const defaultMapView = { rotation: 0, viewAngle: 0.65 }
+
 function App() {
-  const [mapData, mapDataDispatch] = useReducer(mapDataReducer, { tiles: {} });
-  const [rotation, setRotation] = useState(0)
-  const [viewAngle, setViewAngle] = useState(0.65)
+  const [mapData, mapDataDispatch] = useReducer(mapDataReducer, defaultMapData)
+  const [mapView, mapViewDispatch] = useReducer(mapViewReducer, defaultMapView)
+
+  const [shiftKey, setShiftKey] = useState(false)
+
+  function setShift(e) {
+    setShiftKey(e.shiftKey)
+  }
 
   return (
-    <AppLayout className="bp3-dark">
+    <AppLayout className="bp3-dark" tabIndex="0" onKeyDown={setShift} onKeyUp={setShift}>
       <Sidebar mapData={mapData} mapDataDispatch={mapDataDispatch} />
       <Workspace>
-        <RenderPane mapData={mapData} mapDataDispatch={mapDataDispatch} rotation={rotation} viewAngle={viewAngle} />
-        <Compass rotation={rotation} onRotationChange={setRotation} />
+        <RenderPane
+          mapData={mapData}
+          mapDataDispatch={mapDataDispatch}
+          rotation={mapView.rotation}
+          viewAngle={mapView.viewAngle}
+          shiftKey={shiftKey}
+          mapViewDispatch={mapViewDispatch}
+        />
+        <Compass rotation={mapView.rotation} mapViewDispatch={mapViewDispatch} />
         <ViewSlider
           min={0}
           max={1}
-          stepSize={0.05}
+          stepSize={AngleIncrement}
           labelStepSize={0.25}
-          onChange={setViewAngle}
-          value={viewAngle}
+          onChange={v => mapViewDispatch({ type: SetAngle, data: v })}
+          value={mapView.viewAngle}
           vertical
         />
       </Workspace>

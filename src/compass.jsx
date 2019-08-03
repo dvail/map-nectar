@@ -4,6 +4,8 @@ import _ from 'lodash'
 
 import { Colors } from '@blueprintjs/core';
 
+import { MapViewAction, RotationIncrement } from './mapViewReducer'
+
 const StyledCompass = styled.div`
   width: 150px;
   height: 150px;
@@ -28,18 +30,17 @@ const DegreeMarker = styled.div`
   height: 20px; width: 20px;
 `
 
-export default function Compass(props) {
+const { SetRotation } = MapViewAction
+
+export default function Compass({ rotation, mapViewDispatch }) {
   return (
     <StyledCompass>
       {
-        _.range(0, 360, 360 / 12).map(rotation => (
-          <DegreeMarkerWrap
-            key={rotation}
-            rotation={rotation}
-          >
+        _.range(0, 360, RotationIncrement).map(ri => (
+          <DegreeMarkerWrap key={ri} rotation={ri}>
             <DegreeMarker
-              selected={props.rotation === rotation}
-              onClick={() => props.onRotationChange(rotation)}
+              selected={rotation === ri}
+              onClick={() => mapViewDispatch({ type: SetRotation, data: ri })}
             />
           </DegreeMarkerWrap>
         ))
