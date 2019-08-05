@@ -3,9 +3,13 @@ import styled from 'styled-components'
 import _ from 'lodash'
 
 import { Icon, Label, Popover } from '@blueprintjs/core'
-import { IconNames } from "@blueprintjs/icons";
+import { IconNames } from "@blueprintjs/icons"
 import { MapDataAction } from './mapDataReducer'
-import { saveObject } from './fileUtils';
+import { saveObject } from './fileUtils'
+import AtlasRegion from './atlasRegion'
+
+import completePng from '../res/complete.png'
+import completeJson from '../res/complete.json'
 
 let MainSidebar = styled.div`
   padding: 8px;
@@ -61,7 +65,7 @@ export default function Sidebar({ mapData, mapDataDispatch, onDrawModeChange }) 
             iconSize={20}
             onClick={() => setTexturePickerOpen(!texturePickerOpen)}
           />
-          <div>TODO: Texture regions will render here.</div>
+          <AtlasRegion image={completePng} atlas={completeJson} region="tileRock.png" scale={0.5} />
         </Popover>
         <TouchIcon
           htmlTitle="Use colors"
