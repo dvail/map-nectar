@@ -47,9 +47,13 @@ function App() {
     setShiftKey(e.shiftKey)
   }
 
+  function drawModeChange(opts) {
+    console.warn(opts);
+  }
+
   return (
     <AppLayout className="bp3-dark" tabIndex="0" onKeyDown={setShift} onKeyUp={setShift}>
-      <Sidebar mapData={mapData} mapDataDispatch={mapDataDispatch} />
+      <Sidebar mapData={mapData} mapDataDispatch={mapDataDispatch} onDrawModeChange={drawModeChange} />
       <Workspace>
         <RenderPane
           mapData={mapData}
