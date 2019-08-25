@@ -11,7 +11,7 @@ import '@blueprintjs/core/lib/css/blueprint.css'
 import { Slider, Colors } from '@blueprintjs/core'
 
 import RenderPane from './renderPane'
-import Sidebar from './sidebar'
+import MSidebar from './msidebar'
 import Compass from './compass'
 import mapDataReducer from './mapDataReducer'
 import mapViewReducer, { MapViewAction, AngleIncrement } from './mapViewReducer'
@@ -56,7 +56,6 @@ function App() {
 
   return (
     <AppLayout className="bp3-dark" tabIndex="0" onKeyDown={setShift} onKeyUp={setShift}>
-      <Sidebar mapData={mapData} mapDataDispatch={mapDataDispatch} onDrawModeChange={drawModeChange} />
       <Workspace>
         <RenderPane
           mapData={mapData}
@@ -80,15 +79,19 @@ function App() {
   )
 }
 
-const rootElement = document.getElementById('app')
-const mRoot = document.getElementById('m-app')
+const rootElement = document.querySelector('.app')
+const mRoot = document.querySelector('.m-app')
 ReactDOM.render(<App />, rootElement)
 
 
 let update = stream()
 let stateUpdate = (appState, fn) => fn(appState)
 
-let InitialState = { rotation: 0 }
+let InitialState = {
+  rotation: 0,
+  mapData: defaultMapData,
+}
+
 let states = stream.scan(stateUpdate, InitialState, update)
 
 let actions = {
@@ -99,10 +102,12 @@ let actions = {
 }
 
 const rootComp = () => ({
-  view: () => m(Compass, {
-    state: states(),
-    actions,
-  }),
+  view: () => m(
+    '.app-layout',
+    { style: { backgroundColor: 'transparent' } },
+    m(Compass, { state: states(), actions }),
+    m(MSidebar, { state: states(), actions }),
+  ),
 })
 
 m.mount(mRoot, rootComp);
