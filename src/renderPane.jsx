@@ -67,6 +67,7 @@ export default function RenderPane({ rotation, viewAngle, mapData, mapDataDispat
   }
 
   function onDragMove(e) {
+    console.warn('Can I just detect event.buttons in here to avoid the dragStart/End methods?')
     if (!shiftRef.current) return
 
     let { x, y } = e.data.global

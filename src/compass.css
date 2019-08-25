@@ -1,0 +1,21 @@
+.compass {
+  width: 150px;
+  height: 150px;
+  top: 0;
+  right: 0;
+  position: absolute;
+}
+
+.compass-marker-wrap {
+  transform-origin: bottom center;
+  position: absolute;
+  top: 0; left: 0; right: 0; 
+  margin: auto;
+  height: 50%; width: 20px;
+}
+
+.compass-degree-marker {
+  border-radius: 100%;
+  cursor: pointer;
+  height: 20px; width: 20px;
+}

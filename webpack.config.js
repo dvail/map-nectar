@@ -46,7 +46,7 @@ const config = {
   plugins: [
     new HtmlWebpackPlugin({
       inject: false,
-      template: HtmlWebpackTemplate,
+      template: './src/index.html',
       appMountId: 'app',
       links: [
         {

@@ -1,7 +1,9 @@
 import React, { useState, useReducer } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
+import m from 'mithril'
 
+import './index.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 
@@ -63,7 +65,6 @@ function App() {
           shiftKey={shiftKey}
           mapViewDispatch={mapViewDispatch}
         />
-        <Compass rotation={mapView.rotation} mapViewDispatch={mapViewDispatch} />
         <ViewSlider
           min={0}
           max={1}
@@ -79,7 +80,18 @@ function App() {
 }
 
 const rootElement = document.getElementById('app')
+const mRoot = document.getElementById('m-app')
 ReactDOM.render(<App />, rootElement)
+
+const rootComp = () => {
+  let rotation = 0
+  let mapDataDispatch = () => { }
+  return {
+    view: () => m(Compass, { rotation, mapDataDispatch }),
+  }
+}
+
+m.mount(mRoot, rootComp);
 
 rootElement?.test
 
