@@ -2,6 +2,8 @@ import React, { useState, useReducer } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import m from 'mithril'
+import stream from 'mithril/stream'
+import merge from 'mergerino'
 
 import './index.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
@@ -83,16 +85,25 @@ const rootElement = document.getElementById('app')
 const mRoot = document.getElementById('m-app')
 ReactDOM.render(<App />, rootElement)
 
-const rootComp = () => {
-  let rotation = 0
-  let mapDataDispatch = () => { }
-  return {
-    view: () => m(Compass, { rotation, mapDataDispatch }),
-  }
+
+let update = stream()
+
+let InitialState = { rotation: 0 }
+
+let AppActions = {
+  SetRotation: (newRotation) => {
+    update({ rotation: newRotation });
+  },
 }
 
+let states = stream.scan(merge, InitialState, update)
+let actions = AppActions
+
+const rootComp = () => ({
+  view: () => m(Compass, {
+    state: states(),
+    actions,
+  }),
+})
+
 m.mount(mRoot, rootComp);
-
-rootElement?.test
-
-rootElement |> console.log
