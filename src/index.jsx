@@ -97,7 +97,14 @@ let states = stream.scan(stateUpdate, InitialState, update)
 let actions = {
   SetRotation: (newRotation) => {
     let fn = () => ({ rotation: newRotation })
-    update(fn);
+    update(fn)
+  },
+  MapLoad: tiles => {
+    let fn = state => {
+      const mapData = { ...state.mapData, ...tiles }
+      return { ...state, mapData }
+    }
+    update(fn)
   },
 }
 
