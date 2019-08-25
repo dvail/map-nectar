@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import m from 'mithril'
 import stream from 'mithril/stream'
-import merge from 'mergerino'
 
 import './index.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
@@ -87,17 +86,17 @@ ReactDOM.render(<App />, rootElement)
 
 
 let update = stream()
+let stateUpdate = (appState, fn) => fn(appState)
 
 let InitialState = { rotation: 0 }
+let states = stream.scan(stateUpdate, InitialState, update)
 
-let AppActions = {
+let actions = {
   SetRotation: (newRotation) => {
-    update({ rotation: newRotation });
+    let fn = () => ({ rotation: newRotation })
+    update(fn);
   },
 }
-
-let states = stream.scan(merge, InitialState, update)
-let actions = AppActions
 
 const rootComp = () => ({
   view: () => m(Compass, {
