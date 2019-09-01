@@ -18,22 +18,22 @@ function RenderPane(initialVnode) {
   let initialState = initialVnode.attrs.state
   let app
   let viewport
-  let dragging
   let skeletonGrid
   let hexGrid
   let shiftDragCoords
 
-  let shiftKeyStream = stream(initialState.shiftKey)
-  let mapDataStream = stream(initialState.mapData)
+  let dragging = stream(false)
+  let shiftKey = stream(initialState.shiftKey)
+  let mapData = stream(initialState.mapData)
 
   function onTileClick(ev, q, r) {
   }
 
   function onTileRightClick(ev, q, r) {
-    if (dragging) return
+    if (dragging()) return
 
     let shift = ev.data.originalEvent.shiftKey
-    let tile = mapDataStream().tiles[tileKey(q, r)]
+    let tile = mapData().tiles[tileKey(q, r)]
 
     if (shift && !tile) return
 
@@ -60,7 +60,7 @@ function RenderPane(initialVnode) {
   }
 
   function onDragMove(e) {
-    if (!shiftKeyStream()) return
+    if (!shiftKey()) return
     console.warn('Can I detect event.buttons in here to avoid the dragStart/End methods?')
 
     let { x, y } = e.data.global
@@ -109,8 +109,8 @@ function RenderPane(initialVnode) {
       app.stage.addChild(viewport)
 
       viewport.drag().wheel()
-      viewport.on('drag-start', () => (dragging = true))
-      viewport.on('drag-end', () => (dragging = false))
+      viewport.on('drag-start', () => dragging(true))
+      viewport.on('drag-end', () => dragging(false))
       viewport.moveCenter(275, 50) // TODO These are magic values...
 
       skeletonGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
@@ -136,8 +136,8 @@ function RenderPane(initialVnode) {
       let newState = vnode.attrs.state
       let oldState = old.attrs.state
 
-      mapDataStream(newState.mapData)
-      shiftKeyStream(newState.shiftKey)
+      mapData(newState.mapData)
+      shiftKey(newState.shiftKey)
 
       // TODO React to state.viewAngle
 
