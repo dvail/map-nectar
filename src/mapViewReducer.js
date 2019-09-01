@@ -2,7 +2,6 @@ import produce from 'immer'
 
 const RotateClock = 'RotateClock'
 const RotateCounter = 'RotateCounter'
-const SetRotation = 'SetRotation'
 const IncreaseAngle = 'IncreaseAngle'
 const DecreaseAngle = 'DecreaseAngle'
 const SetAngle = 'SetAngle'
@@ -20,7 +19,6 @@ export const AngleIncrement = 0.05
 export const MapViewAction = {
   RotateClock,
   RotateCounter,
-  SetRotation,
   IncreaseAngle,
   DecreaseAngle,
   SetAngle,

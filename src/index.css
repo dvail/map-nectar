@@ -23,3 +23,8 @@ body, html, .app {
   display: flex;
   flex-direction: row;
 }
+
+.workspace {
+  position: relative;
+  flex: 1;
+}

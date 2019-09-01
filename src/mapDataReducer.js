@@ -2,7 +2,6 @@ import produce from 'immer'
 
 const UpdateTile = 'UpdateTile'
 const RemoveTile = 'RemoveTile'
-const LoadMap = 'LoadMap'
 const actions = {};
 
 const defaultActionFn = state => {
@@ -13,7 +12,6 @@ const defaultActionFn = state => {
 export const MapDataAction = {
   UpdateTile,
   RemoveTile,
-  LoadMap,
 }
 
 export const tileKey = (q, r) => [q, r].toString()
@@ -33,8 +31,4 @@ actions.UpdateTile = (state, data) => produce(state, draftState => {
 actions.RemoveTile = (state, data) => produce(state, draftState => {
   let key = tileKey(data.q, data.r)
   delete draftState.tiles[key]
-})
-
-actions.LoadMap = (state, data) => produce(state, draftState => {
-  draftState.tiles = data.tiles
 })

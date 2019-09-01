@@ -1,102 +1,53 @@
-import React, { useState, useReducer } from 'react'
-import ReactDOM from 'react-dom'
-import styled from 'styled-components'
 import m from 'mithril'
 import stream from 'mithril/stream'
 
-import './index.css'
-import '@blueprintjs/icons/lib/css/blueprint-icons.css'
-import '@blueprintjs/core/lib/css/blueprint.css'
-
-import { Slider, Colors } from '@blueprintjs/core'
-
 import RenderPane from './renderPane'
-import MSidebar from './msidebar'
+import Sidebar from './sidebar'
 import Compass from './compass'
-import mapDataReducer from './mapDataReducer'
-import mapViewReducer, { MapViewAction, AngleIncrement } from './mapViewReducer'
+import { tileKey } from './mapDataReducer'
+import { MapViewAction, RotationIncrement }  from './mapViewReducer'
 
-const { SetAngle } = MapViewAction
+import './index.css'
 
-const AppLayout = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  background-color: ${Colors.DARK_GRAY1};
-`
-
-let Workspace = styled.div`
-  position: relative;
-  flex: 1;
-`
-
-let ViewSlider = styled(Slider)`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-`
+const { RotateClock } = MapViewAction
 
 const defaultMapData = { tiles: {} }
-const defaultMapView = { rotation: 0, viewAngle: 0.65 }
 
-function App() {
-  const [mapData, mapDataDispatch] = useReducer(mapDataReducer, defaultMapData)
-  const [mapView, mapViewDispatch] = useReducer(mapViewReducer, defaultMapView)
-
-  const [shiftKey, setShiftKey] = useState(false)
-
-  function setShift(e) {
-    setShiftKey(e.shiftKey)
-  }
-
-  function drawModeChange(opts) {
-    console.warn(opts);
-  }
-
-  return (
-    <AppLayout className="bp3-dark" tabIndex="0" onKeyDown={setShift} onKeyUp={setShift}>
-      <Workspace>
-        <RenderPane
-          mapData={mapData}
-          mapDataDispatch={mapDataDispatch}
-          rotation={mapView.rotation}
-          viewAngle={mapView.viewAngle}
-          shiftKey={shiftKey}
-          mapViewDispatch={mapViewDispatch}
-        />
-        <ViewSlider
-          min={0}
-          max={1}
-          stepSize={AngleIncrement}
-          labelStepSize={0.25}
-          onChange={v => mapViewDispatch({ type: SetAngle, data: v })}
-          value={mapView.viewAngle}
-          vertical
-        />
-      </Workspace>
-    </AppLayout>
-  )
-}
-
-const rootElement = document.querySelector('.app')
 const mRoot = document.querySelector('.m-app')
-ReactDOM.render(<App />, rootElement)
-
 
 let update = stream()
 let stateUpdate = (appState, fn) => fn(appState)
 
 let InitialState = {
   rotation: 0,
+  viewAngle: 0.65,
   mapData: defaultMapData,
+  shiftKey: false,
 }
 
 let states = stream.scan(stateUpdate, InitialState, update)
 
 let actions = {
+  SetShift: e => {
+    update(state => ({ ...state, shiftKey: e.shiftKey }))
+  },
   SetRotation: (newRotation) => {
-    let fn = () => ({ rotation: newRotation })
+    let fn = state => ({ ...state, rotation: newRotation })
+    update(fn)
+  },
+  Rotate: direction => {
+    let fn = state => {
+      let { rotation } = state
+      if (direction === RotateClock) {
+        rotation += RotationIncrement
+      } else {
+        rotation -= RotationIncrement
+        rotation += 360 // Don't rotate below 0 degrees
+      }
+
+      rotation %= 360
+      return { ...state, rotation }
+    }
     update(fn)
   },
   MapLoad: tiles => {
@@ -106,14 +57,47 @@ let actions = {
     }
     update(fn)
   },
+  RemoveTile: data => {
+    let fn = state => {
+      let key = tileKey(data.q, data.r)
+      let newMapData = { ...state.mapData }
+
+      delete newMapData.tiles[key]
+
+      return { ...state, mapData: newMapData }
+    }
+
+    update(fn)
+  },
+  UpdateTile: data => {
+    let fn = state => {
+      let key = tileKey(data.q, data.r)
+      let newTile = { ...state.mapData.tiles[key], ...data }
+      let newTiles = { ...state.mapData.tiles, [key]: newTile }
+      let newMapData = { ...state.mapData, tiles: newTiles }
+
+      console.warn(newMapData)
+
+      return { ...state, mapData: newMapData }
+    }
+    update(fn)
+  },
 }
 
 const rootComp = () => ({
   view: () => m(
     '.app-layout',
-    { style: { backgroundColor: 'transparent' } },
+    {
+      style: { backgroundColor: 'transparent' },
+      onkeydown: e => actions.setShift(e),
+      onkeyup: e => actions.setShift(e),
+    },
+    m(Sidebar, { state: states(), actions }),
+    m(
+      '.workspace',
+      m(RenderPane, { state: states(), actions }),
+    ),
     m(Compass, { state: states(), actions }),
-    m(MSidebar, { state: states(), actions }),
   ),
 })
 

@@ -2,7 +2,7 @@ import _ from 'lodash'
 import m from 'mithril'
 
 import { saveObject } from './fileUtils'
-import './msidebar.css'
+import './sidebar.css'
 
 const Icon = {
   view: ({ attrs: { type, onclick } }) => m(
@@ -42,7 +42,7 @@ const LoadButton = {
   ),
 }
 
-function MSidebar() {
+function Sidebar() {
   return {
     view: ({ attrs: { state, actions } }) => m(
       '.main-sidebar',
@@ -56,4 +56,4 @@ function MSidebar() {
   }
 }
 
-export default MSidebar
+export default Sidebar
