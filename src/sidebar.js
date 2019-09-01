@@ -43,6 +43,7 @@ const LoadButton = {
 }
 
 function Sidebar() {
+  console.error('Clear out file input after load from sidebar')
   return {
     view: ({ attrs: { state, actions } }) => m(
       '.main-sidebar',

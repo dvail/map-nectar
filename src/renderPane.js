@@ -84,13 +84,15 @@ function RenderPane(initialVnode) {
       shiftDragCoords.y = y
     }
 
-    if (xRotations !== 0) {
-      let direction = xRotations < 0 ? RotateClock : RotateCounter
-      actions.Rotate(direction)
+    if (xRotations < 0) {
+      actions.RotateClock()
+    } else if (xRotations > 0) {
+      actions.RotateCounter()
     }
 
     if (yRotations !== 0) {
       let direction = yRotations < 0 ? IncreaseAngle : DecreaseAngle
+      console.error('FIXME')
       actions.Rotate(direction)
     }
   }

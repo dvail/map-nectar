@@ -1,15 +1,14 @@
 import m from 'mithril'
 import stream from 'mithril/stream'
+import produce from 'immer'
 
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import { tileKey } from './mapDataReducer'
-import { MapViewAction, RotationIncrement }  from './mapViewReducer'
+import { RotationIncrement }  from './mapViewReducer'
 
 import './index.css'
-
-const { RotateClock } = MapViewAction
 
 const defaultMapData = { tiles: {} }
 
@@ -27,61 +26,44 @@ let InitialState = {
 
 let states = stream.scan(stateUpdate, InitialState, update)
 
+// Uses Immer to imperitively create a next state and update the main stream
+function produceUpdate(producer) {
+  return payload => {
+    update(prev => produce(prev, next => producer(prev, next, payload)))
+  }
+}
+
 let actions = {
-  SetShift: e => {
-    update(state => ({ ...state, shiftKey: e.shiftKey }))
-  },
-  SetRotation: (newRotation) => {
-    let fn = state => ({ ...state, rotation: newRotation })
-    update(fn)
-  },
-  Rotate: direction => {
-    let fn = state => {
-      let { rotation } = state
-      if (direction === RotateClock) {
-        rotation += RotationIncrement
-      } else {
-        rotation -= RotationIncrement
-        rotation += 360 // Don't rotate below 0 degrees
-      }
+  SetShift: produceUpdate((prev, next, e) => {
+    next.shiftKey = e.shiftKey
+  }),
+  SetRotation: produceUpdate((prev, next, rotation) => {
+    next.rotation = rotation
+  }),
+  RotateClock: produceUpdate((prev, next) => {
+    next.rotation += RotationIncrement
+    next.rotation %= 360
+  }),
+  RotateCounter: produceUpdate((prev, next) => {
+    next.rotation -= RotationIncrement
+    next.rotation += 360 // Don't rotate below 0 degrees
+    next.rotation %= 360
+  }),
+  MapLoad: produceUpdate((prev, next, payload) => {
+    next.mapData.tiles = payload.tiles
+  }),
+  RemoveTile: produceUpdate((prev, next, payload) => {
+    let key = tileKey(payload.q, payload.r)
+    delete next.mapData.tiles[key]
+  }),
+  UpdateTile: produceUpdate((prev, next, payload) => {
+    let key = tileKey(payload.q, payload.r)
 
-      rotation %= 360
-      return { ...state, rotation }
+    next.mapData.tiles[key] = {
+      ...prev.mapData.tiles[key],
+      ...payload,
     }
-    update(fn)
-  },
-  MapLoad: tiles => {
-    let fn = state => {
-      const mapData = { ...state.mapData, ...tiles }
-      return { ...state, mapData }
-    }
-    update(fn)
-  },
-  RemoveTile: data => {
-    let fn = state => {
-      let key = tileKey(data.q, data.r)
-      let newMapData = { ...state.mapData }
-
-      delete newMapData.tiles[key]
-
-      return { ...state, mapData: newMapData }
-    }
-
-    update(fn)
-  },
-  UpdateTile: data => {
-    let fn = state => {
-      let key = tileKey(data.q, data.r)
-      let newTile = { ...state.mapData.tiles[key], ...data }
-      let newTiles = { ...state.mapData.tiles, [key]: newTile }
-      let newMapData = { ...state.mapData, tiles: newTiles }
-
-      console.warn(newMapData)
-
-      return { ...state, mapData: newMapData }
-    }
-    update(fn)
-  },
+  }),
 }
 
 const rootComp = () => ({
