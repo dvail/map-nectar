@@ -2,7 +2,7 @@ import _ from 'lodash'
 import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
 
-import { tileKey } from './mapDataReducer'
+import { tileKey } from './meiosis'
 
 function getZIndex(q, r, s, orientation) {
   if (orientation === Hexagon.ORIENTATION.POINTY) {

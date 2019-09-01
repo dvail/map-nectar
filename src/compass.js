@@ -4,7 +4,7 @@ import './compass.css'
 
 import { Colors } from '@blueprintjs/core';
 
-import { RotationIncrement } from './mapViewReducer'
+import { RotationIncrement } from './meiosis'
 
 const DegreeMarker = {
   view: ({ attrs: { state, actions, ri } }) => {

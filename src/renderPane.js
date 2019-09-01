@@ -6,12 +6,9 @@ import _ from 'lodash'
 
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
-import { tileKey } from './mapDataReducer'
-import { MapViewAction } from './mapViewReducer'
+import { tileKey } from './meiosis'
 
 import './renderPane.css'
-
-const { RotateClock, RotateCounter, IncreaseAngle, DecreaseAngle } = MapViewAction
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
@@ -91,9 +88,9 @@ function RenderPane(initialVnode) {
     }
 
     if (yRotations !== 0) {
-      let direction = yRotations < 0 ? IncreaseAngle : DecreaseAngle
+      // let direction = yRotations < 0 ? IncreaseAngle : DecreaseAngle
       console.error('FIXME')
-      actions.Rotate(direction)
+      // actions.Rotate(direction)
     }
   }
 
