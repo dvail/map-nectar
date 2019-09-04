@@ -170,7 +170,10 @@ function RenderPane(initialVnode) {
   return {
     oncreate,
     onbeforeupdate,
-    view: () => m('.renderPane'),
+    view: () => m(
+      '.renderPane',
+      { oncontextmenu: () => false },
+    ),
   }
 }
 
