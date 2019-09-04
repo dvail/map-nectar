@@ -6,7 +6,7 @@ import _ from 'lodash'
 
 import ColorUtils from './colorUtils'
 import HexagonGrid from './hexagonGrid'
-import { tileKey } from './meiosis'
+import { tileKey } from './appState'
 
 import './renderPane.css'
 
@@ -86,10 +86,14 @@ function RenderPane(initialVnode) {
       actions.RotateCounter()
     }
 
-    if (yRotations !== 0) {
-      // let direction = yRotations < 0 ? IncreaseAngle : DecreaseAngle
-      console.error('FIXME')
-      // actions.Rotate(direction)
+    if (yRotations < 0) {
+      actions.IncreaseAngle()
+    } else if (yRotations > 0) {
+      actions.DecreaseAngle()
+    }
+
+    if (xRotations !== 0 || yRotations !== 0) {
+      m.redraw()
     }
   }
 
@@ -138,12 +142,15 @@ function RenderPane(initialVnode) {
     mapData(newState.mapData)
     shiftKey(newState.shiftKey)
 
-    // TODO React to state.viewAngle
-
     // TODO Convert this section to make better use of streams?
     if (newState.rotation !== oldState.rotation) {
       hexGrid?.setRotation(newState.rotation)
       skeletonGrid?.setRotation(newState.rotation)
+    }
+
+    if (newState.viewAngle !== oldState.viewAngle) {
+      hexGrid?.setAngle(newState.viewAngle)
+      skeletonGrid?.setAngle(newState.viewAngle)
     }
 
     if (newState.shiftKey) {

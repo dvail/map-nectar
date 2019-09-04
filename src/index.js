@@ -1,22 +1,23 @@
 import m from 'mithril'
 
-import Meiosis from './meiosis';
+import { initMeiosis } from './appState';
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 
 import './index.css'
 
-const mRoot = document.querySelector('.m-app')
-const { states, actions } = Meiosis()
+const mRoot = document.querySelector('.app')
+const { states, actions } = initMeiosis()
 
 const rootComp = () => ({
   view: () => m(
     '.app-layout',
     {
       style: { backgroundColor: 'transparent' },
-      onkeydown: e => actions.setShift(e),
-      onkeyup: e => actions.setShift(e),
+      tabindex: 0,
+      onkeydown: e => actions.SetShift(e),
+      onkeyup: e => actions.SetShift(e),
     },
     m(Sidebar, { state: states(), actions }),
     m(
