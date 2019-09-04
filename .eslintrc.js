@@ -22,6 +22,5 @@ module.exports = {
     "prefer-const": 0,
     "no-unused-expressions": 0, // Not compatible with pipeline operator
     "semi": 0,
-    "react/prop-types": 0,
   },
 }

@@ -2,19 +2,17 @@ import m from 'mithril'
 import _ from 'lodash'
 import './compass.css'
 
-import { Colors } from '@blueprintjs/core';
-
 import { RotationIncrement } from './appState'
 
 const DegreeMarker = {
-  view: ({ attrs: { state, actions, ri } }) => {
-    return m('div.compass-degree-marker', {
+  view: ({ attrs: { state, actions, ri } }) => (
+    m('div.compass-degree-marker', {
       style: {
-        backgroundColor: `${state.rotation === ri ? Colors.VERMILION4 : Colors.COBALT4}`,
+        backgroundColor: `${state.rotation === ri ? 'tomato' : 'royalblue'}`,
       },
       onclick: () => actions.SetRotation(ri),
     })
-  },
+  ),
 }
 
 const DegreeMarkerWrap = {
