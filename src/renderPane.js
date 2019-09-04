@@ -69,8 +69,9 @@ function RenderPane(initialVnode) {
       shiftDragCoords({ x, y })
     }
 
-    let deltaX = x - shiftDragCoords().x
-    let deltaY = y - shiftDragCoords().y
+    let { x: ox, y: oy } = shiftDragCoords()
+    let deltaX = x - ox
+    let deltaY = y - oy
 
     // TODO Configure these magic numbers?
     let xRotations = Math.round(deltaX / 40)

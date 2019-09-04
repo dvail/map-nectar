@@ -4,6 +4,9 @@ import { initMeiosis } from './appState';
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
+import AtlasRegion from './atlasRegion'
+import completePng from '../res/complete.png'
+import completeJson from '../res/complete.json'
 
 import './index.css'
 
@@ -23,6 +26,17 @@ const rootComp = () => ({
     m(
       '.workspace',
       m(RenderPane, { state: states(), actions }),
+    ),
+    m(
+      AtlasRegion,
+      {
+        state: states(),
+        actions,
+        image: completePng,
+        atlas: completeJson,
+        region: "tileRock.png",
+        scale: 0.5,
+      },
     ),
     m(Compass, { state: states(), actions }),
   ),
