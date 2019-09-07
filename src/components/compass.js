@@ -2,7 +2,7 @@ import m from 'mithril'
 import _ from 'lodash'
 import './compass.css'
 
-import { RotationIncrement } from './appState'
+import { RotationIncrement } from '../appState'
 
 const DegreeMarker = {
   view: ({ attrs: { state, actions, ri } }) => (

@@ -4,9 +4,9 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import _ from 'lodash'
 
-import ColorUtils from './colorUtils'
-import HexagonGrid from './hexagonGrid'
-import { tileKey } from './appState'
+import ColorUtils from '../colorUtils'
+import HexagonGrid from '../hexagonGrid'
+import { tileKey } from '../appState'
 
 import './renderPane.css'
 

@@ -18,6 +18,23 @@ const config = {
         exclude: /node_modules/,
       },
       {
+        test: /\.s[ac]ss$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+              prependData: '@import "global";',
+              sassOptions: {
+                includePaths: ['./src'],
+              },
+            },
+          },
+        ],
+      },
+      {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],
       },
