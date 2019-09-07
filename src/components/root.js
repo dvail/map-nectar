@@ -4,9 +4,6 @@ import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
-import AtlasRegion from './atlasRegion'
-import completePng from '../../res/complete.png'
-import completeJson from '../../res/complete.json'
 
 import './root.css'
 
@@ -25,17 +22,6 @@ export default ({ attrs: { states, actions } }) => ({
       m(RenderPane, { state: states(), actions }),
     ),
     m(Dock, { state: states(), actions }),
-    m(
-      AtlasRegion,
-      {
-        state: states(),
-        actions,
-        image: completePng,
-        atlas: completeJson,
-        region: "tileRock.png",
-        scale: 0.5,
-      },
-    ),
     m(Compass, { state: states(), actions }),
   ),
 })

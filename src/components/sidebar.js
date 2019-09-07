@@ -2,7 +2,7 @@ import _ from 'lodash'
 import m from 'mithril'
 
 import { saveObject } from '../fileUtils'
-import './sidebar.css'
+import './sidebar.scss'
 
 const Icon = {
   view: ({ attrs: { type, onclick } }) => m(
