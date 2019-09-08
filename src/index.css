@@ -10,11 +10,17 @@ body, html, .app {
   width: 100%;
 }
 
+/* TODO Look for tailwind plugins for these */
+
 .h-1\/2 {
   height: 50%;
 }
 
 .transform-origin-bc {
   transform-origin: bottom center;
+}
+
+.transform-origin-tl {
+  transform-origin: top left;
 }
 
