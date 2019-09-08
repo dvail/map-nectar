@@ -18,25 +18,21 @@ const config = {
         exclude: /node_modules/,
       },
       {
-        test: /\.s[ac]ss$/i,
+        test: /\.css$/i,
         use: [
           'style-loader',
-          'css-loader',
+          { loader: 'css-loader', options: { importLoaders: 1 } },
           {
-            loader: 'sass-loader',
+            loader: 'postcss-loader',
             options: {
-              sourceMap: true,
-              prependData: '@import "global";',
-              sassOptions: {
-                includePaths: ['./src'],
-              },
+              ident: 'postcss',
+              plugins: [
+                require('tailwindcss'),
+                require('autoprefixer'),
+              ],
             },
           },
         ],
-      },
-      {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(png|jpg|gif)$/i,

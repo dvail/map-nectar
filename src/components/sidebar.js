@@ -1,12 +1,13 @@
 import _ from 'lodash'
 import m from 'mithril'
 
-import { saveObject } from '../fileUtils'
-import './sidebar.scss'
+import { saveObject, tw } from '../util'
+
+let IconStyle = tw`icon mb-2 mt-2 text-white cursor-pointer`
 
 const Icon = {
   view: ({ attrs: { type, onclick } }) => m(
-    'span.icon.touch-icon',
+    `span${IconStyle}`,
     { onclick },
     m(`i.fas.fa-2x.${type}`),
   ),
@@ -35,21 +36,23 @@ const LoadButton = {
     'label',
     { for: 'loadMapInput' },
     m(
-      'input.hidden-input#loadMapInput',
+      'input.hidden#loadMapInput',
       { type: 'file', onchange: e => mapLoad(e, state, actions) },
     ),
     m(Icon, { type: 'fa-file-upload' }),
   ),
 }
 
+let SidebarStyle = tw`bg-gray-900 p-3 flex flex-col justify-between`
+
 function Sidebar() {
   console.error('Clear out file input after load from sidebar')
   return {
     view: ({ attrs: { state, actions } }) => m(
-      '.main-sidebar',
-      m('.sidebar-group.sidebar-top'),
+      SidebarStyle,
+      m('.flex.flex-col'),
       m(
-        '.sidebar-group.sidebar-bottom',
+        '.flex.flex-col',
         m(SaveButton, { state, actions }),
         m(LoadButton, { state, actions }),
       ),

@@ -3,7 +3,7 @@ import m from 'mithril'
 import { initMeiosis } from './appState';
 import Root from './components/root'
 
-import './index.scss'
+import './index.css'
 
 const mRoot = document.querySelector('.app')
 const { states, actions } = initMeiosis()

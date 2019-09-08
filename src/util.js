@@ -6,6 +6,7 @@ export function saveObject(obj, filename) {
   a.click()
 }
 
-export default {
-  saveObject,
+export function tw(strings) {
+  console.warn('Make this work with interpolation')
+  return strings.raw[0].split(/\s+/).filter(s => s).map(s => `.${s}`).join('')
 }

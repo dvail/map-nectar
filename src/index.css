@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body, html, .app {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.h-1\/2 {
+  height: 50%;
+}
+
+.transform-origin-bc {
+  transform-origin: bottom center;
+}
+

@@ -5,11 +5,13 @@ import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
 
-import './root.css'
+import { tw } from '../util'
+
+let AppLayoutStyle = tw`h-full w-full flex flex-row`
 
 export default ({ attrs: { states, actions } }) => ({
   view: () => m(
-    '.app-layout',
+    AppLayoutStyle,
     {
       style: { backgroundColor: 'transparent' },
       tabindex: 0,
@@ -18,7 +20,7 @@ export default ({ attrs: { states, actions } }) => ({
     },
     m(Sidebar, { state: states(), actions }),
     m(
-      '.workspace',
+      '.relative.flex-1',
       m(RenderPane, { state: states(), actions }),
     ),
     m(Dock, { state: states(), actions }),

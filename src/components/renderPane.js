@@ -8,8 +8,6 @@ import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
 import { tileKey } from '../appState'
 
-import './renderPane.css'
-
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
 
@@ -172,7 +170,7 @@ function RenderPane(initialVnode) {
     oncreate,
     onbeforeupdate,
     view: () => m(
-      '.renderPane',
+      '.w-full.h-full',
       { oncontextmenu: () => false },
     ),
   }

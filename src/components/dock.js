@@ -1,14 +1,23 @@
 import m from 'mithril'
 
 import AtlasRegion from './atlasRegion'
-import completePng from '../../res/complete.png'
-import completeJson from '../../res/complete.json'
-import './dock.scss'
+import completePng from '../../res/hexagonTerrain_sheet.png'
+import completeJson from '../../res/hexagonTerrain_sheet.json'
+import { tw } from '../util'
+
+let DockStyle = tw`
+  h-12 w-2/3
+  mb-1 m-auto
+  absolute
+  left-0 right-0 bottom-0
+  rounded-sm
+  bg-gray-900
+`
 
 export default function Dock() {
   function view({ attrs: { states, actions } }) {
     return m(
-      '.dock',
+      DockStyle,
       m(
         AtlasRegion,
         {
@@ -16,8 +25,8 @@ export default function Dock() {
           actions,
           image: completePng,
           atlas: completeJson,
-          region: "tileRock.png",
-          scale: 0.5,
+          region: "dirt_03.png",
+          scale: 0.3,
         },
       ),
     )
