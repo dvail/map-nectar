@@ -15,6 +15,8 @@ export function initMeiosis(initialState = {}) {
     viewAngle: 0.65,
     mapData: { tiles: {} },
     shiftKey: false,
+    tileBuilderOpen: false,
+    dockDrawerOpen: false,
     ...initialState,
   }
 
@@ -31,6 +33,7 @@ export function initMeiosis(initialState = {}) {
     SetShift: produceUpdate((prev, next, e) => {
       next.shiftKey = e.shiftKey
     }),
+
     SetRotation: produceUpdate((prev, next, rotation) => {
       next.rotation = rotation
     }),
@@ -49,6 +52,7 @@ export function initMeiosis(initialState = {}) {
     DecreaseAngle: produceUpdate((prev, next) => {
       next.viewAngle = Math.max(next.viewAngle - 0.05, 0.0)
     }),
+
     MapLoad: produceUpdate((prev, next, payload) => {
       next.mapData.tiles = payload.tiles
     }),
@@ -63,6 +67,20 @@ export function initMeiosis(initialState = {}) {
         ...prev.mapData.tiles[key],
         ...payload,
       }
+    }),
+
+    ToggleTileBuilder: produceUpdate((prev, next) => {
+      next.tileBuilderOpen = !prev.tileBuilderOpen
+    }),
+    OpenTileBuilder: produceUpdate((prev, next, isOpen) => {
+      next.tileBuilderOpen = isOpen
+    }),
+
+    ToggleDockDrawer: produceUpdate((prev, next) => {
+      next.dockDrawerOpen = !prev.dockDrawerOpen
+    }),
+    OpenDockDrawer: produceUpdate((prev, next, isOpen) => {
+      next.dockDrawerOpen = isOpen
     }),
   }
 

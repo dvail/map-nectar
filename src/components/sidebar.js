@@ -37,6 +37,16 @@ let LoadButton = {
   },
 }
 
+let CreateTileButton = {
+  view: ({ attrs: { actions } }) => m(
+    FaIcon, {
+      type: 'fa-magic',
+      title: 'Create New Tile',
+      onclick: () => actions.ToggleTileBuilder(),
+    },
+  ),
+}
+
 let SidebarStyle = tw`bg-gray-900 p-3 flex flex-col justify-between`
 let FlexColStyle = tw`flex flex-col`
 
@@ -45,7 +55,10 @@ function Sidebar() {
   return {
     view: ({ attrs: { state, actions } }) => m(
       SidebarStyle,
-      m(FlexColStyle),
+      m(
+        FlexColStyle,
+        m(CreateTileButton, { state, actions }),
+      ),
       m(
         FlexColStyle,
         m(SaveButton, { state, actions }),

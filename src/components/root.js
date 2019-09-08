@@ -4,6 +4,7 @@ import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
+import TileBuilder from './tileBuilder'
 
 import { tw } from '../util'
 
@@ -25,6 +26,7 @@ export default ({ attrs: { states, actions } }) => ({
       m(RenderPane, { state: states(), actions }),
     ),
     m(Dock, { state: states(), actions }),
+    m(TileBuilder, { state: states(), actions }),
     m(Compass, { state: states(), actions }),
   ),
 })
