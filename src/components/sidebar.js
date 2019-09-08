@@ -3,12 +3,7 @@ import m from 'mithril'
 import uuidv4 from 'uuid/v4'
 
 import { saveObject, tw } from '../util'
-
-let IconStyle = tw`icon mb-2 mt-2 text-white cursor-pointer`
-
-let Icon = {
-  view: ({ attrs: { type, onclick } }) => m(`span${IconStyle}`, { onclick }, m(`i.fas.fa-2x.${type}`)),
-}
+import FaIcon from './faIcon'
 
 function mapLoad(e, state, actions) {
   let file = _.first(e.target.files)
@@ -23,7 +18,7 @@ function mapLoad(e, state, actions) {
 
 let SaveButton = {
   view: ({ attrs: { state } }) => m(
-    Icon,
+    FaIcon,
     { type: 'fa-save', onclick: () => saveObject(state.mapData, 'map.json') },
   ),
 }
@@ -37,7 +32,7 @@ let LoadButton = {
         `input.hidden#${id}`,
         { type: 'file', onchange: e => mapLoad(e, state, actions) },
       ),
-      m(Icon, { type: 'fa-file-upload' }),
+      m(FaIcon, { type: 'fa-file-upload' }),
     )
   },
 }

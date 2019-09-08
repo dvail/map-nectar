@@ -8,6 +8,7 @@ import Dock from './dock'
 import { tw } from '../util'
 
 let AppLayoutStyle = tw`h-full w-full flex flex-row`
+let RenderPaneWrapStyle = tw`relative flex-1`
 
 export default ({ attrs: { states, actions } }) => ({
   view: () => m(
@@ -20,7 +21,7 @@ export default ({ attrs: { states, actions } }) => ({
     },
     m(Sidebar, { state: states(), actions }),
     m(
-      '.relative.flex-1',
+      RenderPaneWrapStyle,
       m(RenderPane, { state: states(), actions }),
     ),
     m(Dock, { state: states(), actions }),

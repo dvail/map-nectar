@@ -20,6 +20,7 @@ module.exports = {
     "no-use-before-define": ["error", { "functions": false }],
     "object-curly-newline": 0,
     "prefer-const": 0,
+    "function-paren-newline": 0, // Disabled for cleaner hyperscript
     "no-unused-expressions": 0, // Not compatible with pipeline operator
     "semi": 0,
   },
