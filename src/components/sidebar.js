@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import m from 'mithril'
+import uuidv4 from 'uuid/v4'
 
 import { saveObject, tw } from '../util'
 
@@ -32,15 +33,17 @@ const SaveButton = {
 }
 
 const LoadButton = {
-  view: ({ attrs: { state, actions } }) => m(
-    'label',
-    { for: 'loadMapInput' },
-    m(
-      'input.hidden#loadMapInput',
-      { type: 'file', onchange: e => mapLoad(e, state, actions) },
-    ),
-    m(Icon, { type: 'fa-file-upload' }),
-  ),
+  view: ({ attrs: { state, actions } }) => {
+    let id = uuidv4()
+    return m(
+      'label', { for: id },
+      m(
+        `input.hidden#${id}`,
+        { type: 'file', onchange: e => mapLoad(e, state, actions) },
+      ),
+      m(Icon, { type: 'fa-file-upload' }),
+    )
+  },
 }
 
 let SidebarStyle = tw`bg-gray-900 p-3 flex flex-col justify-between`
