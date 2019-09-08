@@ -6,12 +6,8 @@ import { saveObject, tw } from '../util'
 
 let IconStyle = tw`icon mb-2 mt-2 text-white cursor-pointer`
 
-const Icon = {
-  view: ({ attrs: { type, onclick } }) => m(
-    `span${IconStyle}`,
-    { onclick },
-    m(`i.fas.fa-2x.${type}`),
-  ),
+let Icon = {
+  view: ({ attrs: { type, onclick } }) => m(`span${IconStyle}`, { onclick }, m(`i.fas.fa-2x.${type}`)),
 }
 
 function mapLoad(e, state, actions) {
@@ -25,14 +21,14 @@ function mapLoad(e, state, actions) {
   reader.readAsText(file)
 }
 
-const SaveButton = {
+let SaveButton = {
   view: ({ attrs: { state } }) => m(
     Icon,
     { type: 'fa-save', onclick: () => saveObject(state.mapData, 'map.json') },
   ),
 }
 
-const LoadButton = {
+let LoadButton = {
   view: ({ attrs: { state, actions } }) => {
     let id = uuidv4()
     return m(
@@ -47,15 +43,16 @@ const LoadButton = {
 }
 
 let SidebarStyle = tw`bg-gray-900 p-3 flex flex-col justify-between`
+let FlexColStyle = tw`flex flex-col`
 
 function Sidebar() {
   console.error('Clear out file input after load from sidebar')
   return {
     view: ({ attrs: { state, actions } }) => m(
       SidebarStyle,
-      m('.flex.flex-col'),
+      m(FlexColStyle),
       m(
-        '.flex.flex-col',
+        FlexColStyle,
         m(SaveButton, { state, actions }),
         m(LoadButton, { state, actions }),
       ),
