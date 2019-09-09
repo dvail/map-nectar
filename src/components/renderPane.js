@@ -170,7 +170,7 @@ function RenderPane(initialVnode) {
     oncreate,
     onbeforeupdate,
     view: () => m(
-      '.w-full.h-full',
+      '.h-full',
       { oncontextmenu: () => false },
     ),
   }
