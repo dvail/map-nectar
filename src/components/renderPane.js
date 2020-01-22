@@ -2,7 +2,7 @@ import m from 'mithril'
 import stream from 'mithril/stream'
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
-import _ from 'lodash'
+import range from 'lodash/range'
 
 import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
@@ -118,8 +118,8 @@ function RenderPane(initialVnode) {
 
     hexGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
     // TODO The performance of this probably sucks
-    _.range(-10, 10).forEach(q => {
-      _.range(-10, 10).forEach(r => {
+    range(-10, 10).forEach(q => {
+      range(-10, 10).forEach(r => {
         skeletonGrid.renderTile({ q, r, height: 0, opts: skeletonTileOpts })
       })
     })

@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js'
-import _ from 'lodash'
+import noop from 'lodash/noop'
+import memoize from 'lodash/memoize'
 
 import ColorUtils from './colorUtils'
 
@@ -26,7 +27,7 @@ const COORDS = {}
 const coordinateMemoKey = ({ radius, angle, height }) => `${radius}:${angle}:${height}`
 
 /* eslint-disable indent */
-COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
+COORDS.POINTY = memoize(({ radius, angle, height }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
   let altitude = defaultAltitude * height
   let halfWidth = width / 2
@@ -59,7 +60,7 @@ COORDS.POINTY = _.memoize(({ radius, angle, height }) => {
   return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
 }, coordinateMemoKey)
 
-COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
+COORDS.FLAT = memoize(({ radius, angle, height }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
   let altitude = defaultAltitude * height
   let halfWidth = width / 2
@@ -103,8 +104,8 @@ COORDS.FLAT = _.memoize(({ radius, angle, height }) => {
 function create({
   q,
   r,
-  onTileClick = _.noop,
-  onTileRightClick = _.noop,
+  onTileClick = noop,
+  onTileRightClick = noop,
 }) {
   // TODO
   // TODO These can all share the same PIXI.GraphicsGeometry instance!

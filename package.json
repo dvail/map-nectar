@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start:dev": "webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack",
+    "bundle-report": "NODE_ENV=production mkdir -p dist && webpack --profile --json > dist/stats.json && webpack-bundle-analyzer --port 4200 dist/stats.json"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
@@ -39,6 +40,7 @@
     "sugarss": "^2.0.0",
     "url-loader": "^2.1.0",
     "webpack": "^4.34.0",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.4",
     "webpack-dev-server": "^3.7.1"
   },

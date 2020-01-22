@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
 
@@ -43,8 +43,8 @@ function create({
   tileSize,
   viewAngle = 1.0,
   gridRotation = 0,
-  onTileClick = _.noop,
-  onTileRightClick = _.noop,
+  onTileClick = noop,
+  onTileRightClick = noop,
 }) {
   let container = new PIXI.Container()
   let radius = tileSize

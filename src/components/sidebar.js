@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import first from 'lodash/first'
 import m from 'mithril'
 import uuidv4 from 'uuid/v4'
 
@@ -6,7 +6,7 @@ import { saveObject, tw } from '../util'
 import FaIcon from './faIcon'
 
 function mapLoad(e, state, actions) {
-  let file = _.first(e.target.files)
+  let file = first(e.target.files)
   let reader = new FileReader()
 
   reader.onload = event => {

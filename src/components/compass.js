@@ -1,5 +1,5 @@
 import m from 'mithril'
-import _ from 'lodash'
+import range from 'lodash/range'
 
 import { RotationIncrement } from '../appState'
 import { tw } from '../util'
@@ -44,7 +44,7 @@ let CompassStyle = tw`
 
 const Compass = {
   view: ({ attrs: { state, actions } }) => {
-    let degreeMarkers = _.range(0, 360, RotationIncrement).map(ri => (
+    let degreeMarkers = range(0, 360, RotationIncrement).map(ri => (
       m(DegreeMarkerWrap, { state, actions, ri })
     ))
 
