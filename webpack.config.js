@@ -3,6 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackTemplate = require('html-webpack-template');
 const path = require('path');
 
+let tailwindcss = require('tailwindcss')
+let autoprefixer = require('autoprefixer')
+let purgecss = require('@fullhuman/postcss-purgecss')
+
 const config = {
   entry: './src/index.js',
   devtool: 'eval-source-map',
@@ -27,8 +31,17 @@ const config = {
             options: {
               ident: 'postcss',
               plugins: [
-                require('tailwindcss'),
-                require('autoprefixer'),
+                tailwindcss,
+                autoprefixer,
+                ...process.env.NODE_ENV !== 'development'
+                  ? [purgecss({
+                    content: [
+                      './src/index.html',
+                      './src/**/*.jsx',
+                    ],
+                    defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
+                  })]
+                  : [],
               ],
             },
           },

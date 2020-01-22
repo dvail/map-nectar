@@ -15,6 +15,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/plugin-proposal-pipeline-operator": "^7.3.2",
     "@babel/preset-env": "^7.4.5",
+    "@fullhuman/postcss-purgecss": "^2.0.5",
     "@types/moment-timezone": "^0.5.12",
     "autoprefixer": "^9.6.1",
     "babel-eslint": "11.0.0-beta.0",
