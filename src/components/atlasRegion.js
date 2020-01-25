@@ -1,37 +1,26 @@
-import m from 'mithril'
-import { tw } from '../util'
+import { html } from '../util'
 
-let RegionStyle = tw`transform-origin-tl bg-no-repeat`
-
-let Region = {
+export default {
   view: ({ attrs: { image, atlas, region, scale = 1.0 } }) => {
     let { x, y, w, h } = atlas[region]
 
-    let style = {
-      height: `${h}px`,
-      width: `${w}px`,
-      transform: `scale(${scale})`,
-      backgroundImage: `url('${image}')`,
-      backgroundPosition: `-${x}px -${y}px`,
-    }
+    let wrapperStyle = `
+      height: ${h * scale}px;
+      width: ${w * scale}px;
+    `
 
-    return m(RegionStyle, { style })
+    let style = `
+      height: ${h}px;
+      width: ${w}px;
+      transform: scale(${scale});
+      background-image: url('${image}');
+      background-position: -${x}px -${y}px;
+    `
+
+    return html`
+      <div style=${wrapperStyle}>
+        <div style=${style} class='transform-origin-tl bg-no-repeat' />
+      </div>
+    `
   },
-}
-
-let RegionWrapper = {
-  view: ({ attrs, attrs: { atlas, region, scale = 1.0 } }) => {
-    let { w, h } = atlas[region]
-
-    let style = {
-      height: `${h * scale}px`,
-      width: `${w * scale}px`,
-    }
-
-    return m('div', { style }, m(Region, attrs))
-  },
-}
-
-export default {
-  view: ({ attrs }) => m(RegionWrapper, attrs),
 }

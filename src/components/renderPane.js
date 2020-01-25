@@ -4,6 +4,8 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
+import { html } from '../util'
+
 import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
 import { tileKey } from '../appState'
@@ -169,10 +171,9 @@ function RenderPane(initialVnode) {
   return {
     oncreate,
     onbeforeupdate,
-    view: () => m(
-      '.h-full',
-      { oncontextmenu: () => false },
-    ),
+    view: () => html`
+      <div class='h-full' oncontextmenu=${() => false}/>
+    `,
   }
 }
 
