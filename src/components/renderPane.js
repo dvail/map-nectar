@@ -4,18 +4,17 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
-import { html } from '../util'
+import { states, actions, tileKey } from '../store'
 
 import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
-import { tileKey } from '../appState'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
 
-function RenderPane(initialVnode) {
-  let { actions } = initialVnode.attrs
-  let initialState = initialVnode.attrs.state
+function RenderPane() {
+  let initialState = states()
+  let previousState = initialState
   let app
   let viewport
   let skeletonGrid
@@ -136,20 +135,19 @@ function RenderPane(initialVnode) {
     viewport.addChild(hexGrid.container)
   }
 
-  function onbeforeupdate(vnode, old) {
-    let newState = vnode.attrs.state
-    let oldState = old.attrs.state
+  function onbeforeupdate() {
+    let newState = states()
 
     mapData(newState.mapData)
     shiftKey(newState.shiftKey)
 
     // TODO Convert this section to make better use of streams?
-    if (newState.rotation !== oldState.rotation) {
+    if (newState.rotation !== previousState.rotation) {
       hexGrid?.setRotation(newState.rotation)
       skeletonGrid?.setRotation(newState.rotation)
     }
 
-    if (newState.viewAngle !== oldState.viewAngle) {
+    if (newState.viewAngle !== previousState.viewAngle) {
       hexGrid?.setAngle(newState.viewAngle)
       skeletonGrid?.setAngle(newState.viewAngle)
     }
@@ -163,17 +161,17 @@ function RenderPane(initialVnode) {
     // Note: This relies on an object reference change, since data updates
     // are immutable, the object reference changing indicates a new set of map
     // tiles.
-    if (newState.mapData.tiles !== oldState.mapData.tiles) {
+    if (newState.mapData.tiles !== previousState.mapData.tiles) {
       hexGrid?.renderTiles(newState.mapData.tiles)
     }
+
+    previousState = states()
   }
 
   return {
     oncreate,
     onbeforeupdate,
-    view: () => html`
-      <div class='h-full' oncontextmenu=${() => false}/>
-    `,
+    view: () => <div class='relative flex-1 h-full' oncontextmenu={() => false} />,
   }
 }
 

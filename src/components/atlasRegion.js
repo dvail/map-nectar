@@ -1,5 +1,3 @@
-import { html } from '../util'
-
 export default {
   view: ({ attrs: { image, atlas, region, scale = 1.0 } }) => {
     let { x, y, w, h } = atlas[region]
@@ -17,10 +15,10 @@ export default {
       background-position: -${x}px -${y}px;
     `
 
-    return html`
-      <div style=${wrapperStyle}>
-        <div style=${style} class='transform-origin-tl bg-no-repeat' />
+    return (
+      <div style={wrapperStyle}>
+        <div style={style} class='transform-origin-tl bg-no-repeat' />
       </div>
-    `
+    )
   },
 }

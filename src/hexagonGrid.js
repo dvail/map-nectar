@@ -2,7 +2,7 @@ import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
 import Hexagon from './hexagon'
 
-import { tileKey } from './appState'
+import { tileKey } from './store'
 
 function getZIndex(q, r, s, orientation) {
   if (orientation === Hexagon.ORIENTATION.POINTY) {

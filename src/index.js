@@ -1,6 +1,5 @@
 import m from 'mithril'
 
-import { initMeiosis } from './appState';
 import Root from './components/root'
 
 import './index.css'
@@ -9,6 +8,5 @@ import './index.css'
 window.m = m;
 
 const mRoot = document.querySelector('.app')
-const { states, actions } = initMeiosis()
 
-m.mount(mRoot, { view: () => m(Root, { states, actions }) });
+m.mount(mRoot, { view: () => m(Root) })

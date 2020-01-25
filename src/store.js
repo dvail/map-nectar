@@ -89,3 +89,5 @@ export function initMeiosis(initialState = {}) {
     actions,
   }
 }
+
+export const { states, actions } = initMeiosis()

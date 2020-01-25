@@ -1,8 +1,3 @@
-import m from 'mithril'
-import htm from 'htm'
-
-// Tagged template literals converted to hyperscript
-export const html = htm.bind(m)
 
 export function saveObject(obj, filename) {
   let a = document.createElement('a')

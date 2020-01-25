@@ -1,10 +1,11 @@
 import first from 'lodash/first'
 import uuidv4 from 'uuid/v4'
+import { states, actions } from '../store'
 
 import { saveObject } from '../util'
 import FaIcon from './faIcon'
 
-function mapLoad(e, state, actions) {
+function mapLoad(e) {
   let file = first(e.target.files)
   let reader = new FileReader()
 
@@ -16,7 +17,7 @@ function mapLoad(e, state, actions) {
 }
 
 export default {
-  view: ({ attrs: { states, actions } }) => {
+  view: () => {
     let id = uuidv4()
 
     return (
@@ -27,7 +28,7 @@ export default {
         <div class='flex flex-col'>
           <FaIcon type='fa-save' title='Save Map' onclick={() => saveObject(states().mapData, 'map.json')} />
           <label for={id}>
-            <input class='hidden' id={id} type='file' onchange={e => mapLoad(e, states(), actions)} />
+            <input class='hidden' id={id} type='file' onchange={mapLoad} />
             <FaIcon type='fa-file-upload' title='Load Map' />
           </label>
         </div>

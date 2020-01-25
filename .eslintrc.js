@@ -23,6 +23,7 @@ module.exports = {
     "function-paren-newline": 0, // Disabled for cleaner hyperscript
     "no-unused-expressions": 0, // Not compatible with pipeline operator
     "semi": 0,
+    "import/prefer-default-export": 0,
     "jsx-quotes": 0,
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 0,
@@ -32,5 +33,6 @@ module.exports = {
     "jsx-a11y/label-has-for": 0,
     "jsx-a11y/label-has-associated-control": 0,
     "jsx-a11y/no-noninteractive-tabindex": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
   },
 }
