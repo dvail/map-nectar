@@ -11,8 +11,3 @@ export function saveObject(obj, filename) {
   a.setAttribute('download', filename)
   a.click()
 }
-
-export function tw(strings) {
-  console.warn('DEPRECATE ME')
-  return strings.raw[0].split(/\s+/).filter(s => s).map(s => `.${s}`).join('')
-}

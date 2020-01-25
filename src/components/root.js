@@ -1,33 +1,29 @@
-import m from 'mithril'
-
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
 import TileBuilder from './tileBuilder'
 
-import { tw } from '../util'
-
-let AppLayoutStyle = tw`h-full flex flex-row bg-black`
-let RenderPaneWrapStyle = tw`relative flex-1`
+import { html } from '../util'
 
 export default ({ attrs: { states, actions } }) => ({
-  view: () => m(
-    AppLayoutStyle,
-    {
-      tabindex: 0,
-      onkeydown: e => actions.SetShift(e),
-      onkeyup: e => actions.SetShift(e),
-    },
+  view: () => html`
+      <div 
+        class='h-full flex flex-row bg-black'
+        tabindex=0,
+        onkeydown=${e => actions.SetShift(e)}
+        onkeyup=${e => actions.SetShift(e)}
+      >
+        <!-- TODO Don't call "states()" here if possible, call lower in the component tree -->
+        <${Sidebar} state=${states()} actions=${actions}/>
+        <${TileBuilder} state=${states()} actions=${actions}/>
 
-    m(Sidebar, { state: states(), actions }),
-    m(TileBuilder, { state: states(), actions }),
-    m(
-      RenderPaneWrapStyle,
-      m(RenderPane, { state: states(), actions }),
-    ),
+        <div class='relative flex-1'>
+          <${RenderPane} state=${states()} actions=${actions}/>
+        </div>
 
-    m(Dock, { state: states(), actions }),
-    m(Compass, { state: states(), actions }),
-  ),
+        <${Dock} state=${states()} actions=${actions}/>
+        <${Compass} state=${states()} actions=${actions}/>
+      </div>
+  `,
 })

@@ -1,8 +1,7 @@
 import first from 'lodash/first'
-import m from 'mithril'
 import uuidv4 from 'uuid/v4'
 
-import { saveObject, tw } from '../util'
+import { saveObject, html } from '../util'
 import FaIcon from './faIcon'
 
 function mapLoad(e, state, actions) {
@@ -16,56 +15,23 @@ function mapLoad(e, state, actions) {
   reader.readAsText(file)
 }
 
-let SaveButton = {
-  view: ({ attrs: { state } }) => m(
-    FaIcon,
-    { type: 'fa-save', onclick: () => saveObject(state.mapData, 'map.json') },
-  ),
-}
-
-let LoadButton = {
+export default {
   view: ({ attrs: { state, actions } }) => {
     let id = uuidv4()
-    return m(
-      'label', { for: id },
-      m(
-        `input.hidden#${id}`,
-        { type: 'file', onchange: e => mapLoad(e, state, actions) },
-      ),
-      m(FaIcon, { type: 'fa-file-upload' }),
-    )
+
+    return html`
+      <div class='bg-gray-900 p-3 flex flex-col justify-between'>
+        <div class='flex flex-col'>
+          <${FaIcon} type='fa-magic' title='Create New Tile' onclick=${() => actions.ToggleTileBuilder()} />
+        </div>
+        <div class='flex flex-col'>
+          <${FaIcon} type='fa-save' title='Save Map' onclick=${() => saveObject(state.mapData, 'map.json')} />
+          <label for=${id}>
+            <input class='hidden' id=${id} type='file' onchange=${e => mapLoad(e, state, actions)}/>
+            <${FaIcon} type='fa-file-upload' title='Load Map' />
+          </label>
+        </div>
+      </div>
+    `
   },
 }
-
-let CreateTileButton = {
-  view: ({ attrs: { actions } }) => m(
-    FaIcon, {
-      type: 'fa-magic',
-      title: 'Create New Tile',
-      onclick: () => actions.ToggleTileBuilder(),
-    },
-  ),
-}
-
-let SidebarStyle = tw`bg-gray-900 p-3 flex flex-col justify-between`
-let FlexColStyle = tw`flex flex-col`
-
-function Sidebar() {
-  console.error('Clear out file input after load from sidebar')
-  return {
-    view: ({ attrs: { state, actions } }) => m(
-      SidebarStyle,
-      m(
-        FlexColStyle,
-        m(CreateTileButton, { state, actions }),
-      ),
-      m(
-        FlexColStyle,
-        m(SaveButton, { state, actions }),
-        m(LoadButton, { state, actions }),
-      ),
-    ),
-  }
-}
-
-export default Sidebar
