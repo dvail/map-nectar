@@ -1,3 +1,9 @@
+import m from 'mithril'
+import htm from 'htm'
+
+// Tagged template literals converted to hyperscript
+export const html = htm.bind(m)
+
 export function saveObject(obj, filename) {
   let a = document.createElement('a')
   let text = JSON.stringify(obj)
@@ -7,6 +13,6 @@ export function saveObject(obj, filename) {
 }
 
 export function tw(strings) {
-  console.warn('Make this work with interpolation')
+  console.warn('DEPRECATE ME')
   return strings.raw[0].split(/\s+/).filter(s => s).map(s => `.${s}`).join('')
 }
