@@ -40,7 +40,7 @@ const config = {
                   ? [purgecss({
                     content: [
                       './src/index.html',
-                      './src/**/*.jsx',
+                      './src/**/*.js',
                     ],
                     defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
                   })]
