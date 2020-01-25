@@ -10,6 +10,9 @@ let purgecss = require('@fullhuman/postcss-purgecss')
 const config = {
   entry: './src/index.js',
   devtool: 'eval-source-map',
+  devServer: {
+    port: 4422,
+  },
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'bundle.js',
