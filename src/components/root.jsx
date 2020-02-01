@@ -1,17 +1,21 @@
+import React from 'react'
+
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
 import TileBuilder from './tileBuilder'
-import { actions } from '../store'
+import { useStore } from '../store'
 
-export default () => ({
-  view: () => (
+export default function Root() {
+  const setShift = useStore(state => state.setShift)
+
+  return (
     <div
-      class='h-full flex flex-row bg-black'
-      tabindex={0}
-      onkeydown={actions.SetShift}
-      onkeyup={actions.SetShift}
+      className='h-full flex flex-row bg-black'
+      tabIndex={0}
+      onKeyDown={setShift}
+      onKeyUp={setShift}
     >
       <Sidebar />
       <TileBuilder />
@@ -19,5 +23,5 @@ export default () => ({
       <Dock />
       <Compass />
     </div>
-  ),
-})
+  )
+}

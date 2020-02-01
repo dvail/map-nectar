@@ -1,3 +1,4 @@
+import create from 'zustand'
 import stream from 'mithril/stream'
 import produce from 'immer'
 
@@ -91,3 +92,31 @@ export function initMeiosis(initialState = {}) {
 }
 
 export const { states, actions } = initMeiosis()
+
+export const [useStore] = create((set, get) => ({
+  rotation: 0,
+  viewAngle: 0.65,
+  mapData: { tiles: {} },
+  shiftKey: false,
+  tileBuilderOpen: false,
+  dockDrawerOpen: false,
+  selectedTileSprite: null,
+  setShift: e => {
+    console.warn(get())
+    set({ shiftKey: e.shiftKey })
+  },
+  toggleTileBuilder: () => {
+    set({ tileBuilderOpen: !get().tileBuilderOpen })
+  },
+  setTileBuilderOpen: isOpen => {
+    set({ tileBuilderOpen: isOpen })
+  },
+  mapLoad: payload => {
+    let prev = get().mapData
+    let mapData = produce(prev, next => {
+      next.tiles = payload.tiles
+    })
+
+    set({ mapData })
+  },
+}))

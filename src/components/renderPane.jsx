@@ -1,3 +1,5 @@
+import React, { useState, useRef, useEffect } from 'react'
+
 import m from 'mithril'
 import stream from 'mithril/stream'
 import * as PIXI from 'pixi.js'
@@ -16,13 +18,16 @@ const completeJson = '../../res/hexagonTerrain_sheet.json'
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
 
-function RenderPane() {
+export default function RenderPane() {
   let initialState = states()
   let previousState = initialState
-  let app
-  let viewport
-  let skeletonGrid
-  let hexGrid
+
+  let [pixiApp, setPixiApp] = useState(null)
+  let [pixiViewport, setPixiViewPort] = useState(null)
+  let [skeletonGrid, setSkeletonGrid] = useState(null)
+  let [hexGrid, setHexGrid] = useState(null)
+
+  const renderPaneRef = useRef(null);
 
   let shiftDragCoords = stream(null)
   let dragging = stream(false)
@@ -31,6 +36,10 @@ function RenderPane() {
 
   function onTileClick(ev, q, r) {
   }
+
+  useEffect(() => {
+    initializePixi(renderPaneRef.current)
+  }, [])
 
   function onTileRightClick(ev, q, r) {
     if (dragging()) return
@@ -109,18 +118,17 @@ function RenderPane() {
     shiftDragCoords(null)
   }
 
-  function oncreate(vnode) {
-    let paneElem = vnode.dom
-    app = new PIXI.Application({ resizeTo: paneElem })
-    paneElem.appendChild(app.view)
+  function initializePixi(renderPaneElem) {
+    let app = new PIXI.Application({ resizeTo: renderPaneElem })
+    renderPaneElem.appendChild(app.view)
 
-    viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
+    let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
 
     app.stage.addChild(viewport)
 
     let tileTextures = {}
 
-    // TODO 
+    // TODO
     // TODO This relies on a race condition to get textures to the rest of the app
     // TODO Fix this to handle async loading and asset storage in a real way
     // TODO 
@@ -148,24 +156,29 @@ function RenderPane() {
     viewport.on('drag-end', () => dragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
-    skeletonGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
+    let baseGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
 
-    hexGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
+    let tileGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
     // TODO The performance of this probably sucks
     range(-10, 10).forEach(q => {
       range(-10, 10).forEach(r => {
-        skeletonGrid.renderTile({ q, r, height: 0, opts: skeletonTileOpts })
+        baseGrid.renderTile({ q, r, height: 0, opts: skeletonTileOpts })
       })
     })
 
-    viewport.addChild(skeletonGrid.container)
+    viewport.addChild(baseGrid.container)
 
     viewport.on('pointerdown', onDragStart)
       .on('pointerup', onDragEnd)
       .on('pointerupoutside', onDragEnd)
       .on('pointermove', onDragMove)
 
-    viewport.addChild(hexGrid.container)
+    viewport.addChild(tileGrid.container)
+
+    setPixiApp(app)
+    setPixiViewPort(viewport)
+    setSkeletonGrid(baseGrid)
+    setHexGrid(tileGrid)
   }
 
   function onbeforeupdate() {
@@ -186,9 +199,9 @@ function RenderPane() {
     }
 
     if (newState.shiftKey) {
-      viewport?.plugins.pause('drag')
+      pixiViewport?.plugins.pause('drag')
     } else {
-      viewport?.plugins.resume('drag')
+      pixiViewport?.plugins.resume('drag')
     }
 
     // Note: This relies on an object reference change, since data updates
@@ -201,11 +214,7 @@ function RenderPane() {
     previousState = states()
   }
 
-  return {
-    oncreate,
-    onbeforeupdate,
-    view: () => <div class='relative flex-1 h-full' oncontextmenu={() => false} />,
-  }
+  return (
+    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={() => false} />
+  )
 }
-
-export default RenderPane
