@@ -45,6 +45,7 @@ function create({
   gridRotation = 0,
   onTileClick = noop,
   onTileRightClick = noop,
+  tileTextures = {},
 }) {
   let container = new PIXI.Container()
   let radius = tileSize
@@ -88,7 +89,8 @@ function create({
 
     tile = { q, r, height, opts, hexagon }
     tiles[key] = tile
-    tile.hexagon.draw({ x, y, zIndex, height, orientation, angle, radius, ...opts })
+
+    tile.hexagon.draw({ x, y, zIndex, height, orientation, angle, radius, tileTextures, ...opts })
   }
 
   function renderTiles(newTiles) {

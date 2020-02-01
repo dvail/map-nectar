@@ -9,6 +9,10 @@ import { states, actions, tileKey } from '../store'
 import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
 
+// TODO Need to work with these URLs in a reliable way
+const completePng = '../../res/hexagonTerrain_sheet.png'
+const completeJson = '../../res/hexagonTerrain_sheet.json'
+
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
 
@@ -36,11 +40,15 @@ function RenderPane() {
 
     if (shift && !tile) return
 
-    let height = tile ?.height + (shift ? -1 : 1) || 0
-    let opts = tile ?.opts || {
+    let height = tile?.height + (shift ? -1 : 1) || 0
+    let opts = tile?.opts ?? {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
 
+    opts.tileImage = states().selectedTileImage
+
+    // TODO Maybe do away with trying to do delcarative rendering to the PIXI canvas
+    // ans create and imperitive/declarative bridge between this and the rest of the UI
     if (height < 0) {
       actions.RemoveTile({ q, r })
     } else {
@@ -110,6 +118,31 @@ function RenderPane() {
 
     app.stage.addChild(viewport)
 
+    let tileTextures = {}
+
+    // TODO 
+    // TODO This relies on a race condition to get textures to the rest of the app
+    // TODO Fix this to handle async loading and asset storage in a real way
+    // TODO 
+    app.loader
+      .add('tile-spritesheet', completeJson)
+      .add('tile-spritesheet-png', completePng)
+      .load((loader, resources) => {
+        let sheet = resources['tile-spritesheet'];
+        let sheetPng = resources['tile-spritesheet-png'];
+
+        Object.entries(sheet.data).forEach(([region, { x, y, w, h }]) => {
+          tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
+        })
+
+        let test = new PIXI.Sprite(tileTextures["dirt_02.png"])
+
+        test.x = 200
+        test.y = 200
+
+        // viewport.addChild(test)
+      })
+
     viewport.drag().wheel()
     viewport.on('drag-start', () => dragging(true))
     viewport.on('drag-end', () => dragging(false))
@@ -117,7 +150,7 @@ function RenderPane() {
 
     skeletonGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
 
-    hexGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
+    hexGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
     // TODO The performance of this probably sucks
     range(-10, 10).forEach(q => {
       range(-10, 10).forEach(r => {

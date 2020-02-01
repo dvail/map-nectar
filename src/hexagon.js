@@ -121,7 +121,7 @@ function create({
     x,
     y,
     zIndex,
-    height,
+    height, // TODO CHange name to altitude to avoid confusion
     radius,
     fillColor,
     fillAlpha = 1.0,
@@ -129,11 +129,24 @@ function create({
     strokeAlpha = 0.0,
     orientation = ORIENTATION.POINTY,
     angle = 1.0,
+    tileImage,
+    tileTextures = {},
   }) {
     hexagon.clear();
 
     hexagon.x = x
     hexagon.y = y
+
+    let sprite = tileImage && tileTextures[tileImage] && new PIXI.Sprite(tileTextures[tileImage])
+
+
+    if (sprite) {
+      let scale = (radius * 2) / tileTextures[tileImage].height
+      console.warn(angle)
+      sprite.scale = { x: scale, y: scale * angle }
+      hexagon.addChild(sprite)
+    }
+    // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
 
     if (orientation === ORIENTATION.POINTY) {
       let coords = COORDS.POINTY({ angle, radius, height })

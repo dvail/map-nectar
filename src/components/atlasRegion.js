@@ -1,5 +1,5 @@
 export default {
-  view: ({ attrs: { image, atlas, region, scale = 1.0 } }) => {
+  view: ({ attrs: { image, atlas, region, onclick, scale = 1.0 } }) => {
     let { x, y, w, h } = atlas[region]
 
     let wrapperStyle = `
@@ -16,7 +16,7 @@ export default {
     `
 
     return (
-      <div style={wrapperStyle}>
+      <div style={wrapperStyle} onclick={onclick}>
         <div style={style} class='transform-origin-tl bg-no-repeat' />
       </div>
     )

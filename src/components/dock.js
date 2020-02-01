@@ -2,6 +2,7 @@ import FaIcon from './faIcon'
 import AtlasRegion from './atlasRegion'
 import completePng from '../../res/hexagonTerrain_sheet.png'
 import completeJson from '../../res/hexagonTerrain_sheet.json'
+import { actions } from '../store'
 
 export default function Dock() {
   let image = completePng
@@ -15,7 +16,7 @@ export default function Dock() {
         <div class='flex flex-row items-left'>
           {regionsNames.map(region => (
             <div class='cursor-pointer m-1'>
-              <AtlasRegion region={region} image={image} atlas={atlas} scale={0.3} />
+              <AtlasRegion region={region} image={image} atlas={atlas} scale={0.3} onclick={() => actions.SetSelectedTileImage(region)} />
             </div>
           ))}
           <FaIcon type='fa-bars' />
