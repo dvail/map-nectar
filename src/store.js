@@ -32,9 +32,6 @@ export function initMeiosis(initialState = {}) {
   }
 
   let actions = {
-    SetShift: produceUpdate((prev, next, e) => {
-      next.shiftKey = e.shiftKey
-    }),
     SetRotation: produceUpdate((prev, next, rotation) => {
       next.rotation = rotation
     }),
@@ -53,9 +50,6 @@ export function initMeiosis(initialState = {}) {
     DecreaseAngle: produceUpdate((prev, next) => {
       next.viewAngle = Math.max(next.viewAngle - 0.05, 0.0)
     }),
-    MapLoad: produceUpdate((prev, next, payload) => {
-      next.mapData.tiles = payload.tiles
-    }),
     RemoveTile: produceUpdate((prev, next, payload) => {
       let key = tileKey(payload.q, payload.r)
       delete next.mapData.tiles[key]
@@ -67,12 +61,6 @@ export function initMeiosis(initialState = {}) {
         ...prev.mapData.tiles[key],
         ...payload,
       }
-    }),
-    ToggleTileBuilder: produceUpdate((prev, next) => {
-      next.tileBuilderOpen = !prev.tileBuilderOpen
-    }),
-    OpenTileBuilder: produceUpdate((prev, next, isOpen) => {
-      next.tileBuilderOpen = isOpen
     }),
     ToggleDockDrawer: produceUpdate((prev, next) => {
       next.dockDrawerOpen = !prev.dockDrawerOpen
@@ -102,7 +90,6 @@ export const [useStore] = create((set, get) => ({
   dockDrawerOpen: false,
   selectedTileSprite: null,
   setShift: e => {
-    console.warn(get())
     set({ shiftKey: e.shiftKey })
   },
   toggleTileBuilder: () => {
@@ -112,8 +99,7 @@ export const [useStore] = create((set, get) => ({
     set({ tileBuilderOpen: isOpen })
   },
   mapLoad: payload => {
-    let prev = get().mapData
-    let mapData = produce(prev, next => {
+    let mapData = produce(get().mapData, next => {
       next.tiles = payload.tiles
     })
 

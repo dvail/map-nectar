@@ -1,7 +1,7 @@
 import React from 'react'
 import range from 'lodash/range'
 
-import { RotationIncrement, states, actions } from '../store'
+import { RotationIncrement, useStore, states, actions } from '../store'
 
 let rotationMarkers = range(0, 360, RotationIncrement)
 
