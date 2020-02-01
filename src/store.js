@@ -32,9 +32,6 @@ export function initMeiosis(initialState = {}) {
   }
 
   let actions = {
-    SetRotation: produceUpdate((prev, next, rotation) => {
-      next.rotation = rotation
-    }),
     RotateClock: produceUpdate((prev, next) => {
       next.rotation += RotationIncrement
       next.rotation %= 360
@@ -105,5 +102,8 @@ export const [useStore] = create((set, get) => ({
   },
   setSelectedTileImage: imageName => {
     set({ selectedTileImage: imageName })
+  },
+  setRotation: rotation => {
+    set({ rotation })
   },
 }))

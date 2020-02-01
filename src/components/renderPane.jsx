@@ -22,7 +22,6 @@ export default function RenderPane() {
   let initialState = states()
   let previousState = initialState
 
-  let [pixiApp, setPixiApp] = useState(null)
   let [pixiViewport, setPixiViewPort] = useState(null)
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
@@ -175,7 +174,6 @@ export default function RenderPane() {
 
     viewport.addChild(tileGrid.container)
 
-    setPixiApp(app)
     setPixiViewPort(viewport)
     setSkeletonGrid(baseGrid)
     setHexGrid(tileGrid)

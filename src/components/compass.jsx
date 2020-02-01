@@ -1,12 +1,13 @@
 import React from 'react'
 import range from 'lodash/range'
 
-import { RotationIncrement, useStore, states, actions } from '../store'
+import { RotationIncrement, useStore } from '../store'
 
 let rotationMarkers = range(0, 360, RotationIncrement)
 
 export default function Compass() {
-  let { rotation } = states()
+  let rotation = useStore(state => state.rotation)
+  let setRotation = useStore(state => state.setRotation)
 
   return (
     <div className='w-32 h-32 absolute top-0 right-0'>
@@ -18,7 +19,7 @@ export default function Compass() {
         >
           <div
             className={`h-4 w-4 cursor-pointer rounded-full ${rotation === ri ? 'bg-red-600' : 'bg-blue-600'}`}
-            onClick={() => actions.SetRotation(ri)}
+            onClick={() => setRotation(ri)}
           />
         </div>
       ))}
