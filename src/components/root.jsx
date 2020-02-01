@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import RenderPane from './renderPane'
 import Sidebar from './sidebar'
@@ -8,7 +8,13 @@ import TileBuilder from './tileBuilder'
 import { useStore } from '../store'
 
 export default function Root() {
+  const getAll = useStore(state => state.getAll)
   const setShift = useStore(state => state.setShift)
+
+  useEffect(() => {
+    // Expose state view to console
+    window.getAll = getAll
+  }, [])
 
   return (
     <div

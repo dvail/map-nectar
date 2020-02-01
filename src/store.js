@@ -18,7 +18,7 @@ export function initMeiosis(initialState = {}) {
     shiftKey: false,
     tileBuilderOpen: false,
     dockDrawerOpen: false,
-    selectedTileSprite: null,
+    selectedTileImage: null,
     ...initialState,
   }
 
@@ -68,9 +68,6 @@ export function initMeiosis(initialState = {}) {
     OpenDockDrawer: produceUpdate((prev, next, isOpen) => {
       next.dockDrawerOpen = isOpen
     }),
-    SetSelectedTileImage: produceUpdate((prev, next, imageName) => {
-      next.selectedTileImage = imageName
-    }),
   }
 
   return {
@@ -82,13 +79,14 @@ export function initMeiosis(initialState = {}) {
 export const { states, actions } = initMeiosis()
 
 export const [useStore] = create((set, get) => ({
+  getAll: get,
   rotation: 0,
   viewAngle: 0.65,
   mapData: { tiles: {} },
   shiftKey: false,
   tileBuilderOpen: false,
   dockDrawerOpen: false,
-  selectedTileSprite: null,
+  selectedTileImage: null,
   setShift: e => {
     set({ shiftKey: e.shiftKey })
   },
@@ -104,5 +102,8 @@ export const [useStore] = create((set, get) => ({
     })
 
     set({ mapData })
+  },
+  setSelectedTileImage: imageName => {
+    set({ selectedTileImage: imageName })
   },
 }))
