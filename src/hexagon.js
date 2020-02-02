@@ -142,17 +142,30 @@ function create({
     hexagon.x = x
     hexagon.y = y
 
+    if (sprite) {
+      sprite.destroy()
+      sprite = null
+    }
+
     if (!sprite && tileImage && tileTextures[tileImage]) {
       sprite = new PIXI.Sprite(tileTextures[tileImage])
+      sprite.anchor.set(0.5, 0.5)
     }
 
     if (sprite) {
-      let scale = (radius * 2) / tileTextures[tileImage].height
-      let vertHeight = 1.0 - angle
-      sprite.scale = { x: scale, y: scale * angle }
-      sprite.x = -(sprite.width / 2)
-      sprite.y = -(sprite.height / 2) - (altitudePixelOffsetRatio * altitude * vertHeight)
-      hexagon.addChild(sprite)
+      if (orientation === ORIENTATION.POINTY) {
+        let scale = (radius * 2) / tileTextures[tileImage].height
+        sprite.rotation = 0
+        sprite.scale = { x: scale, y: scale * angle }
+        hexagon.addChild(sprite)
+      }
+
+      if (orientation === ORIENTATION.FLAT) {
+        let scale = (radius * 2) / tileTextures[tileImage].height
+        sprite.rotation = Math.PI / 6
+        sprite.scale = { x: scale, y: scale * angle }
+        hexagon.addChild(sprite)
+      }
     }
     // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
 
