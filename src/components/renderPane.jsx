@@ -115,13 +115,14 @@ export default function RenderPane() {
   }
 
   function onDragMove(e) {
-    if (!shiftKey) return
+    if (!shiftKeyRef.current) return
     console.warn('Can I detect event.buttons in here to avoid the dragStart/End methods?')
 
     let { x, y } = e.data.global
 
     if (!shiftDragCoordsRef.current) {
       setShiftDragCoords({ x, y })
+      return
     }
 
     let { x: ox, y: oy } = shiftDragCoordsRef.current
