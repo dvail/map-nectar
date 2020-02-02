@@ -127,7 +127,7 @@ function create({
     x,
     y,
     zIndex,
-    altitude, // TODO CHange name to altitude to avoid confusion
+    altitude,
     radius,
     fillColor,
     fillAlpha = 1.0,
@@ -153,19 +153,20 @@ function create({
     if (!sprite && tileImage && tileTextures[tileImage]) {
       sprite = new PIXI.Sprite(tileTextures[tileImage])
       spriteContainer = new PIXI.Container()
-      spriteContainer.addChild(sprite)
-      sprite.anchor.set(0.5, 0.5)
-    }
 
-    if (sprite) {
+      // Scale and offset container
       let scale = (radius * 2) / tileTextures[tileImage].height
       let vertHeight = 1.0 - angle
       spriteContainer.scale = { x: scale, y: scale * angle }
       spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
-      hexagon.addChild(spriteContainer)
 
+      // Rotate sprite within the container
+      sprite.anchor.set(0.5, 0.5)
       orientation === ORIENTATION.POINTY && (sprite.rotation = 0)
       orientation === ORIENTATION.FLAT && (sprite.rotation = Math.PI / 6)
+
+      spriteContainer.addChild(sprite)
+      hexagon.addChild(spriteContainer)
     }
 
     // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
