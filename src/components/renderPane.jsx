@@ -34,23 +34,59 @@ export default function RenderPane() {
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
 
-  const renderPaneRef = useRef(null);
-
   let [shiftDragCoords, setShiftDragCoords] = useState(null)
   let [dragging, setDragging] = useState(false)
 
-  function onTileClick(ev, q, r) {
-  }
+  const renderPaneRef = useRef(null)
+  const mapDataRef = useRef(mapData)
+  const selectedTileImageRef = useRef(selectedTileImage)
+  const draggingRef = useRef(dragging)
+  const shiftKeyRef = useRef(shiftKey)
+  const shiftDragCoordsRef = useRef(shiftDragCoords)
 
   useEffect(() => {
     initializePixi(renderPaneRef.current)
   }, [])
 
+  // Used to update stale references passed to PIXI callbacks
+  useEffect(() => {
+    mapDataRef.current = mapData
+    selectedTileImageRef.current = selectedTileImage
+    draggingRef.current = dragging
+    shiftKeyRef.current = shiftKey
+    shiftDragCoordsRef.current = shiftDragCoords
+  }, [mapData, selectedTileImage, dragging, shiftKey, shiftDragCoords])
+
+  useEffect(() => {
+    hexGrid?.setRotation(rotation)
+    skeletonGrid?.setRotation(rotation)
+  }, [rotation])
+
+  useEffect(() => {
+    hexGrid?.setAngle(viewAngle)
+    skeletonGrid?.setAngle(viewAngle)
+  }, [viewAngle])
+
+  useEffect(() => {
+    if (shiftKey) {
+      pixiViewport?.plugins.pause('drag')
+    } else {
+      pixiViewport?.plugins.resume('drag')
+    }
+  }, [shiftKey])
+
+  useEffect(() => {
+    hexGrid?.renderTiles(mapData.tiles)
+  }, [mapData])
+
+  function onTileClick(ev, q, r) {
+  }
+
   function onTileRightClick(ev, q, r) {
-    if (dragging) return
+    if (draggingRef.current) return
 
     let shift = ev.data.originalEvent.shiftKey
-    let tile = mapData.tiles[tileKey(q, r)]
+    let tile = mapDataRef.current.tiles[tileKey(q, r)]
 
     if (shift && !tile) return
 
@@ -59,7 +95,7 @@ export default function RenderPane() {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
 
-    opts.tileImage = selectedTileImage
+    opts.tileImage = selectedTileImageRef.current
 
     // TODO Maybe do away with trying to do delcarative rendering to the PIXI canvas
     // ans create and imperitive/declarative bridge between this and the rest of the UI
@@ -73,7 +109,7 @@ export default function RenderPane() {
   function onDragStart(e) {
     let { x, y } = e.data.global
 
-    if (!shiftDragCoords) {
+    if (!shiftDragCoordsRef.current) {
       setShiftDragCoords({ x, y })
     }
   }
@@ -84,11 +120,11 @@ export default function RenderPane() {
 
     let { x, y } = e.data.global
 
-    if (!shiftDragCoords) {
+    if (!shiftDragCoordsRef.current) {
       setShiftDragCoords({ x, y })
     }
 
-    let { x: ox, y: oy } = shiftDragCoords
+    let { x: ox, y: oy } = shiftDragCoordsRef.current
     let deltaX = x - ox
     let deltaY = y - oy
 
@@ -178,28 +214,6 @@ export default function RenderPane() {
     setSkeletonGrid(baseGrid)
     setHexGrid(tileGrid)
   }
-
-  useEffect(() => {
-    hexGrid?.setRotation(rotation)
-    skeletonGrid?.setRotation(rotation)
-  }, [rotation])
-
-  useEffect(() => {
-    hexGrid?.setAngle(viewAngle)
-    skeletonGrid?.setAngle(viewAngle)
-  }, [viewAngle])
-
-  useEffect(() => {
-    if (shiftKey) {
-      pixiViewport?.plugins.pause('drag')
-    } else {
-      pixiViewport?.plugins.resume('drag')
-    }
-  }, [shiftKey])
-
-  useEffect(() => {
-    hexGrid?.renderTiles(mapData.tiles)
-  }, [mapData])
 
   return (
     <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault()} />
