@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
+import PixiFps from "pixi-fps";
+
 import range from 'lodash/range'
 
 import { useStore, tileKey } from '../store'
@@ -161,6 +163,7 @@ export default function RenderPane() {
     let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
 
     app.stage.addChild(viewport)
+    app.stage.addChild(new PixiFps());
 
     let tileTextures = {}
 
