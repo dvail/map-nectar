@@ -114,6 +114,7 @@ function create({
   // TODO
   let hexagon = new PIXI.Graphics()
   let sprite = null
+  let spriteContainer = null
 
   hexagon.interactive = true
 
@@ -145,30 +146,29 @@ function create({
     if (sprite) {
       sprite.destroy()
       sprite = null
+      spriteContainer.destroy()
+      spriteContainer = null
     }
 
     if (!sprite && tileImage && tileTextures[tileImage]) {
       sprite = new PIXI.Sprite(tileTextures[tileImage])
+      spriteContainer = new PIXI.Container()
+      spriteContainer.addChild(sprite)
       sprite.anchor.set(0.5, 0.5)
     }
 
     if (sprite) {
-      if (orientation === ORIENTATION.POINTY) {
-        let scale = (radius * 2) / tileTextures[tileImage].height
-        sprite.rotation = 0
-        sprite.scale = { x: scale, y: scale * angle }
-        hexagon.addChild(sprite)
-      }
+      let scale = (radius * 2) / tileTextures[tileImage].height
+      let vertHeight = 1.0 - angle
+      spriteContainer.scale = { x: scale, y: scale * angle }
+      spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
+      hexagon.addChild(spriteContainer)
 
-      if (orientation === ORIENTATION.FLAT) {
-        let scale = (radius * 2) / tileTextures[tileImage].height
-        sprite.rotation = Math.PI / 6
-        sprite.scale = { x: scale, y: scale * angle }
-        hexagon.addChild(sprite)
-      }
+      orientation === ORIENTATION.POINTY && (sprite.rotation = 0)
+      orientation === ORIENTATION.FLAT && (sprite.rotation = Math.PI / 6)
     }
-    // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
 
+    // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
     if (orientation === ORIENTATION.POINTY) {
       let coords = COORDS.POINTY({ angle, radius, altitude })
 
