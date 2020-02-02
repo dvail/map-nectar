@@ -16,7 +16,7 @@ const completePng = '../../res/hexagonTerrain_sheet.png'
 const completeJson = '../../res/hexagonTerrain_sheet.json'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
+const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 40, viewAngle: 0.65 }
 
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
@@ -92,7 +92,7 @@ export default function RenderPane() {
 
     if (shift && !tile) return
 
-    let height = tile?.height + (shift ? -1 : 1) || 0
+    let altitude = tile?.altitude + (shift ? -1 : 1) || 0
     let opts = tile?.opts ?? {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
@@ -101,10 +101,10 @@ export default function RenderPane() {
 
     // TODO Maybe do away with trying to do delcarative rendering to the PIXI canvas
     // ans create and imperitive/declarative bridge between this and the rest of the UI
-    if (height < 0) {
+    if (altitude < 0) {
       removeTile({ q, r })
     } else {
-      updateTile({ q, r, height, opts })
+      updateTile({ q, r, altitude, opts })
     }
   }
 
@@ -181,13 +181,6 @@ export default function RenderPane() {
         Object.entries(sheet.data).forEach(([region, { x, y, w, h }]) => {
           tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
         })
-
-        let test = new PIXI.Sprite(tileTextures["dirt_02.png"])
-
-        test.x = 200
-        test.y = 200
-
-        // viewport.addChild(test)
       })
 
     viewport.drag().wheel()
@@ -201,7 +194,7 @@ export default function RenderPane() {
     // TODO The performance of this probably sucks
     range(-10, 10).forEach(q => {
       range(-10, 10).forEach(r => {
-        baseGrid.renderTile({ q, r, height: 0, opts: skeletonTileOpts })
+        baseGrid.renderTile({ q, r, altitude: 0, opts: skeletonTileOpts })
       })
     })
 

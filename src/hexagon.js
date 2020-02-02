@@ -20,81 +20,82 @@ function dimensions(radius, orientation) {
   return { radius, width, height }
 }
 
-const defaultAltitude = 20
+// For an altitude of '1' - how far up should the tile be shifted
+const altitudePixelOffsetRatio = 20
 
 const COORDS = {}
 
-const coordinateMemoKey = ({ radius, angle, height }) => `${radius}:${angle}:${height}`
+const coordinateMemoKey = ({ radius, angle, altitude }) => `${radius}:${angle}:${altitude}`
 
 /* eslint-disable indent */
-COORDS.POINTY = memoize(({ radius, angle, height }) => {
+COORDS.POINTY = memoize(({ radius, angle, altitude }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
-  let altitude = defaultAltitude * height
+  let tileAltitude = altitudePixelOffsetRatio * altitude
   let halfWidth = width / 2
   let halfRadius = radius / 2
   let vertHeight = 1.0 - angle
 
   let TILE_FACE = [
-    -halfWidth,  halfRadius * angle - altitude * vertHeight,
-    -halfWidth, -halfRadius * angle - altitude * vertHeight,
-             0,     -radius * angle - altitude * vertHeight,
-     halfWidth, -halfRadius * angle - altitude * vertHeight,
-     halfWidth,  halfRadius * angle - altitude * vertHeight,
-             0,      radius * angle - altitude * vertHeight,
+    -halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
+    -halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
+             0,     -radius * angle - tileAltitude * vertHeight,
+     halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
+     halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
+             0,      radius * angle - tileAltitude * vertHeight,
   ]
 
   let LEFT_VERT = [
     TILE_FACE[0],  TILE_FACE[1],
-    TILE_FACE[0],  TILE_FACE[1]  + altitude * vertHeight,
-    TILE_FACE[10], TILE_FACE[11] + altitude * vertHeight,
+    TILE_FACE[0],  TILE_FACE[1]  + tileAltitude * vertHeight,
+    TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
     TILE_FACE[10], TILE_FACE[11],
   ]
 
   let RIGHT_VERT = [
     TILE_FACE[10], TILE_FACE[11],
-    TILE_FACE[10], TILE_FACE[11] + altitude * vertHeight,
-    TILE_FACE[8],  TILE_FACE[9]  + altitude * vertHeight,
+    TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
+    TILE_FACE[8],  TILE_FACE[9]  + tileAltitude * vertHeight,
     TILE_FACE[8],  TILE_FACE[9],
   ]
 
   return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
 }, coordinateMemoKey)
 
-COORDS.FLAT = memoize(({ radius, angle, height }) => {
+COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
-  let altitude = defaultAltitude * height
+  let tileAltitude = altitudePixelOffsetRatio * altitude
   let halfWidth = width / 2
   let halfRadius = radius / 2
   let vertHeight = 1.0 - angle
 
   let TILE_FACE = [
-        -radius,                  0 - altitude * vertHeight,
-    -halfRadius,  halfWidth * angle - altitude * vertHeight,
-     halfRadius,  halfWidth * angle - altitude * vertHeight,
-         radius,                  0 - altitude * vertHeight,
-     halfRadius, -halfWidth * angle - altitude * vertHeight,
-    -halfRadius, -halfWidth * angle - altitude * vertHeight,
+        -radius,                  0 - tileAltitude * vertHeight,
+    -halfRadius,  halfWidth * angle - tileAltitude * vertHeight,
+     halfRadius,  halfWidth * angle - tileAltitude * vertHeight,
+         radius,                  0 - tileAltitude * vertHeight,
+     halfRadius, -halfWidth * angle - tileAltitude * vertHeight,
+    -halfRadius, -halfWidth * angle - tileAltitude * vertHeight,
   ]
 
   let LEFT_VERT = [
     TILE_FACE[0], TILE_FACE[1],
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + altitude * vertHeight,
-    TILE_FACE[0], TILE_FACE[1] + altitude * vertHeight,
+    TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
+    TILE_FACE[0], TILE_FACE[1] + tileAltitude * vertHeight,
   ]
 
   let CENTER_VERT = [
     TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + altitude * vertHeight,
-    TILE_FACE[4], TILE_FACE[5] + altitude * vertHeight,
+    TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
+    TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
     TILE_FACE[4], TILE_FACE[5],
   ]
 
   let RIGHT_VERT = [
     TILE_FACE[6], TILE_FACE[7],
     TILE_FACE[4], TILE_FACE[5],
-    TILE_FACE[4], TILE_FACE[5] + altitude * vertHeight,
-    TILE_FACE[6], TILE_FACE[7] + altitude * vertHeight,
+    TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
+    TILE_FACE[6], TILE_FACE[7] + tileAltitude * vertHeight,
   ]
 
   return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
@@ -102,6 +103,7 @@ COORDS.FLAT = memoize(({ radius, angle, height }) => {
 /* eslint-enable indent */
 
 function create({
+  container,
   q,
   r,
   onTileClick = noop,
@@ -111,17 +113,20 @@ function create({
   // TODO These can all share the same PIXI.GraphicsGeometry instance!
   // TODO
   let hexagon = new PIXI.Graphics()
+  let sprite = null
 
   hexagon.interactive = true
 
   hexagon.on('click', ev => onTileClick(ev, q, r))
   hexagon.on('rightclick', ev => onTileRightClick(ev, q, r))
 
+  container.addChild(hexagon)
+
   function draw({
     x,
     y,
     zIndex,
-    height, // TODO CHange name to altitude to avoid confusion
+    altitude, // TODO CHange name to altitude to avoid confusion
     radius,
     fillColor,
     fillAlpha = 1.0,
@@ -137,19 +142,22 @@ function create({
     hexagon.x = x
     hexagon.y = y
 
-    let sprite = tileImage && tileTextures[tileImage] && new PIXI.Sprite(tileTextures[tileImage])
-
+    if (!sprite && tileImage && tileTextures[tileImage]) {
+      sprite = new PIXI.Sprite(tileTextures[tileImage])
+    }
 
     if (sprite) {
       let scale = (radius * 2) / tileTextures[tileImage].height
-      console.warn(angle)
+      let vertHeight = 1.0 - angle
       sprite.scale = { x: scale, y: scale * angle }
+      sprite.x = -(sprite.width / 2)
+      sprite.y = -(sprite.height / 2) - (altitudePixelOffsetRatio * altitude * vertHeight)
       hexagon.addChild(sprite)
     }
     // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
 
     if (orientation === ORIENTATION.POINTY) {
-      let coords = COORDS.POINTY({ angle, radius, height })
+      let coords = COORDS.POINTY({ angle, radius, altitude })
 
       strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
       fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
@@ -165,7 +173,7 @@ function create({
       hexagon.drawPolygon(coords.TILE_FACE)
       hexagon.endFill()
     } else if (orientation === ORIENTATION.FLAT) {
-      let coords = COORDS.FLAT({ angle, radius, height })
+      let coords = COORDS.FLAT({ angle, radius, altitude })
 
       strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
       fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
@@ -182,15 +190,19 @@ function create({
       hexagon.drawPolygon(coords.TILE_FACE)
       hexagon.endFill()
     } else {
-      throw new Error('Invalid orientation provided');
+      throw new Error('Invalid orientation provided')
     }
 
     hexagon.zIndex = zIndex
   }
 
+  function destroy() {
+    hexagon.destroy()
+  }
+
   return {
-    graphics: hexagon,
     draw,
+    destroy,
   }
 }
 

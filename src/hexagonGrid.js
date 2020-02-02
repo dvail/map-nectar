@@ -76,21 +76,20 @@ function create({
     }
   }
 
-  function renderTile({ q, r, height, opts }) {
+  function renderTile({ q, r, altitude, opts }) {
     let key = tileKey(q, r)
     let tile = tiles[key]
     let hexagon = tile?.hexagon
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
 
     if (!tile) {
-      hexagon = Hexagon.create({ q, r, x, y, onTileClick, onTileRightClick })
-      container.addChild(hexagon.graphics)
+      hexagon = Hexagon.create({ container, q, r, x, y, onTileClick, onTileRightClick })
     }
 
-    tile = { q, r, height, opts, hexagon }
+    tile = { q, r, altitude, opts, hexagon }
     tiles[key] = tile
 
-    tile.hexagon.draw({ x, y, zIndex, height, orientation, angle, radius, tileTextures, ...opts })
+    tile.hexagon.draw({ x, y, zIndex, altitude, orientation, angle, radius, tileTextures, ...opts })
   }
 
   function renderTiles(newTiles) {
@@ -102,7 +101,7 @@ function create({
     Object.keys(tiles).forEach(key => {
       if (newTiles[key] || !tiles[key]) return
 
-      tiles[key].hexagon.graphics.destroy()
+      tiles[key].hexagon.destroy()
       delete tiles[key]
     })
   }
