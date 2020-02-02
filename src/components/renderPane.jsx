@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-import m from 'mithril'
-import stream from 'mithril/stream'
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
-import { states, actions, tileKey } from '../store'
+import { useStore, tileKey } from '../store'
 
 import ColorUtils from '../colorUtils'
 import HexagonGrid from '../hexagonGrid'
@@ -19,8 +17,18 @@ const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlp
 const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 35, viewAngle: 0.65 }
 
 export default function RenderPane() {
-  let initialState = states()
-  let previousState = initialState
+  let rotation = useStore(state => state.rotation)
+  let viewAngle = useStore(state => state.viewAngle)
+  let shiftKey = useStore(state => state.shiftKey)
+  let mapData = useStore(state => state.mapData)
+  let selectedTileImage = useStore(state => state.selectedTileImage)
+
+  let removeTile = useStore(state => state.removeTile)
+  let updateTile = useStore(state => state.updateTile)
+  let rotateClock = useStore(state => state.rotateClock)
+  let rotateCounter = useStore(state => state.rotateCounter)
+  let increaseAngle = useStore(state => state.increaseAngle)
+  let decreaseAngle = useStore(state => state.decreaseAngle)
 
   let [pixiViewport, setPixiViewPort] = useState(null)
   let [skeletonGrid, setSkeletonGrid] = useState(null)
@@ -28,10 +36,8 @@ export default function RenderPane() {
 
   const renderPaneRef = useRef(null);
 
-  let shiftDragCoords = stream(null)
-  let dragging = stream(false)
-  let shiftKey = stream(initialState.shiftKey)
-  let mapData = stream(initialState.mapData)
+  let [shiftDragCoords, setShiftDragCoords] = useState(null)
+  let [dragging, setDragging] = useState(false)
 
   function onTileClick(ev, q, r) {
   }
@@ -41,10 +47,10 @@ export default function RenderPane() {
   }, [])
 
   function onTileRightClick(ev, q, r) {
-    if (dragging()) return
+    if (dragging) return
 
     let shift = ev.data.originalEvent.shiftKey
-    let tile = mapData().tiles[tileKey(q, r)]
+    let tile = mapData.tiles[tileKey(q, r)]
 
     if (shift && !tile) return
 
@@ -53,38 +59,36 @@ export default function RenderPane() {
       fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
     }
 
-    opts.tileImage = states().selectedTileImage
+    opts.tileImage = selectedTileImage
 
     // TODO Maybe do away with trying to do delcarative rendering to the PIXI canvas
     // ans create and imperitive/declarative bridge between this and the rest of the UI
     if (height < 0) {
-      actions.RemoveTile({ q, r })
+      removeTile({ q, r })
     } else {
-      actions.UpdateTile({ q, r, height, opts })
+      updateTile({ q, r, height, opts })
     }
-
-    m.redraw();
   }
 
   function onDragStart(e) {
     let { x, y } = e.data.global
 
-    if (!shiftDragCoords()) {
-      shiftDragCoords({ x, y })
+    if (!shiftDragCoords) {
+      setShiftDragCoords({ x, y })
     }
   }
 
   function onDragMove(e) {
-    if (!shiftKey()) return
+    if (!shiftKey) return
     console.warn('Can I detect event.buttons in here to avoid the dragStart/End methods?')
 
     let { x, y } = e.data.global
 
-    if (!shiftDragCoords()) {
-      shiftDragCoords({ x, y })
+    if (!shiftDragCoords) {
+      setShiftDragCoords({ x, y })
     }
 
-    let { x: ox, y: oy } = shiftDragCoords()
+    let { x: ox, y: oy } = shiftDragCoords
     let deltaX = x - ox
     let deltaY = y - oy
 
@@ -93,28 +97,24 @@ export default function RenderPane() {
     let yRotations = Math.round(deltaY / 40)
 
     if (xRotations || yRotations) {
-      shiftDragCoords({ x, y })
+      setShiftDragCoords({ x, y })
     }
 
     if (xRotations < 0) {
-      actions.RotateClock()
+      rotateClock()
     } else if (xRotations > 0) {
-      actions.RotateCounter()
+      rotateCounter()
     }
 
     if (yRotations < 0) {
-      actions.IncreaseAngle()
+      increaseAngle()
     } else if (yRotations > 0) {
-      actions.DecreaseAngle()
-    }
-
-    if (xRotations !== 0 || yRotations !== 0) {
-      m.redraw()
+      decreaseAngle()
     }
   }
 
   function onDragEnd() {
-    shiftDragCoords(null)
+    setShiftDragCoords(null)
   }
 
   function initializePixi(renderPaneElem) {
@@ -130,7 +130,7 @@ export default function RenderPane() {
     // TODO
     // TODO This relies on a race condition to get textures to the rest of the app
     // TODO Fix this to handle async loading and asset storage in a real way
-    // TODO 
+    // TODO
     app.loader
       .add('tile-spritesheet', completeJson)
       .add('tile-spritesheet-png', completePng)
@@ -151,8 +151,8 @@ export default function RenderPane() {
       })
 
     viewport.drag().wheel()
-    viewport.on('drag-start', () => dragging(true))
-    viewport.on('drag-end', () => dragging(false))
+    viewport.on('drag-start', () => setDragging(true))
+    viewport.on('drag-end', () => setDragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
     let baseGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
@@ -179,40 +179,29 @@ export default function RenderPane() {
     setHexGrid(tileGrid)
   }
 
-  function onbeforeupdate() {
-    let newState = states()
+  useEffect(() => {
+    hexGrid?.setRotation(rotation)
+    skeletonGrid?.setRotation(rotation)
+  }, [rotation])
 
-    mapData(newState.mapData)
-    shiftKey(newState.shiftKey)
+  useEffect(() => {
+    hexGrid?.setAngle(viewAngle)
+    skeletonGrid?.setAngle(viewAngle)
+  }, [viewAngle])
 
-    // TODO Convert this section to make better use of streams?
-    if (newState.rotation !== previousState.rotation) {
-      hexGrid?.setRotation(newState.rotation)
-      skeletonGrid?.setRotation(newState.rotation)
-    }
-
-    if (newState.viewAngle !== previousState.viewAngle) {
-      hexGrid?.setAngle(newState.viewAngle)
-      skeletonGrid?.setAngle(newState.viewAngle)
-    }
-
-    if (newState.shiftKey) {
+  useEffect(() => {
+    if (shiftKey) {
       pixiViewport?.plugins.pause('drag')
     } else {
       pixiViewport?.plugins.resume('drag')
     }
+  }, [shiftKey])
 
-    // Note: This relies on an object reference change, since data updates
-    // are immutable, the object reference changing indicates a new set of map
-    // tiles.
-    if (newState.mapData.tiles !== previousState.mapData.tiles) {
-      hexGrid?.renderTiles(newState.mapData.tiles)
-    }
-
-    previousState = states()
-  }
+  useEffect(() => {
+    hexGrid?.renderTiles(mapData.tiles)
+  }, [mapData])
 
   return (
-    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={() => false} />
+    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault()} />
   )
 }
