@@ -142,15 +142,6 @@ export default function Hexagon(renderer, {
   onTileClick = noop,
   onTileRightClick = noop,
 }) {
-  // TODO
-  // TODO These can all share the same PIXI.GraphicsGeometry instance!
-  // TODO
-
-  // TODO Also - graphics are slow! Use sprites if possible
-  //
-  // TODO Probably going to want to get rid of the coloring gradient method for perf reasons
-  //
-  // TODO Although apparently tinting is "free", so would be best to convert graphics to sprites and tint them (default is a white rect)
   let hexContainer = new PIXI.Container()
   let sprite = null
   let spriteContainer = null
@@ -185,6 +176,16 @@ export default function Hexagon(renderer, {
       child.destroy()
     })
 
+    if (tileImage) {
+      drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures )
+    } else {
+      drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
+    }
+
+    hexContainer.zIndex = zIndex
+  }
+
+  function drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures) {
     if (sprite) {
       sprite.destroy()
       sprite = null
@@ -211,7 +212,9 @@ export default function Hexagon(renderer, {
 
       hexContainer.addChild(spriteContainer)
     }
+  }
 
+  function drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor) {
     let texture = Texture({ renderer, orientation, radius, angle, altitude })
     let topSprite = new PIXI.Sprite(texture)
     let vertHeight = 1.0 - angle
@@ -219,8 +222,6 @@ export default function Hexagon(renderer, {
     topSprite.y = -(altitude * altitudePixelOffsetRatio * vertHeight)
 
     hexContainer.addChild(topSprite)
-
-    hexContainer.zIndex = zIndex
   }
 
   function destroy() {

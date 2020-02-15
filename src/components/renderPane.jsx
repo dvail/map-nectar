@@ -16,7 +16,7 @@ const completePng = '../../res/hexagonTerrain_sheet.png'
 const completeJson = '../../res/hexagonTerrain_sheet.json'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 40, viewAngle: 0.65 }
+const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
 
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
