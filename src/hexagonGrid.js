@@ -1,11 +1,11 @@
 import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
-import Hexagon from './hexagon'
+import Hexagon, { ORIENTATION, dimensions } from './hexagon'
 
 import { tileKey } from './store'
 
 function getZIndex(q, r, s, orientation) {
-  if (orientation === Hexagon.ORIENTATION.POINTY) {
+  if (orientation === ORIENTATION.POINTY) {
     return r;
   } else {
     return q + r + r
@@ -14,8 +14,8 @@ function getZIndex(q, r, s, orientation) {
 
 function orientationFromDegrees(degrees) {
   return (degrees / 30) % 2 === 0
-    ? Hexagon.ORIENTATION.POINTY
-    : Hexagon.ORIENTATION.FLAT;
+    ? ORIENTATION.POINTY
+    : ORIENTATION.FLAT;
 }
 
 function getAxialViewCoords(q, r, rotation) {
@@ -37,7 +37,7 @@ function getAxialViewCoords(q, r, rotation) {
   }[rotation]
 }
 
-function create({
+export default function HexagonGrid(renderer, {
   gridX,
   gridY,
   tileSize,
@@ -58,12 +58,12 @@ function create({
   function getTileCoords(q, r) {
     const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
     const orientation = orientationFromDegrees(rotation)
-    const { width, height } = Hexagon.dimensions(radius, orientation)
+    const { width, height } = dimensions(radius, orientation)
 
     let xOffset = width * (viewQ + (viewR / 2))
     let yOffset = (height * 3 / 4) * viewR * angle
 
-    if (orientation === Hexagon.ORIENTATION.FLAT) {
+    if (orientation === ORIENTATION.FLAT) {
       xOffset = width * viewQ * (3 / 4)
       yOffset = height * (viewR + (viewQ / 2)) * angle
     }
@@ -83,7 +83,7 @@ function create({
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
 
     if (!tile) {
-      hexagon = Hexagon.create({ container, q, r, x, y, onTileClick, onTileRightClick })
+      hexagon = Hexagon(renderer, { container, q, r, x, y, onTileClick, onTileRightClick })
     }
 
     tile = { q, r, altitude, opts, hexagon }
@@ -127,8 +127,4 @@ function create({
     setAngle,
     renderTiles,
   }
-}
-
-export default {
-  create,
 }

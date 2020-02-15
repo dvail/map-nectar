@@ -102,7 +102,40 @@ COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
 }, coordinateMemoKey)
 /* eslint-enable indent */
 
-function create({
+const textureMemoKey = ({ renderer, orientation, radius, angle, altitude }) => `${orientation}:${radius}:${angle}:${altitude}`
+
+let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
+  let coords = COORDS[orientation]({ angle, radius, altitude })
+  let hex = new PIXI.Graphics()
+
+  hex.lineStyle(0)
+  hex.beginFill(0xffffff)
+  hex.drawPolygon(coords.TILE_FACE)
+  hex.endFill()
+
+  if (orientation === ORIENTATION.POINTY) {
+    hex.beginFill(ColorUtils.darken(0xffffff, 20))
+    hex.drawPolygon(coords.LEFT_VERT)
+    hex.endFill()
+
+    hex.beginFill(ColorUtils.darken(0xffffff, 40))
+    hex.drawPolygon(coords.RIGHT_VERT)
+    hex.endFill()
+  } else if (orientation === ORIENTATION.FLAT) {
+    hex.beginFill(ColorUtils.darken(0xffffff, 40))
+    hex.drawPolygon(coords.LEFT_VERT)
+    hex.drawPolygon(coords.RIGHT_VERT)
+    hex.endFill()
+
+    hex.beginFill(ColorUtils.darken(0xffffff, 20))
+    hex.drawPolygon(coords.CENTER_VERT)
+    hex.endFill()
+  }
+
+  return renderer.generateTexture(hex)
+}, textureMemoKey)
+
+export default function Hexagon(renderer, {
   container,
   q,
   r,
@@ -112,16 +145,22 @@ function create({
   // TODO
   // TODO These can all share the same PIXI.GraphicsGeometry instance!
   // TODO
-  let hexagon = new PIXI.Graphics()
+
+  // TODO Also - graphics are slow! Use sprites if possible
+  //
+  // TODO Probably going to want to get rid of the coloring gradient method for perf reasons
+  //
+  // TODO Although apparently tinting is "free", so would be best to convert graphics to sprites and tint them (default is a white rect)
+  let hexContainer = new PIXI.Container()
   let sprite = null
   let spriteContainer = null
 
-  hexagon.interactive = true
+  hexContainer.interactive = true
 
-  hexagon.on('click', ev => onTileClick(ev, q, r))
-  hexagon.on('rightclick', ev => onTileRightClick(ev, q, r))
+  hexContainer.on('click', ev => onTileClick(ev, q, r))
+  hexContainer.on('rightclick', ev => onTileRightClick(ev, q, r))
 
-  container.addChild(hexagon)
+  container.addChild(hexContainer)
 
   function draw({
     x,
@@ -138,10 +177,13 @@ function create({
     tileImage,
     tileTextures = {},
   }) {
-    hexagon.clear();
+    hexContainer.x = x
+    hexContainer.y = y
 
-    hexagon.x = x
-    hexagon.y = y
+    hexContainer.children.forEach(child => {
+      hexContainer.removeChild(child)
+      child.destroy()
+    })
 
     if (sprite) {
       sprite.destroy()
@@ -166,52 +208,24 @@ function create({
       orientation === ORIENTATION.FLAT && (sprite.rotation = Math.PI / 6)
 
       spriteContainer.addChild(sprite)
-      hexagon.addChild(spriteContainer)
+
+      hexContainer.addChild(spriteContainer)
     }
 
-    // TODO Handle the ability to change between PIXI.Graphics and PIXI.Sprite here
-    if (orientation === ORIENTATION.POINTY) {
-      let coords = COORDS.POINTY({ angle, radius, altitude })
+    let texture = Texture({ renderer, orientation, radius, angle, altitude })
+    let topSprite = new PIXI.Sprite(texture)
+    let vertHeight = 1.0 - angle
+    topSprite.tint = fillColor
+    topSprite.y = -(altitude * altitudePixelOffsetRatio * vertHeight)
 
-      strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
-      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
-      hexagon.drawPolygon(coords.LEFT_VERT)
-      hexagon.endFill()
+    hexContainer.addChild(topSprite)
 
-      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
-      hexagon.drawPolygon(coords.RIGHT_VERT)
-      hexagon.endFill()
-
-      // Draw main tile face
-      fillColor && hexagon.beginFill(fillColor, fillAlpha)
-      hexagon.drawPolygon(coords.TILE_FACE)
-      hexagon.endFill()
-    } else if (orientation === ORIENTATION.FLAT) {
-      let coords = COORDS.FLAT({ angle, radius, altitude })
-
-      strokeColor && hexagon.lineStyle(1, strokeColor, strokeAlpha, 0, true)
-      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 40), fillAlpha)
-      hexagon.drawPolygon(coords.LEFT_VERT)
-      hexagon.drawPolygon(coords.RIGHT_VERT)
-      hexagon.endFill()
-
-      fillColor && hexagon.beginFill(ColorUtils.darken(fillColor, 20), fillAlpha)
-      hexagon.drawPolygon(coords.CENTER_VERT)
-      hexagon.endFill()
-
-      // Draw main tile face
-      fillColor && hexagon.beginFill(fillColor, fillAlpha)
-      hexagon.drawPolygon(coords.TILE_FACE)
-      hexagon.endFill()
-    } else {
-      throw new Error('Invalid orientation provided')
-    }
-
-    hexagon.zIndex = zIndex
+    hexContainer.zIndex = zIndex
   }
 
   function destroy() {
-    hexagon.destroy()
+    hexContainer.children.forEach(child => child.destroy())
+    hexContainer.destroy()
   }
 
   return {
@@ -220,8 +234,7 @@ function create({
   }
 }
 
-export default {
-  create,
+export {
   ORIENTATION,
   dimensions,
 }

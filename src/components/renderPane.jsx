@@ -188,9 +188,9 @@ export default function RenderPane() {
     viewport.on('drag-end', () => setDragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
-    let baseGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick })
+    let baseGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick })
 
-    let tileGrid = HexagonGrid.create({ ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
+    let tileGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
     // TODO The performance of this probably sucks
     range(-10, 10).forEach(q => {
       range(-10, 10).forEach(r => {
