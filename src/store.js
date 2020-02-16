@@ -11,7 +11,6 @@ export const [useStore] = create((set, get) => ({
   rotation: 0,
   viewAngle: 0.65,
   mapData: { tiles: {} },
-  shiftKey: false,
   tileBuilderOpen: false,
   dockDrawerOpen: false,
   selectedTileImage: null,
@@ -33,9 +32,6 @@ export const [useStore] = create((set, get) => ({
   },
   decreaseAngle: () => {
     set({ viewAngle: Math.max(get().viewAngle - 0.05, 0.0) })
-  },
-  setShift: e => {
-    set({ shiftKey: e.shiftKey })
   },
   toggleTileBuilder: () => {
     set({ tileBuilderOpen: !get().tileBuilderOpen })

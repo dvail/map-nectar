@@ -21,7 +21,6 @@ const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
   let viewAngle = useStore(state => state.viewAngle)
-  let shiftKey = useStore(state => state.shiftKey)
   let mapData = useStore(state => state.mapData)
   let selectedTileImage = useStore(state => state.selectedTileImage)
 
@@ -43,21 +42,23 @@ export default function RenderPane() {
   const mapDataRef = useRef(mapData)
   const selectedTileImageRef = useRef(selectedTileImage)
   const draggingRef = useRef(dragging)
-  const shiftKeyRef = useRef(shiftKey)
   const shiftDragCoordsRef = useRef(shiftDragCoords)
 
   useEffect(() => {
     initializePixi(renderPaneRef.current)
   }, [])
 
+  useEffect(() => {
+    console.warn('render')
+  })
+
   // Used to update stale references passed to PIXI callbacks
   useEffect(() => {
     mapDataRef.current = mapData
     selectedTileImageRef.current = selectedTileImage
     draggingRef.current = dragging
-    shiftKeyRef.current = shiftKey
     shiftDragCoordsRef.current = shiftDragCoords
-  }, [mapData, selectedTileImage, dragging, shiftKey, shiftDragCoords])
+  }, [mapData, selectedTileImage, dragging, shiftDragCoords])
 
   useEffect(() => {
     hexGrid?.setRotation(rotation)
@@ -69,6 +70,7 @@ export default function RenderPane() {
     skeletonGrid?.setAngle(viewAngle)
   }, [viewAngle])
 
+  /*
   useEffect(() => {
     if (shiftKey) {
       pixiViewport?.plugins.pause('drag')
@@ -76,6 +78,7 @@ export default function RenderPane() {
       pixiViewport?.plugins.resume('drag')
     }
   }, [shiftKey])
+  */
 
   useEffect(() => {
     hexGrid?.renderTiles(mapData.tiles)
@@ -117,7 +120,9 @@ export default function RenderPane() {
   }
 
   function onDragMove(e) {
-    if (!shiftKeyRef.current) return
+    // TODO Re-implement
+    if (true) return
+
     console.warn('Can I detect event.buttons in here to avoid the dragStart/End methods?')
 
     let { x, y } = e.data.global
