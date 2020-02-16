@@ -108,6 +108,7 @@ let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
   let coords = COORDS[orientation]({ angle, radius, altitude })
   let hex = new PIXI.Graphics()
 
+  hex.lineStyle(0, 0, 0, 0, false)
   hex.beginFill(0xffffff)
   hex.drawPolygon(coords.TILE_FACE)
   hex.endFill()
