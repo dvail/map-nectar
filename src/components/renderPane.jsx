@@ -93,9 +93,9 @@ export default function RenderPane() {
     if (shift && !tile) return
 
     let altitude = tile?.altitude + (shift ? -1 : 1) || 0
-    let opts = tile?.opts ?? {
-      fillColor: ColorUtils.shift(0xFF9933, 0, -q * 20, r * 20),
-    }
+    let opts = tile?.opts ?? {}
+
+    opts.fillColor = ColorUtils.shift(0x999999, (altitude - 2) * 5, -q * 20, r * 20),
 
     opts.tileImage = selectedTileImageRef.current
 

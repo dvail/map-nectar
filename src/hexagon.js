@@ -62,19 +62,19 @@ COORDS.POINTY = memoize(({ radius, angle, altitude }) => {
 }, coordinateMemoKey)
 
 COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
-  let { width } = dimensions(radius, ORIENTATION.POINTY)
+  let { height } = dimensions(radius, ORIENTATION.FLAT)
   let tileAltitude = altitudePixelOffsetRatio * altitude
-  let halfWidth = width / 2
+  let halfHeight = height / 2
   let halfRadius = radius / 2
   let vertHeight = 1.0 - angle
 
   let TILE_FACE = [
         -radius,                  0 - tileAltitude * vertHeight,
-    -halfRadius,  halfWidth * angle - tileAltitude * vertHeight,
-     halfRadius,  halfWidth * angle - tileAltitude * vertHeight,
+    -halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
+     halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
          radius,                  0 - tileAltitude * vertHeight,
-     halfRadius, -halfWidth * angle - tileAltitude * vertHeight,
-    -halfRadius, -halfWidth * angle - tileAltitude * vertHeight,
+     halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
+    -halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
   ]
 
   let LEFT_VERT = [
@@ -108,7 +108,6 @@ let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
   let coords = COORDS[orientation]({ angle, radius, altitude })
   let hex = new PIXI.Graphics()
 
-  hex.lineStyle(0)
   hex.beginFill(0xffffff)
   hex.drawPolygon(coords.TILE_FACE)
   hex.endFill()
@@ -143,7 +142,7 @@ export default function Hexagon(renderer, {
   onTileRightClick = noop,
 }) {
   let hexContainer = new PIXI.Container()
-  let sprite = null
+  let imageSprite = null
   let spriteContainer = null
 
   hexContainer.interactive = true
@@ -161,8 +160,6 @@ export default function Hexagon(renderer, {
     radius,
     fillColor,
     fillAlpha = 1.0,
-    strokeColor,
-    strokeAlpha = 0.0,
     orientation = ORIENTATION.POINTY,
     angle = 1.0,
     tileImage,
@@ -172,56 +169,75 @@ export default function Hexagon(renderer, {
     hexContainer.y = y
 
     hexContainer.children.forEach(child => {
+      // TODO Don't destory these - keep in cache!
       hexContainer.removeChild(child)
       child.destroy()
     })
 
+    drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
+
     if (tileImage) {
       drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures )
-    } else {
-      drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
     }
 
     hexContainer.zIndex = zIndex
   }
 
+  function drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor) {
+    let texture = Texture({ renderer, orientation, radius, angle, altitude })
+    let hexSprite = new PIXI.Sprite(texture)
+    let vertHeight = 1.0 - angle
+    hexSprite.tint = fillColor
+    // TODO These +1s are hacks to prevent spacing between tiles
+    hexSprite.width += 1
+    hexSprite.height += 1
+    hexSprite.y = -(altitude * altitudePixelOffsetRatio * vertHeight)
+
+    hexContainer.addChild(hexSprite)
+  }
+
   function drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures) {
-    if (sprite) {
-      sprite.destroy()
-      sprite = null
+    if (imageSprite) {
+      imageSprite.destroy()
+      imageSprite = null
       spriteContainer.destroy()
       spriteContainer = null
     }
 
-    if (!sprite && tileImage && tileTextures[tileImage]) {
-      sprite = new PIXI.Sprite(tileTextures[tileImage])
+    if (!imageSprite && tileImage && tileTextures[tileImage]) {
+      imageSprite = new PIXI.Sprite(tileTextures[tileImage])
+      // A container is required so that we can scale the image and then rotate
+      // inside the container to prevent skewing
       spriteContainer = new PIXI.Container()
 
       // Scale and offset container
       let scale = (radius * 2) / tileTextures[tileImage].height
       let vertHeight = 1.0 - angle
       spriteContainer.scale = { x: scale, y: scale * angle }
+
+      imageSprite.anchor.set(0.5, 0.5)
+
       spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
 
-      // Rotate sprite within the container
-      sprite.anchor.set(0.5, 0.5)
-      orientation === ORIENTATION.POINTY && (sprite.rotation = 0)
-      orientation === ORIENTATION.FLAT && (sprite.rotation = Math.PI / 6)
+      if (orientation === ORIENTATION.POINTY) {
+        imageSprite.width += 2
+        imageSprite.x += imageSprite.width / 2
+        imageSprite.y += imageSprite.height / 2
+        imageSprite.y -= 1
+        imageSprite.rotation = 0
+      }
 
-      spriteContainer.addChild(sprite)
+      if (orientation === ORIENTATION.FLAT) {
+        spriteContainer.x += radius
+        spriteContainer.y += dimensions(radius, orientation).height * angle / 2
+        imageSprite.width += 2
+        imageSprite.rotation = Math.PI / 6
+      }
+
+      spriteContainer.addChild(imageSprite)
 
       hexContainer.addChild(spriteContainer)
     }
-  }
-
-  function drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor) {
-    let texture = Texture({ renderer, orientation, radius, angle, altitude })
-    let topSprite = new PIXI.Sprite(texture)
-    let vertHeight = 1.0 - angle
-    topSprite.tint = fillColor
-    topSprite.y = -(altitude * altitudePixelOffsetRatio * vertHeight)
-
-    hexContainer.addChild(topSprite)
   }
 
   function destroy() {
