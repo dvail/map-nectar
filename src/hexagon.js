@@ -102,7 +102,7 @@ COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
 }, coordinateMemoKey)
 /* eslint-enable indent */
 
-const textureMemoKey = ({ renderer, orientation, radius, angle, altitude }) => `${orientation}:${radius}:${angle}:${altitude}`
+const textureMemoKey = ({ orientation, radius, angle, altitude }) => `${orientation}:${radius}:${angle}:${altitude}`
 
 let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
   let coords = COORDS[orientation]({ angle, radius, altitude })
@@ -159,7 +159,6 @@ export default function Hexagon(renderer, {
     altitude,
     radius,
     fillColor,
-    fillAlpha = 1.0,
     orientation = ORIENTATION.POINTY,
     angle = 1.0,
     tileImage,
@@ -167,6 +166,7 @@ export default function Hexagon(renderer, {
   }) {
     hexContainer.x = x
     hexContainer.y = y
+    hexContainer.zIndex = zIndex
 
     hexContainer.children.forEach(child => {
       // TODO Don't destory these - keep in cache!
@@ -174,13 +174,18 @@ export default function Hexagon(renderer, {
       child.destroy()
     })
 
-    drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
-
-    if (tileImage) {
-      drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures )
+    if (imageSprite) {
+      imageSprite.destroy()
+      imageSprite = null
+      spriteContainer.destroy()
+      spriteContainer = null
     }
 
-    hexContainer.zIndex = zIndex
+    drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
+
+    if (tileImage && tileTextures[tileImage]) {
+      drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures)
+    }
   }
 
   function drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor) {
@@ -197,47 +202,34 @@ export default function Hexagon(renderer, {
   }
 
   function drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures) {
-    if (imageSprite) {
-      imageSprite.destroy()
-      imageSprite = null
-      spriteContainer.destroy()
-      spriteContainer = null
+    // A container is required so that we can scale the image and then rotate
+    // inside the container to prevent skewing
+    let scale = (radius * 2) / tileTextures[tileImage].height
+    let vertHeight = 1.0 - angle
+    spriteContainer = new PIXI.Container()
+    spriteContainer.scale = { x: scale, y: scale * angle }
+    spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
+
+    imageSprite = new PIXI.Sprite(tileTextures[tileImage])
+    imageSprite.anchor.set(0.5, 0.5)
+    imageSprite.width += 2 // TODO This is a hack to prevent spacing between tiles
+
+    if (orientation === ORIENTATION.POINTY) {
+      imageSprite.x += imageSprite.width / 2
+      imageSprite.y += imageSprite.height / 2
+      imageSprite.y -= 1
+      imageSprite.rotation = 0
     }
 
-    if (!imageSprite && tileImage && tileTextures[tileImage]) {
-      imageSprite = new PIXI.Sprite(tileTextures[tileImage])
-      // A container is required so that we can scale the image and then rotate
-      // inside the container to prevent skewing
-      spriteContainer = new PIXI.Container()
-
-      // Scale and offset container
-      let scale = (radius * 2) / tileTextures[tileImage].height
-      let vertHeight = 1.0 - angle
-      spriteContainer.scale = { x: scale, y: scale * angle }
-
-      imageSprite.anchor.set(0.5, 0.5)
-
-      spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
-
-      if (orientation === ORIENTATION.POINTY) {
-        imageSprite.width += 2
-        imageSprite.x += imageSprite.width / 2
-        imageSprite.y += imageSprite.height / 2
-        imageSprite.y -= 1
-        imageSprite.rotation = 0
-      }
-
-      if (orientation === ORIENTATION.FLAT) {
-        spriteContainer.x += radius
-        spriteContainer.y += dimensions(radius, orientation).height * angle / 2
-        imageSprite.width += 2
-        imageSprite.rotation = Math.PI / 6
-      }
-
-      spriteContainer.addChild(imageSprite)
-
-      hexContainer.addChild(spriteContainer)
+    if (orientation === ORIENTATION.FLAT) {
+      spriteContainer.x += radius
+      spriteContainer.y += dimensions(radius, orientation).height * angle / 2
+      imageSprite.rotation = Math.PI / 6
     }
+
+    // TODO Verify that this does not cause a memory leak
+    spriteContainer.addChild(imageSprite)
+    hexContainer.addChild(spriteContainer)
   }
 
   function destroy() {
