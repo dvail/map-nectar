@@ -20,6 +20,7 @@ function onMapLoad(mapLoad, files) {
 export default function Sidebar() {
   let mapData = useStore(state => state.mapData)
   let toggleTileBuilder = useStore(state => state.toggleTileBuilder)
+  let toggleColorPicker = useStore(state => state.toggleColorPicker)
   let mapLoad = useStore(state => state.mapLoad)
 
   let [saveInputId] = useState(uuidv4())
@@ -28,6 +29,7 @@ export default function Sidebar() {
     <div className='bg-gray-900 p-3 flex flex-col justify-between'>
       <div className='flex flex-col'>
         <FaIcon type='fa-magic' title='Create New Tile' onClick={toggleTileBuilder} />
+        <FaIcon type='fa-eye-dropper' title='Choose tile color' onClick={toggleColorPicker} />
       </div>
       <div className='flex flex-col'>
         <FaIcon type='fa-save' title='Save Map' onClick={() => saveObject(mapData, 'map.json')} />

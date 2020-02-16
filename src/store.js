@@ -11,9 +11,14 @@ export const [useStore] = create((set, get) => ({
   rotation: 0,
   viewAngle: 0.65,
   mapData: { tiles: {} },
+
   tileBuilderOpen: false,
+  colorPickerOpen: false,
   dockDrawerOpen: false,
+
   selectedTileImage: null,
+  selectedTileColor: { r: 187, g: 128, b: 68 },
+
   rotateClock: () => {
     let { rotation } = get()
     rotation += RotationIncrement
@@ -36,6 +41,9 @@ export const [useStore] = create((set, get) => ({
   toggleTileBuilder: () => {
     set({ tileBuilderOpen: !get().tileBuilderOpen })
   },
+  toggleColorPicker: () => {
+    set({ colorPickerOpen: !get().colorPickerOpen })
+  },
   setTileBuilderOpen: isOpen => {
     set({ tileBuilderOpen: isOpen })
   },
@@ -46,9 +54,14 @@ export const [useStore] = create((set, get) => ({
 
     set({ mapData })
   },
+
   setSelectedTileImage: imageName => {
     set({ selectedTileImage: imageName })
   },
+  setSelectedTileColor: color => {
+    set({ selectedTileColor: color.rgb })
+  },
+
   setRotation: rotation => {
     set({ rotation })
   },

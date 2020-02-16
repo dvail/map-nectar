@@ -23,6 +23,7 @@ export default function RenderPane() {
   let viewAngle = useStore(state => state.viewAngle)
   let mapData = useStore(state => state.mapData)
   let selectedTileImage = useStore(state => state.selectedTileImage)
+  let selectedTileColor = useStore(state => state.selectedTileColor)
 
   let removeTile = useStore(state => state.removeTile)
   let updateTile = useStore(state => state.updateTile)
@@ -41,6 +42,7 @@ export default function RenderPane() {
   const renderPaneRef = useRef(null)
   const mapDataRef = useRef(mapData)
   const selectedTileImageRef = useRef(selectedTileImage)
+  const selectedTileColorRef = useRef(selectedTileColor)
   const draggingRef = useRef(dragging)
   const shiftDragCoordsRef = useRef(shiftDragCoords)
 
@@ -52,6 +54,7 @@ export default function RenderPane() {
   useEffect(() => {
     mapDataRef.current = mapData
     selectedTileImageRef.current = selectedTileImage
+    selectedTileColorRef.current = selectedTileColor
     draggingRef.current = dragging
     shiftDragCoordsRef.current = shiftDragCoords
   }, [mapData, selectedTileImage, dragging, shiftDragCoords])
@@ -94,7 +97,7 @@ export default function RenderPane() {
     let altitude = tile?.altitude + (shift ? -1 : 1) || 0
     let opts = tile?.opts ?? {}
 
-    opts.fillColor = ColorUtils.shift(0x999999, (altitude - 2) * 5, -q * 20, r * 20),
+    opts.fillColor = ColorUtils.fromRGB(selectedTileColorRef.current)
 
     opts.tileImage = selectedTileImageRef.current
 

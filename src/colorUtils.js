@@ -20,7 +20,12 @@ function shift(color, rShift, gShift, bShift) {
   return (r << 16) + (g << 8) + b
 }
 
+function fromRGB({ r, g, b }) {
+  return (r << 16) + (g << 8) + b
+}
+
 export default {
   darken,
   shift,
+  fromRGB,
 }
