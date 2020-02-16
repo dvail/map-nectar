@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start:dev": "webpack-dev-server",
+    "start:dev": "NODE_ENV=development webpack-dev-server",
     "build": "webpack",
     "bundle-report": "NODE_ENV=production mkdir -p dist && webpack --profile --json > dist/stats.json && webpack-bundle-analyzer --port 4200 dist/stats.json"
   },

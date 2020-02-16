@@ -215,6 +215,10 @@ export default function Hexagon(renderer, {
     imageSprite.width += 2 // TODO This is a hack to prevent spacing between tiles
     imageSprite.height += 2 // TODO This is a hack to prevent spacing between tiles
 
+    // Darken lower tiles to give some illusion of depth
+    let darkenRate = (altitude * 2 - 10) * 8
+    imageSprite.tint = ColorUtils.shift(0xffffff, darkenRate, darkenRate, darkenRate)
+
     if (orientation === ORIENTATION.POINTY) {
       imageSprite.x += imageSprite.width / 2
       imageSprite.y += imageSprite.height / 2
