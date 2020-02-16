@@ -48,10 +48,6 @@ export default function RenderPane() {
     initializePixi(renderPaneRef.current)
   }, [])
 
-  useEffect(() => {
-    console.warn('render')
-  })
-
   // Used to update stale references passed to PIXI callbacks
   useEffect(() => {
     mapDataRef.current = mapData
@@ -122,8 +118,6 @@ export default function RenderPane() {
   function onDragMove(e) {
     // TODO Re-implement
     if (true) return
-
-    console.warn('Can I detect event.buttons in here to avoid the dragStart/End methods?')
 
     let { x, y } = e.data.global
 
@@ -196,9 +190,9 @@ export default function RenderPane() {
     let baseGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick })
 
     let tileGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
-    // TODO The performance of this probably sucks
-    range(-10, 10).forEach(q => {
-      range(-10, 10).forEach(r => {
+
+    range(-20, 20).forEach(q => {
+      range(-20, 20).forEach(r => {
         baseGrid.renderTile({ q, r, altitude: 0, opts: skeletonTileOpts })
       })
     })
@@ -218,6 +212,6 @@ export default function RenderPane() {
   }
 
   return (
-    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault()} />
+    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault() && false} />
   )
 }

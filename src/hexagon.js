@@ -21,7 +21,7 @@ function dimensions(radius, orientation) {
 }
 
 // For an altitude of '1' - how far up should the tile be shifted
-const altitudePixelOffsetRatio = 20
+const altitudePixelOffsetRatio = 40
 
 const COORDS = {}
 
@@ -213,6 +213,7 @@ export default function Hexagon(renderer, {
     imageSprite = new PIXI.Sprite(tileTextures[tileImage])
     imageSprite.anchor.set(0.5, 0.5)
     imageSprite.width += 2 // TODO This is a hack to prevent spacing between tiles
+    imageSprite.height += 2 // TODO This is a hack to prevent spacing between tiles
 
     if (orientation === ORIENTATION.POINTY) {
       imageSprite.x += imageSprite.width / 2
