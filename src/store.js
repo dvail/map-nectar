@@ -1,5 +1,6 @@
 import create from 'zustand'
 import produce from 'immer'
+import uuidv4 from 'uuid/v4'
 
 // TODO Maybe move this stuff out of here?
 export const RotationIncrement = 360 / 12
@@ -10,11 +11,16 @@ export const [useStore] = create((set, get) => ({
   getAll: get,
   rotation: 0,
   viewAngle: 0.65,
-  mapData: { tiles: {} },
+  mapData: {
+    id: uuidv4(),
+    name: 'New Map',
+    tiles: {},
+  },
 
   tileBuilderOpen: false,
   colorPickerOpen: false,
   dockDrawerOpen: false,
+  savedMapPaneOpen: false,
 
   selectedTileImage: null,
   selectedTileColor: { r: 187, g: 128, b: 68 },
@@ -44,12 +50,17 @@ export const [useStore] = create((set, get) => ({
   toggleColorPicker: () => {
     set({ colorPickerOpen: !get().colorPickerOpen })
   },
+  toggleSavedMapPane: () => {
+    set({ savedMapPaneOpen: !get().savedMapPaneOpen })
+  },
   setTileBuilderOpen: isOpen => {
     set({ tileBuilderOpen: isOpen })
   },
   mapLoad: payload => {
     let mapData = produce(get().mapData, next => {
       next.tiles = payload.tiles
+      next.name = payload.name ?? next.name
+      next.id = payload.id ?? next.id
     })
 
     set({ mapData })
@@ -64,6 +75,21 @@ export const [useStore] = create((set, get) => ({
 
   setRotation: rotation => {
     set({ rotation })
+  },
+
+  setMapId: id => {
+    let mapData = produce(get().mapData, next => {
+      next.id = id
+    })
+
+    set({ mapData })
+  },
+  setMapName: name => {
+    let mapData = produce(get().mapData, next => {
+      next.name = name
+    })
+
+    set({ mapData })
   },
   removeTile: payload => {
     let mapData = produce(get().mapData, next => {

@@ -165,7 +165,7 @@ export default function RenderPane() {
     let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
 
     app.stage.addChild(viewport)
-    app.stage.addChild(new PixiFps());
+    // app.stage.addChild(new PixiFps());
 
     let tileTextures = {}
 

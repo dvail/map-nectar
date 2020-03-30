@@ -5,12 +5,12 @@ import { RotationIncrement, useStore } from '../store'
 
 let rotationMarkers = range(0, 360, RotationIncrement)
 
-export default function Compass() {
+export default function Compass({ className }) {
   let rotation = useStore(state => state.rotation)
   let setRotation = useStore(state => state.setRotation)
 
   return (
-    <div className='w-32 h-32 absolute top-0 right-0'>
+    <div className={`w-32 h-32 absolute top-0 right-0 ${className}`}>
       {rotationMarkers.map(ri => (
         <div
           key={ri}
@@ -18,7 +18,7 @@ export default function Compass() {
           style={{ transform: `rotate(${180 - ri}deg)` }}
         >
           <div
-            className={`h-4 w-4 cursor-pointer rounded-full ${rotation === ri ? 'bg-red-600' : 'bg-blue-600'}`}
+            className={`h-4 w-4 cursor-pointer rounded-full ${rotation === ri ? 'bg-indigo-500' : 'border-2 border-indigo-500'}`}
             onClick={() => setRotation(ri)}
           />
         </div>
