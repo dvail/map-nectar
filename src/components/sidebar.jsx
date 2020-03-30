@@ -26,17 +26,29 @@ export default function Sidebar() {
   let [saveInputId] = useState(uuidv4())
 
   return (
-    <div className='bg-gray-900 p-3 flex flex-col justify-between'>
+    <div className='bg-gray-900 text-xl p-3 pr-8 flex flex-col justify-between font-mono'>
       <div className='flex flex-col'>
-        <FaIcon type='fa-magic' title='Create New Tile' onClick={toggleTileBuilder} />
-        <FaIcon type='fa-eye-dropper' title='Choose tile color' onClick={toggleColorPicker} />
+        <div className='flex flex-row items-center cursor-pointer' onClick={toggleTileBuilder}>
+          <FaIcon className='text-xl w-8' type='fa-magic' title='Create New Tile' />
+          <span className='text-white whitespace-no-wrap'>Build Tile</span>
+        </div>
+        <div className='flex flex-row items-center cursor-pointer' onClick={toggleColorPicker}>
+          <FaIcon className='text-xl w-8' type='fa-eye-dropper' title='Choose tile color' />
+          <span className='text-white whitespace-no-wrap'>Tile Color</span>
+        </div>
       </div>
       <div className='flex flex-col'>
-        <FaIcon type='fa-save' title='Save Map' onClick={() => saveObject(mapData, 'map.json')} />
-        <label htmlFor={saveInputId}>
+        <div className='flex flex-row items-center cursor-pointer' onClick={() => saveObject(mapData, 'map.json')}>
+          <FaIcon className='text-xl w-8' type='fa-save' title='Save Map' />
+          <span className='text-white whitespace-no-wrap'>Save Map</span>
+        </div>
+        <div>
           <input className='hidden' id={saveInputId} type='file' onChange={e => onMapLoad(mapLoad, e.target.files)} />
-          <FaIcon type='fa-file-upload' title='Load Map' />
-        </label>
+          <label className='flex flex-row items-center cursor-pointer' htmlFor={saveInputId}>
+            <FaIcon className='text-xl w-8' type='fa-file-upload' title='Load Map' />
+            <span className='text-white whitespace-no-wrap'>Load Map</span>
+          </label>
+        </div>
       </div>
     </div>
   )

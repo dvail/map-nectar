@@ -1,9 +1,9 @@
 import React from 'react'
 
-export default function FaIcon({ type, title, onClick }) {
+export default function FaIcon({ className = '', type, title, onClick }) {
   return (
-    <span className='icon mb-2 mt-2 text-white cursor-pointer' onClick={onClick} title={title}>
-      <i className={`fas fa-2x ${type}`} />
+    <span className={`${className} text-white cursor-pointer`} onClick={onClick} title={title}>
+      <i className={`fas ${type}`} />
     </span>
   )
 }
