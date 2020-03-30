@@ -10,6 +10,26 @@ body, html, .app {
   width: 100%;
 }
 
+html {
+  --track: rgba(0,0,0,0.4);
+  --thumb: #f6ad55; /* Tailwind bg-orange-600 */
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumb) var(--track);
+}
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--track);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--thumb) ;
+  border-radius: 2px;
+}
+
 /* TODO Look for tailwind plugins for these */
 
 .h-1\/2 {
