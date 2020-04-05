@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
 import ColorUtils from './colorUtils'
+import { MemoizedFunction } from 'lodash'
 
 enum ORIENTATION {
   POINTY = 'POINTY',
@@ -30,15 +31,22 @@ function dimensions(radius: number, orientation: ORIENTATION) {
 // For an altitude of '1' - how far up should the tile be shifted
 const altitudePixelOffsetRatio = 40
 
-interface HexGeometry {
+interface PointyHexGeometry {
   TILE_FACE: number[]
   LEFT_VERT: number[]
   RIGHT_VERT: number[]
 }
 
+interface FlatHexGeometry {
+  TILE_FACE: number[]
+  LEFT_VERT: number[]
+  RIGHT_VERT: number[]
+  CENTER_VERT: number[]
+}
+
 let COORDS: {
-  // [O in ORIENTATION]?: HexGeometry
-  [O in ORIENTATION]?: any
+  POINTY?(view: HexView): PointyHexGeometry
+  FLAT?(view: HexView): FlatHexGeometry
  } = {}
 
 const coordinateMemoKey = ({ radius, angle, altitude }: HexView) => `${radius}:${angle}:${altitude}`
@@ -121,7 +129,7 @@ COORDS.FLAT = memoize(({ radius, angle, altitude }: HexView) => {
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
 let Texture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
-  let coords = COORDS[orientation]({ angle, radius, altitude })
+  let coords = COORDS[orientation]({ angle, radius, altitude }) as FlatHexGeometry
   let hex = new PIXI.Graphics()
 
   hex.lineStyle(0, 0, 0, 0, false)
@@ -144,7 +152,7 @@ let Texture = memoize(({ renderer, orientation, radius, angle, altitude }: HexVi
     hex.endFill()
 
     hex.beginFill(ColorUtils.darken(0xffffff, 20))
-    hex.drawPolygon(coords.CENTER_VERT)
+    hex.drawPolygon((coords as FlatHexGeometry).CENTER_VERT)
     hex.endFill()
   }
 

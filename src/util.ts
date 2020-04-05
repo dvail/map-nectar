@@ -6,9 +6,9 @@ interface StoredMapObject {
   [mapName: string]: MapData;
 }
 
-export function saveAsFile(obj: any, filename: string) {
+export function saveAsFile(mapData: MapData, filename: string) {
   let a = document.createElement('a')
-  let text = JSON.stringify(obj)
+  let text = JSON.stringify(mapData)
   a.setAttribute('href', `data:text/plain;charset=utf-u,${encodeURIComponent(text)}`)
   a.setAttribute('download', filename)
   a.click()

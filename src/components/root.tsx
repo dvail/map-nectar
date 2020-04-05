@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { GetState } from 'zustand'
 import { ChromePicker } from 'react-color'
 
 import RenderPane from './renderPane'
@@ -9,11 +10,11 @@ import Dock from './dock'
 import SavedMapPane from './savedMapPane'
 import MapName from './mapName'
 import TileBuilder from './tileBuilder'
-import { useStore } from '../store'
+import { Store, useStore } from '../store'
 
 declare global {
   interface Window {
-    getAll(): any
+    getAll: GetState<Store>
   }
 }
 
