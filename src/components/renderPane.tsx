@@ -7,16 +7,40 @@ import PixiFps from "pixi-fps";
 import range from 'lodash/range'
 
 import { useStore, tileKey } from '../store'
+import { TextureAtlas } from './atlasRegion'
 
 import ColorUtils from '../colorUtils'
-import HexagonGrid from '../hexagonGrid'
+import { HexagonGrid, HexagonGridOptions } from '../hexagonGrid'
 
 // TODO Need to work with these URLs in a reliable way
 const completePng = '../../res/hexagonTerrain_sheet.png'
 const completeJson = '../../res/hexagonTerrain_sheet.json'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const gridLayoutOps = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
+const baseGridOptions: HexagonGridOptions = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
+
+export type TileMap = {
+  [key: string]: TileCoords & TileData
+}
+
+export interface TileCoords {
+  q: number
+  r: number
+}
+
+export interface TileOptions {
+    fillColor: number
+    fillAlpha: number
+    strokeColor?: number
+    strokeAlpha?: number
+    tileImage?: string
+}
+
+// TODO These interfaces need to be defined more robustly (altitude should probably not be optional)
+export interface TileData {
+  altitude: number
+  opts: TileOptions
+}
 
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
@@ -83,10 +107,10 @@ export default function RenderPane() {
     hexGrid?.renderTiles(mapData.tiles)
   }, [mapData])
 
-  function onTileClick(ev, q, r) {
+  function onTileClick(ev: any, q: number, r: number) {
   }
 
-  function onTileRightClick(ev, q, r) {
+  function onTileRightClick(ev: any, q: number, r: number) {
     if (draggingRef.current) return
 
     let shift = ev.data.originalEvent.shiftKey
@@ -95,7 +119,7 @@ export default function RenderPane() {
     if (shift && !tile) return
 
     let altitude = tile?.altitude + (shift ? -1 : 1) || 0
-    let opts = tile?.opts ?? {}
+    let opts = tile?.opts ?? {} as TileOptions
 
     opts.fillColor = ColorUtils.fromRGB(selectedTileColorRef.current)
 
@@ -110,7 +134,7 @@ export default function RenderPane() {
     }
   }
 
-  function onDragStart(e) {
+  function onDragStart(e: any) {
     let { x, y } = e.data.global
 
     if (!shiftDragCoordsRef.current) {
@@ -118,7 +142,7 @@ export default function RenderPane() {
     }
   }
 
-  function onDragMove(e) {
+  function onDragMove(e: any) {
     // TODO Re-implement
     if (true) return
 
@@ -158,7 +182,7 @@ export default function RenderPane() {
     setShiftDragCoords(null)
   }
 
-  function initializePixi(renderPaneElem) {
+  function initializePixi(renderPaneElem: HTMLElement) {
     let app = new PIXI.Application({ resizeTo: renderPaneElem })
     renderPaneElem.appendChild(app.view)
 
@@ -167,7 +191,9 @@ export default function RenderPane() {
     app.stage.addChild(viewport)
     // app.stage.addChild(new PixiFps());
 
-    let tileTextures = {}
+    let tileTextures: {
+      [region: string]: PIXI.Texture
+    } = {}
 
     // TODO
     // TODO This relies on a race condition to get textures to the rest of the app
@@ -177,11 +203,17 @@ export default function RenderPane() {
       .add('tile-spritesheet', completeJson)
       .add('tile-spritesheet-png', completePng)
       .load((loader, resources) => {
-        let sheet = resources['tile-spritesheet'];
-        let sheetPng = resources['tile-spritesheet-png'];
+        let sheet = resources['tile-spritesheet']
+        let sheetPng = resources['tile-spritesheet-png']
 
-        Object.entries(sheet.data).forEach(([region, { x, y, w, h }]) => {
-          tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
+        let sheetData = sheet.data as {
+          [region: string]: TextureAtlas
+        }
+
+        Object.entries(sheetData).forEach(([region, { x, y, w, h }]) => {
+          // TODO Does this work/ (TS)
+          tileTextures[region] = new PIXI.Texture(sheetPng.texture.baseTexture, new PIXI.Rectangle(x, y, w, h))
+          //tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
         })
       })
 
@@ -190,13 +222,13 @@ export default function RenderPane() {
     viewport.on('drag-end', () => setDragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
-    let baseGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick })
+    let baseGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick })
 
-    let tileGrid = HexagonGrid(app.renderer, { ...gridLayoutOps, onTileClick, onTileRightClick, tileTextures })
+    let tileGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures })
 
     range(-20, 20).forEach(q => {
       range(-20, 20).forEach(r => {
-        baseGrid.renderTile({ q, r, altitude: 0, opts: skeletonTileOpts })
+        baseGrid.renderTile({ q, r }, { altitude: 0, opts: skeletonTileOpts })
       })
     })
 
@@ -215,6 +247,6 @@ export default function RenderPane() {
   }
 
   return (
-    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault() && false} />
+    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => Boolean(e.preventDefault()) && false} />
   )
 }

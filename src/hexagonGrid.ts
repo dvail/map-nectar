@@ -1,10 +1,11 @@
 import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
-import Hexagon, { ORIENTATION, dimensions } from './hexagon'
+import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions } from './hexagon'
 
 import { tileKey } from './store'
+import { TileData, TileCoords, TileMap } from './components/renderPane';
 
-function getZIndex(q, r, s, orientation) {
+function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
   if (orientation === ORIENTATION.POINTY) {
     return r;
   } else {
@@ -12,13 +13,20 @@ function getZIndex(q, r, s, orientation) {
   }
 }
 
-function orientationFromDegrees(degrees) {
+function orientationFromDegrees(degrees: number) {
   return (degrees / 30) % 2 === 0
     ? ORIENTATION.POINTY
     : ORIENTATION.FLAT;
 }
 
-function getAxialViewCoords(q, r, rotation) {
+interface ViewCoordinate {
+  viewQ: number
+  viewR: number
+}
+
+type RotationInterval = 0 | 30 | 60 | 90 | 120 | 150 | 180 | 210 | 240 | 270 | 300 | 330
+
+function getAxialViewCoords(q: number, r: number, rotation: RotationInterval): ViewCoordinate {
   const s = -q - r
 
   return {
@@ -37,7 +45,18 @@ function getAxialViewCoords(q, r, rotation) {
   }[rotation]
 }
 
-export default function HexagonGrid(renderer, {
+export interface HexagonGridOptions {
+  gridX: number
+  gridY: number
+  tileSize: number
+  viewAngle?: number
+  gridRotation?: RotationInterval
+  onTileClick?: any
+  onTileRightClick?: any
+  tileTextures?: TextureMap
+}
+
+export function HexagonGrid(renderer: PIXI.Renderer, {
   gridX,
   gridY,
   tileSize,
@@ -46,16 +65,18 @@ export default function HexagonGrid(renderer, {
   onTileClick = noop,
   onTileRightClick = noop,
   tileTextures = {},
-}) {
+}: HexagonGridOptions) {
   let container = new PIXI.Container()
   let radius = tileSize
-  let tiles = {}
+  let tiles: {
+    [key: string]: TileCoords & TileData & { hexagon: IHexagon }
+  } = {}
   let rotation = gridRotation
   let angle = viewAngle
 
   container.sortableChildren = true
 
-  function getTileCoords(q, r) {
+  function getTileCoords(q: number, r: number) {
     const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
     const orientation = orientationFromDegrees(rotation)
     const { width, height } = dimensions(radius, orientation)
@@ -76,14 +97,14 @@ export default function HexagonGrid(renderer, {
     }
   }
 
-  function renderTile({ q, r, altitude, opts }) {
+  function renderTile({ q, r }: TileCoords, { altitude, opts }: TileData) {
     let key = tileKey(q, r)
     let tile = tiles[key]
     let hexagon = tile?.hexagon
     let { x, y, zIndex, orientation } = getTileCoords(q, r)
 
     if (!tile) {
-      hexagon = Hexagon(renderer, { container, q, r, x, y, onTileClick, onTileRightClick })
+      hexagon = Hexagon(renderer, { container, q, r, onTileClick, onTileRightClick })
     }
 
     tile = { q, r, altitude, opts, hexagon }
@@ -92,12 +113,14 @@ export default function HexagonGrid(renderer, {
     tile.hexagon.draw({ x, y, zIndex, altitude, orientation, angle, radius, tileTextures, ...opts })
   }
 
-  function renderTiles(newTiles) {
+  function renderTiles(newTiles: TileMap) {
     clearDeletedTiles(newTiles)
-    Object.values(newTiles).forEach(renderTile)
+    Object.values(newTiles).forEach(tile => {
+      renderTile(tile, tile)
+    })
   }
 
-  function clearDeletedTiles(newTiles) {
+  function clearDeletedTiles(newTiles: TileMap) {
     Object.keys(tiles).forEach(key => {
       if (newTiles[key] || !tiles[key]) return
 
@@ -107,15 +130,17 @@ export default function HexagonGrid(renderer, {
   }
 
   function redrawTiles() {
-    Object.values(tiles).forEach(renderTile)
+    Object.values(tiles).forEach(tile => {
+      renderTile(tile, tile)
+    })
   }
 
-  function setRotation(degrees) {
-    rotation = degrees % 360
+  function setRotation(degrees: RotationInterval) {
+    rotation = (degrees % 360) as RotationInterval
     redrawTiles()
   }
 
-  function setAngle(newAngle) {
+  function setAngle(newAngle: number) {
     angle = newAngle
     redrawTiles()
   }

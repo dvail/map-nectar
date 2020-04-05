@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import * as React from 'react'
 
 import { ChromePicker } from 'react-color'
 
@@ -10,6 +10,14 @@ import SavedMapPane from './savedMapPane'
 import MapName from './mapName'
 import TileBuilder from './tileBuilder'
 import { useStore } from '../store'
+
+declare global {
+  interface Window {
+    getAll(): any
+  }
+}
+
+let { useEffect } = React
 
 export default function Root() {
   let getAll = useStore(state => state.getAll)

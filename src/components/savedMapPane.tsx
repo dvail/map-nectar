@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import FaIcon from './faIcon'
 import { useStore } from '../store'
@@ -10,7 +10,7 @@ export default function SavedMapPane() {
 
   let savedMaps = getSavedMaps()
 
-  function loadById(id) {
+  function loadById(id: string) {
     let loaded = loadLocal(id)
     mapLoad(loaded)
     toggleSavedMapPane();

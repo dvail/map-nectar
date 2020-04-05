@@ -1,6 +1,12 @@
+import { MapData } from './store'
+
 const MAP_STORAGE_KEY = "MAP_STORAGE"
 
-export function saveAsFile(obj, filename) {
+interface StoredMapObject {
+  [mapName: string]: MapData;
+}
+
+export function saveAsFile(obj: any, filename: string) {
   let a = document.createElement('a')
   let text = JSON.stringify(obj)
   a.setAttribute('href', `data:text/plain;charset=utf-u,${encodeURIComponent(text)}`)
@@ -8,14 +14,14 @@ export function saveAsFile(obj, filename) {
   a.click()
 }
 
-export function loadLocal(id) {
+export function loadLocal(id: string) {
   let json = localStorage.getItem(MAP_STORAGE_KEY);
   let maps = JSON.parse(json)
 
   return maps[id]
 }
 
-export function saveLocal(mapData) {
+export function saveLocal(mapData: MapData) {
   let json = localStorage.getItem(MAP_STORAGE_KEY);
   let maps = JSON.parse(json) ?? {}
 
@@ -24,7 +30,7 @@ export function saveLocal(mapData) {
   localStorage.setItem(MAP_STORAGE_KEY, JSON.stringify(maps));
 }
 
-export function getSavedMaps() {
+export function getSavedMaps(): StoredMapObject {
   let json = localStorage.getItem(MAP_STORAGE_KEY);
   let maps = JSON.parse(json)
 

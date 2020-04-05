@@ -1,17 +1,20 @@
-import React, { useState } from 'react'
+import * as React from 'react'
 import first from 'lodash/first'
 import uuidv4 from 'uuid/v4'
 
-import { useStore } from '../store'
+import { MapData, useStore } from '../store'
 import { saveAsFile, saveLocal } from '../util'
 import FaIcon from './faIcon'
 
-function onMapLoad(mapLoad, files) {
+let { useState } = React
+
+function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList) {
   let file = first(files)
   let reader = new FileReader()
 
   reader.onload = event => {
-    mapLoad(JSON.parse(event.target.result))
+    // TODO Validate parsed input here
+    mapLoad(JSON.parse(event.target.result as string))
   }
 
   reader.readAsText(file)

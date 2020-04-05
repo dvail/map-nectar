@@ -8,7 +8,7 @@ let autoprefixer = require('autoprefixer')
 let purgecss = require('@fullhuman/postcss-purgecss')
 
 const config = {
-  entry: './src/index.jsx',
+  entry: './src/index.tsx',
   devtool: 'eval-source-map',
   devServer: {
     port: 4422,
@@ -19,6 +19,8 @@ const config = {
   },
   module: {
     rules: [
+      { test: /\.(ts|tsx)?$/, loader: "awesome-typescript-loader" },
+      { test: /\.js$/, loader: "source-map-loader" },
       {
         test: /\.(js|jsx)$/,
         use: 'babel-loader',
@@ -42,6 +44,8 @@ const config = {
                       './src/index.html',
                       './src/**/*.js',
                       './src/**/*.jsx',
+                      './src/**/*.ts',
+                      './src/**/*.tsx',
                     ],
                     defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
                   })]
@@ -72,7 +76,7 @@ const config = {
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   plugins: [
     new HtmlWebpackPlugin({

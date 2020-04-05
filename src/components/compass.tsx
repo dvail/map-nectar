@@ -1,11 +1,11 @@
-import React from 'react'
+import * as React from 'react'
 import range from 'lodash/range'
 
 import { RotationIncrement, useStore } from '../store'
 
 let rotationMarkers = range(0, 360, RotationIncrement)
 
-export default function Compass({ className }) {
+export default function Compass({ className } : { className: string }) {
   let rotation = useStore(state => state.rotation)
   let setRotation = useStore(state => state.setRotation)
 

@@ -1,6 +1,24 @@
-import React from 'react'
+import * as React from 'react'
 
-export default function AtlasRegion({ atlas, region, image, scale, onClick }) {
+// TODO Is this better defined or inferred from somewhere else?
+export interface TextureAtlas {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+interface AtlasRegionProps {
+  atlas: {
+    [region: string]: TextureAtlas
+  }
+  region: string
+  image: string
+  scale: number
+  onClick(event: React.MouseEvent): void
+}
+
+export default function AtlasRegion({ atlas, region, image, scale, onClick }: AtlasRegionProps) {
   let { x, y, w, h } = atlas[region]
 
   let wrapperStyle = {

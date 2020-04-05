@@ -4,12 +4,19 @@ import memoize from 'lodash/memoize'
 
 import ColorUtils from './colorUtils'
 
-const ORIENTATION = {
-  POINTY: 'POINTY',
-  FLAT: 'FLAT',
+enum ORIENTATION {
+  POINTY = 'POINTY',
+  FLAT = 'FLAT',
 }
 
-function dimensions(radius, orientation) {
+interface HexView {
+  radius: number
+  angle: number
+  altitude: number
+  orientation?: ORIENTATION
+}
+
+function dimensions(radius: number, orientation: ORIENTATION) {
   let width = Math.sqrt(3) * radius
   let height = radius * 2
 
@@ -23,12 +30,21 @@ function dimensions(radius, orientation) {
 // For an altitude of '1' - how far up should the tile be shifted
 const altitudePixelOffsetRatio = 40
 
-const COORDS = {}
+interface HexGeometry {
+  TILE_FACE: number[]
+  LEFT_VERT: number[]
+  RIGHT_VERT: number[]
+}
 
-const coordinateMemoKey = ({ radius, angle, altitude }) => `${radius}:${angle}:${altitude}`
+let COORDS: {
+  // [O in ORIENTATION]?: HexGeometry
+  [O in ORIENTATION]?: any
+ } = {}
+
+const coordinateMemoKey = ({ radius, angle, altitude }: HexView) => `${radius}:${angle}:${altitude}`
 
 /* eslint-disable indent */
-COORDS.POINTY = memoize(({ radius, angle, altitude }) => {
+COORDS.POINTY = memoize(({ radius, angle, altitude }: HexView) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
   let tileAltitude = altitudePixelOffsetRatio * altitude
   let halfWidth = width / 2
@@ -61,7 +77,7 @@ COORDS.POINTY = memoize(({ radius, angle, altitude }) => {
   return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
 }, coordinateMemoKey)
 
-COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
+COORDS.FLAT = memoize(({ radius, angle, altitude }: HexView) => {
   let { height } = dimensions(radius, ORIENTATION.FLAT)
   let tileAltitude = altitudePixelOffsetRatio * altitude
   let halfHeight = height / 2
@@ -102,9 +118,9 @@ COORDS.FLAT = memoize(({ radius, angle, altitude }) => {
 }, coordinateMemoKey)
 /* eslint-enable indent */
 
-const textureMemoKey = ({ orientation, radius, angle, altitude }) => `${orientation}:${radius}:${angle}:${altitude}`
+const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
-let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
+let Texture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
   let coords = COORDS[orientation]({ angle, radius, altitude })
   let hex = new PIXI.Graphics()
 
@@ -132,24 +148,55 @@ let Texture = memoize(({ renderer, orientation, radius, angle, altitude }) => {
     hex.endFill()
   }
 
-  return renderer.generateTexture(hex)
+  return renderer.generateTexture(hex, PIXI.SCALE_MODES.LINEAR, 1)
 }, textureMemoKey)
 
-export default function Hexagon(renderer, {
+// TODO eww
+export interface IHexagon {
+  draw(params: HexagonDrawParams): void
+  destroy(): void
+}
+
+export interface HexagonProps {
+  container: PIXI.Container
+  q: number
+  r: number
+  onTileClick: any
+  onTileRightClick: any
+}
+
+export interface TextureMap {
+  [imageName: string]: PIXI.Texture
+}
+
+interface HexagonDrawParams {
+  x: number,
+  y: number,
+  zIndex: number,
+  altitude: number,
+  radius: number,
+  fillColor: number,
+  orientation?: ORIENTATION
+  angle?: number
+  tileImage?: string
+  tileTextures?: TextureMap
+}
+
+export default function Hexagon(renderer: PIXI.Renderer, {
   container,
   q,
   r,
   onTileClick = noop,
   onTileRightClick = noop,
-}) {
+}: HexagonProps): IHexagon {
   let hexContainer = new PIXI.Container()
-  let imageSprite = null
-  let spriteContainer = null
+  let imageSprite: PIXI.Sprite | null
+  let spriteContainer: PIXI.Container | null
 
   hexContainer.interactive = true
 
-  hexContainer.on('click', ev => onTileClick(ev, q, r))
-  hexContainer.on('rightclick', ev => onTileRightClick(ev, q, r))
+  hexContainer.on('click', (ev: any) => onTileClick(ev, q, r))
+  hexContainer.on('rightclick', (ev: any) => onTileRightClick(ev, q, r))
 
   container.addChild(hexContainer)
 
@@ -164,7 +211,7 @@ export default function Hexagon(renderer, {
     angle = 1.0,
     tileImage,
     tileTextures = {},
-  }) {
+  }: HexagonDrawParams) {
     hexContainer.x = x
     hexContainer.y = y
     hexContainer.zIndex = zIndex
@@ -182,14 +229,20 @@ export default function Hexagon(renderer, {
       spriteContainer = null
     }
 
-    drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor)
+    drawFromGraphics(altitude, radius, orientation, angle, fillColor)
 
     if (tileImage && tileTextures[tileImage]) {
-      drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures)
+      drawFromImage(altitude, radius, orientation, angle, tileImage, tileTextures)
     }
   }
 
-  function drawFromGraphics(x, y, altitude, radius, orientation, angle, fillColor) {
+  function drawFromGraphics(
+    altitude: number,
+    radius: number,
+    orientation: ORIENTATION,
+    angle: number,
+    fillColor: number,
+  ) {
     let texture = Texture({ renderer, orientation, radius, angle, altitude })
     let hexSprite = new PIXI.Sprite(texture)
     let vertHeight = 1.0 - angle
@@ -202,13 +255,20 @@ export default function Hexagon(renderer, {
     hexContainer.addChild(hexSprite)
   }
 
-  function drawFromImage(x, y, altitude, radius, orientation, angle, tileImage, tileTextures) {
+  function drawFromImage(
+    altitude: number,
+    radius: number,
+    orientation: ORIENTATION,
+    angle: number,
+    tileImage: string,
+    tileTextures: TextureMap,
+  ) {
     // A container is required so that we can scale the image and then rotate
     // inside the container to prevent skewing
     let scale = (radius * 2) / tileTextures[tileImage].height
     let vertHeight = 1.0 - angle
     spriteContainer = new PIXI.Container()
-    spriteContainer.scale = { x: scale, y: scale * angle }
+    spriteContainer.scale = new PIXI.Point(scale, scale * angle)
     spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
 
     imageSprite = new PIXI.Sprite(tileTextures[tileImage])
