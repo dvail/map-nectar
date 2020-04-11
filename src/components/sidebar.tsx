@@ -47,7 +47,9 @@ export default function Sidebar() {
         <MenuItem onClick={() => setOpenWidget(Widget.TileSetPane)} iconType='fa-th-large' title='Tile Sets'>
           <div className='flex flex-row justify-around'>
             <span>Tile Sets</span>
-            <span className='inline-block rounded text-indigo-100 bg-indigo-500 px-2 ml-8'>{mapData.tileSets?.length ?? 0}</span>
+            <span className='inline-block rounded text-indigo-100 bg-indigo-500 px-2 ml-8'>
+              {Object.entries(mapData.tileSets ?? {}).length}
+            </span>
           </div>
         </MenuItem>
       </div>

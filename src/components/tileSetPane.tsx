@@ -4,6 +4,7 @@ import { useState } from 'react'
 import FileInput from './bricks/FileInput'
 import Button, { ButtonType } from './bricks/Button'
 import FaIcon from './faIcon'
+import { useStore } from '../store'
 
 let { Weak, Action, Default } = ButtonType
 
@@ -11,8 +12,19 @@ export default function TileSetPane() {
   let [image, setImage] = useState(null)
   let [atlas, setAtlas] = useState(null)
 
+  let mapData = useStore(state => state.mapData)
+  let addMapTileSet = useStore(state => state.addMapTileSet)
+
   function addNewTileSet() {
-    console.log(image, atlas)
+    addMapTileSet({
+      image,
+      atlas,
+      // TODO Actually handle the file name saving here
+      meta: {
+        imageFileName: "TEST",
+        atlasFileName: "TEST",
+      },
+    })
   }
 
   // TODO Error handling here
@@ -49,6 +61,14 @@ export default function TileSetPane() {
         </Button>
         <Button disabled={!(image && atlas)} type={Action} onClick={addNewTileSet}>Add To Map</Button>
       </div>
+      <ul className='flex flex-row'>
+        {Object.entries(mapData.tileSets).map(([id, ts]) => (
+          <li key={id}>
+            <span>{id}</span>
+            <span>{ts.meta.imageFileName}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

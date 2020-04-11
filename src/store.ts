@@ -2,6 +2,10 @@ import create, { GetState } from 'zustand'
 import produce from 'immer'
 import uuidv4 from 'uuid/v4'
 import { ColorResult } from 'react-color'
+import flow from 'lodash/fp/flow'
+import keys from 'lodash/fp/keys'
+import max from 'lodash/fp/max'
+import map from 'lodash/fp/map'
 
 export type TileMap = {
   [key: string]: TileCoords & TileData
@@ -31,6 +35,10 @@ export interface TileRegion {
 }
 
 export interface TileSet {
+  meta: {
+    imageFileName?: string,
+    atlasFileName?: string,
+  }
   image: string // A base64 encoding of a tileset image
   atlas: {
     [name: string]: TileRegion
@@ -41,7 +49,9 @@ export interface MapData {
   id: string
   name: string
   tiles: TileMap
-  tileSets?: TileSet[]
+  tileSets?: {
+    [id: number]: TileSet
+  }
 }
 
 export enum Widget {
@@ -69,6 +79,8 @@ export interface Store {
   rotateClock(): void
   rotateCounter(): void
 
+  addMapTileSet(tileSet: TileSet): void
+
   removeTile(tile: TileCoords): void
   updateTile(tile: TileCoords & Partial<TileData>): void
 
@@ -94,6 +106,7 @@ export const [useStore] = create<Store>((set, get) => ({
     id: uuidv4(),
     name: 'New Map',
     tiles: {},
+    tileSets: {},
   },
 
   openWidget: null,
@@ -130,9 +143,27 @@ export const [useStore] = create<Store>((set, get) => ({
   },
   mapLoad: (payload: MapData) => {
     let mapData = produce(get().mapData, (next: MapData) => {
+      next.tileSets = payload.tileSets ?? {}
       next.tiles = payload.tiles
       next.name = payload.name ?? next.name
       next.id = payload.id ?? next.id
+    })
+
+    set({ mapData })
+  },
+
+  addMapTileSet: (tileSet: TileSet) => {
+    let mapData = produce(get().mapData, (next: MapData) => {
+      // TODO Handle undefined here more gracefully
+      let highestId = flow(
+        keys,
+        map(Number),
+        max,
+      )(next.tileSets)
+
+      let nextId = highestId ? highestId + 1 : 1
+
+      next.tileSets[nextId] = tileSet
     })
 
     set({ mapData })
