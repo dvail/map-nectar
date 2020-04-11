@@ -2,8 +2,7 @@ import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
 import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions } from './hexagon'
 
-import { tileKey } from './store'
-import { TileData, TileCoords, TileMap } from './components/renderPane';
+import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from './store'
 
 function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
   if (orientation === ORIENTATION.POINTY) {
@@ -23,8 +22,6 @@ interface ViewCoordinate {
   viewQ: number
   viewR: number
 }
-
-type RotationInterval = 0 | 30 | 60 | 90 | 120 | 150 | 180 | 210 | 240 | 270 | 300 | 330
 
 function getAxialViewCoords(q: number, r: number, rotation: RotationInterval): ViewCoordinate {
   const s = -q - r
@@ -82,7 +79,7 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
     const { width, height } = dimensions(radius, orientation)
 
     let xOffset = width * (viewQ + (viewR / 2))
-    let yOffset = (height * 3 / 4) * viewR * angle
+    let yOffset = ((height * 3) / 4) * viewR * angle
 
     if (orientation === ORIENTATION.FLAT) {
       xOffset = width * viewQ * (3 / 4)

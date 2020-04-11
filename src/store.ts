@@ -1,10 +1,30 @@
-import create from 'zustand'
-import { GetState } from 'zustand'
+import create, { GetState } from 'zustand'
 import produce from 'immer'
 import uuidv4 from 'uuid/v4'
 import { ColorResult } from 'react-color'
 
-import { TileCoords, TileData, TileMap } from './components/renderPane'
+export type TileMap = {
+  [key: string]: TileCoords & TileData
+}
+
+export interface TileCoords {
+  q: number
+  r: number
+}
+
+export interface TileOptions {
+  fillColor: number
+  fillAlpha: number
+  strokeColor?: number
+  strokeAlpha?: number
+  tileImage?: string
+}
+
+// TODO These interfaces need to be defined more robustly (altitude should probably not be optional)
+export interface TileData {
+  altitude: number
+  opts: TileOptions
+}
 
 export interface MapData {
   id: string
@@ -47,6 +67,7 @@ export interface Store {
 }
 
 // TODO Maybe move this stuff out of here?
+export type RotationInterval = 0 | 30 | 60 | 90 | 120 | 150 | 180 | 210 | 240 | 270 | 300 | 330
 export const RotationIncrement = 360 / 12
 export const AngleIncrement = 0.05
 export const tileKey = (q: number, r: number) => [q, r].toString()

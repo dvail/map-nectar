@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect } from 'react'
 
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
-import PixiFps from "pixi-fps";
+// import PixiFps from "pixi-fps";
 
 import range from 'lodash/range'
 
-import { useStore, tileKey } from '../store'
+import { useStore, tileKey, TileOptions } from '../store'
 import { TextureAtlas } from './atlasRegion'
 
 import ColorUtils from '../colorUtils'
@@ -18,29 +18,6 @@ const completeJson = '../../res/hexagonTerrain_sheet.json'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const baseGridOptions: HexagonGridOptions = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
-
-export type TileMap = {
-  [key: string]: TileCoords & TileData
-}
-
-export interface TileCoords {
-  q: number
-  r: number
-}
-
-export interface TileOptions {
-    fillColor: number
-    fillAlpha: number
-    strokeColor?: number
-    strokeAlpha?: number
-    tileImage?: string
-}
-
-// TODO These interfaces need to be defined more robustly (altitude should probably not be optional)
-export interface TileData {
-  altitude: number
-  opts: TileOptions
-}
 
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
@@ -108,6 +85,7 @@ export default function RenderPane() {
   }, [mapData])
 
   function onTileClick(ev: any, q: number, r: number) {
+    console.warn('left click', q, r)
   }
 
   function onTileRightClick(ev: any, q: number, r: number) {
