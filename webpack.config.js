@@ -19,7 +19,13 @@ const config = {
   },
   module: {
     rules: [
-      { test: /\.(ts|tsx)?$/, loader: "awesome-typescript-loader" },
+      { 
+        test: /\.(ts|tsx)?$/, 
+        loader: "ts-loader",
+        options: {
+          silent: true,
+        }
+       },
       { test: /\.js$/, loader: "source-map-loader" },
       {
         test: /\.css$/i,
