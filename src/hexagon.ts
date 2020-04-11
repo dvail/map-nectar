@@ -3,7 +3,6 @@ import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
 import ColorUtils from './colorUtils'
-import { MemoizedFunction } from 'lodash'
 
 enum ORIENTATION {
   POINTY = 'POINTY',
@@ -47,11 +46,11 @@ interface FlatHexGeometry {
 let COORDS: {
   POINTY?(view: HexView): PointyHexGeometry
   FLAT?(view: HexView): FlatHexGeometry
- } = {}
+} = {}
 
 const coordinateMemoKey = ({ radius, angle, altitude }: HexView) => `${radius}:${angle}:${altitude}`
 
-/* eslint-disable indent */
+/* eslint-disable @typescript-eslint/indent */
 COORDS.POINTY = memoize(({ radius, angle, altitude }: HexView) => {
   let { width } = dimensions(radius, ORIENTATION.POINTY)
   let tileAltitude = altitudePixelOffsetRatio * altitude
@@ -124,7 +123,7 @@ COORDS.FLAT = memoize(({ radius, angle, altitude }: HexView) => {
 
   return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
 }, coordinateMemoKey)
-/* eslint-enable indent */
+/* eslint-enable @typescript-eslint/indent */
 
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
@@ -208,42 +207,6 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 
   container.addChild(hexContainer)
 
-  function draw({
-    x,
-    y,
-    zIndex,
-    altitude,
-    radius,
-    fillColor,
-    orientation = ORIENTATION.POINTY,
-    angle = 1.0,
-    tileImage,
-    tileTextures = {},
-  }: HexagonDrawParams) {
-    hexContainer.x = x
-    hexContainer.y = y
-    hexContainer.zIndex = zIndex
-
-    hexContainer.children.forEach(child => {
-      // TODO Don't destory these - keep in cache!
-      hexContainer.removeChild(child)
-      child.destroy()
-    })
-
-    if (imageSprite) {
-      imageSprite.destroy()
-      imageSprite = null
-      spriteContainer.destroy()
-      spriteContainer = null
-    }
-
-    drawFromGraphics(altitude, radius, orientation, angle, fillColor)
-
-    if (tileImage && tileTextures[tileImage]) {
-      drawFromImage(altitude, radius, orientation, angle, tileImage, tileTextures)
-    }
-  }
-
   function drawFromGraphics(
     altitude: number,
     radius: number,
@@ -305,6 +268,43 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     spriteContainer.addChild(imageSprite)
     hexContainer.addChild(spriteContainer)
   }
+
+  function draw({
+    x,
+    y,
+    zIndex,
+    altitude,
+    radius,
+    fillColor,
+    orientation = ORIENTATION.POINTY,
+    angle = 1.0,
+    tileImage,
+    tileTextures = {},
+  }: HexagonDrawParams) {
+    hexContainer.x = x
+    hexContainer.y = y
+    hexContainer.zIndex = zIndex
+
+    hexContainer.children.forEach(child => {
+      // TODO Don't destory these - keep in cache!
+      hexContainer.removeChild(child)
+      child.destroy()
+    })
+
+    if (imageSprite) {
+      imageSprite.destroy()
+      imageSprite = null
+      spriteContainer.destroy()
+      spriteContainer = null
+    }
+
+    drawFromGraphics(altitude, radius, orientation, angle, fillColor)
+
+    if (tileImage && tileTextures[tileImage]) {
+      drawFromImage(altitude, radius, orientation, angle, tileImage, tileTextures)
+    }
+  }
+
 
   function destroy() {
     hexContainer.children.forEach(child => child.destroy())

@@ -22,11 +22,6 @@ const config = {
       { test: /\.(ts|tsx)?$/, loader: "awesome-typescript-loader" },
       { test: /\.js$/, loader: "source-map-loader" },
       {
-        test: /\.(js|jsx)$/,
-        use: 'babel-loader',
-        exclude: /node_modules/,
-      },
-      {
         test: /\.css$/i,
         use: [
           'style-loader',

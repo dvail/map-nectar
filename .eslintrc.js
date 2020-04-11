@@ -1,16 +1,21 @@
 module.exports = {
-  "extends": ["airbnb"],
-  "parser": "babel-eslint",
+  "extends": ["airbnb-typescript"],
   "env": {
     "browser": true,
     "node": true,
   },
-  "globals": {
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    '@typescript-eslint',
+  ],
+  parserOptions: {
+    project: './tsconfig.json',
   },
   "rules": {
     "arrow-parens": 0,
     "max-len": 0,
     "quotes": 0,
+    "@typescript-eslint/quotes": 0,
     "no-console": 0,
     "no-bitwise": 0,
     "no-plusplus": 0,
@@ -23,9 +28,11 @@ module.exports = {
     "function-paren-newline": 0, // Disabled for cleaner hyperscript
     "no-unused-expressions": 0, // Not compatible with pipeline operator
     "semi": 0,
+    "@typescript-eslint/semi": 0,
     "import/prefer-default-export": 0,
     "jsx-quotes": 0,
     "react/prop-types": 0,
+    "react/jsx-filename-extension": 0,
     "jsx-a11y/no-static-element-interactions": 0,
     "jsx-a11y/label-has-for": 0,
     "jsx-a11y/label-has-associated-control": 0,

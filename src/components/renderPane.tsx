@@ -56,7 +56,7 @@ export default function RenderPane() {
   let increaseAngle = useStore(state => state.increaseAngle)
   let decreaseAngle = useStore(state => state.decreaseAngle)
 
-  let [pixiViewport, setPixiViewPort] = useState(null)
+  let setPixiViewPort = useState(null)[1]
   let [skeletonGrid, setSkeletonGrid] = useState(null)
   let [hexGrid, setHexGrid] = useState(null)
 
@@ -213,7 +213,7 @@ export default function RenderPane() {
         Object.entries(sheetData).forEach(([region, { x, y, w, h }]) => {
           // TODO Does this work/ (TS)
           tileTextures[region] = new PIXI.Texture(sheetPng.texture.baseTexture, new PIXI.Rectangle(x, y, w, h))
-          //tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
+          // tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
         })
       })
 
@@ -247,6 +247,6 @@ export default function RenderPane() {
   }
 
   return (
-    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => Boolean(e.preventDefault()) && false} />
+    <div ref={renderPaneRef} className='relative flex-1 h-full' onContextMenu={e => e.preventDefault()} />
   )
 }

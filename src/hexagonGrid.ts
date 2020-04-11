@@ -113,19 +113,19 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
     tile.hexagon.draw({ x, y, zIndex, altitude, orientation, angle, radius, tileTextures, ...opts })
   }
 
-  function renderTiles(newTiles: TileMap) {
-    clearDeletedTiles(newTiles)
-    Object.values(newTiles).forEach(tile => {
-      renderTile(tile, tile)
-    })
-  }
-
   function clearDeletedTiles(newTiles: TileMap) {
     Object.keys(tiles).forEach(key => {
       if (newTiles[key] || !tiles[key]) return
 
       tiles[key].hexagon.destroy()
       delete tiles[key]
+    })
+  }
+
+  function renderTiles(newTiles: TileMap) {
+    clearDeletedTiles(newTiles)
+    Object.values(newTiles).forEach(tile => {
+      renderTile(tile, tile)
     })
   }
 

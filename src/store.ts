@@ -2,8 +2,8 @@ import create from 'zustand'
 import { GetState } from 'zustand'
 import produce from 'immer'
 import uuidv4 from 'uuid/v4'
-import { v4String } from 'uuid/interfaces'
 import { ColorResult } from 'react-color'
+
 import { TileCoords, TileData, TileMap } from './components/renderPane'
 
 export interface MapData {
@@ -23,7 +23,7 @@ export interface Store {
   savedMapPaneOpen: boolean
 
   selectedTileImage: string
-  selectedTileColor: { 
+  selectedTileColor: {
     r: number, b: number, g: number
   }
 
