@@ -26,10 +26,29 @@ export interface TileData {
   opts: TileOptions
 }
 
+export interface TileRegion {
+  x: number, y: number, w: number, h: number
+}
+
+export interface TileSet {
+  image: string // A base64 encoding of a tileset image
+  atlas: {
+    [name: string]: TileRegion
+  }
+}
+
 export interface MapData {
   id: string
   name: string
   tiles: TileMap
+  tileSets?: TileSet[]
+}
+
+export enum Widget {
+  TileBuilder,
+  SavedMapPane,
+  TileSetPane,
+  ColorPicker
 }
 
 export interface Store {
@@ -37,10 +56,8 @@ export interface Store {
   rotation: number
   viewAngle: number
   mapData: MapData
-  tileBuilderOpen: boolean
-  colorPickerOpen: boolean
+  openWidget?: Widget
   dockDrawerOpen: boolean
-  savedMapPaneOpen: boolean
 
   selectedTileImage: string
   selectedTileColor: {
@@ -55,14 +72,11 @@ export interface Store {
   removeTile(tile: TileCoords): void
   updateTile(tile: TileCoords & Partial<TileData>): void
 
-  toggleTileBuilder(): void
-  toggleColorPicker(): void
-  toggleSavedMapPane(): void
   mapLoad(payload: MapData): void
   setRotation(rotation: number): void
   setSelectedTileColor(color: ColorResult): void
   setSelectedTileImage(imageName: string): void
-  setTileBuilderOpen(isOpen: boolean): void
+  toggleWidget(widgetType: Widget): void
   setMapName(name: string): void
 }
 
@@ -82,10 +96,8 @@ export const [useStore] = create<Store>((set, get) => ({
     tiles: {},
   },
 
-  tileBuilderOpen: false,
-  colorPickerOpen: false,
+  openWidget: null,
   dockDrawerOpen: false,
-  savedMapPaneOpen: false,
 
   selectedTileImage: null,
   selectedTileColor: { r: 187, g: 128, b: 68 },
@@ -109,17 +121,12 @@ export const [useStore] = create<Store>((set, get) => ({
   decreaseAngle: () => {
     set({ viewAngle: Math.max(get().viewAngle - 0.05, 0.0) })
   },
-  toggleTileBuilder: () => {
-    set({ tileBuilderOpen: !get().tileBuilderOpen })
-  },
-  toggleColorPicker: () => {
-    set({ colorPickerOpen: !get().colorPickerOpen })
-  },
-  toggleSavedMapPane: () => {
-    set({ savedMapPaneOpen: !get().savedMapPaneOpen })
-  },
-  setTileBuilderOpen: (isOpen: boolean) => {
-    set({ tileBuilderOpen: isOpen })
+  toggleWidget: (widget: Widget) => {
+    if (get().openWidget === widget) {
+      set({ openWidget: null })
+    } else {
+      set({ openWidget: widget })
+    }
   },
   mapLoad: (payload: MapData) => {
     let mapData = produce(get().mapData, (next: MapData) => {

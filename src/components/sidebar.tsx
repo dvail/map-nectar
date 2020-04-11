@@ -2,7 +2,7 @@ import * as React from 'react'
 import first from 'lodash/first'
 import uuidv4 from 'uuid/v4'
 
-import { MapData, useStore } from '../store'
+import { MapData, useStore, Widget } from '../store'
 import { saveAsFile, saveLocal } from '../util'
 import FaIcon from './faIcon'
 
@@ -38,22 +38,26 @@ function MenuItem({ onClick, iconType, title, children }: MenuItemProps) {
 
 export default function Sidebar() {
   let mapData = useStore(state => state.mapData)
-  let toggleTileBuilder = useStore(state => state.toggleTileBuilder)
-  let toggleColorPicker = useStore(state => state.toggleColorPicker)
-  let toggleSavedMapPane = useStore(state => state.toggleSavedMapPane)
+  let setOpenWidget = useStore(state => state.toggleWidget)
   let mapLoad = useStore(state => state.mapLoad)
 
   let [saveInputId] = useState(uuidv4())
 
   return (
-    <div className='bg-gray-900 text-xl text-white p-3 pr-8 flex flex-col justify-between font-mono'>
+    <div className='bg-gray-900 text-xl text-white p-3 flex flex-col justify-between font-mono'>
       <div className='flex flex-col'>
-        <MenuItem onClick={toggleTileBuilder} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem>
-        <MenuItem onClick={toggleColorPicker} iconType='fa-eye-dropper' title='Choose tile color'>Tile Color</MenuItem>
+        <MenuItem onClick={() => setOpenWidget(Widget.TileBuilder)} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem>
+        <MenuItem onClick={() => setOpenWidget(Widget.ColorPicker)} iconType='fa-eye-dropper' title='Choose tile color'>Tile Color</MenuItem>
+        <MenuItem onClick={() => setOpenWidget(Widget.TileSetPane)} iconType='fa-th-large' title='Tile Sets'>
+          <div className='flex flex-row justify-around'>
+            <span>Tile Sets</span>
+            <span className='inline-block rounded text-indigo-100 bg-indigo-500 px-2 ml-8'>{mapData.tileSets?.length ?? 0}</span>
+          </div>
+        </MenuItem>
       </div>
       <div className='flex flex-col'>
         <MenuItem onClick={() => saveLocal(mapData)} iconType='fa-save' title='Save'>Save</MenuItem>
-        <MenuItem onClick={toggleSavedMapPane} iconType='fa-map' title='View Maps'>View Maps</MenuItem>
+        <MenuItem onClick={() => setOpenWidget(Widget.SavedMapPane)} iconType='fa-map' title='View Maps'>View Maps</MenuItem>
         <div className='h-1 border-b-2 border-gray-800 m-2' />
         <MenuItem onClick={() => saveAsFile(mapData, 'map.json')} iconType='fa-save' title='Export'>Export</MenuItem>
         <div>
