@@ -3,6 +3,7 @@ import * as React from 'react'
 import FaIcon from './faIcon'
 import { useStore } from '../store'
 import { getSavedMaps, loadLocal } from '../util'
+import Button, { ButtonType } from './bricks/Button'
 
 export default function SavedMapPane() {
   let mapLoad = useStore(state => state.mapLoad)
@@ -24,7 +25,7 @@ export default function SavedMapPane() {
             <FaIcon className='text-xl w-8 text-gray-100' type='far fa-map' title='View Maps' />
             <span className='pl-2'>{map.name}</span>
           </span>
-          <button className='bg-pink-600 text-white px-4 py-1' type='button' onClick={() => loadById(map.id)}>Load</button>
+          <Button type={ButtonType.Action} onClick={() => loadById(map.id)}>Load</Button>
         </li>
       ))}
     </ul>
