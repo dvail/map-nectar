@@ -20,6 +20,22 @@ function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList) {
   reader.readAsText(file)
 }
 
+interface MenuItemProps {
+  onClick(e: React.MouseEvent): void
+  iconType: string
+  title: string
+  children: React.ReactNode
+}
+
+function MenuItem({ onClick, iconType, title, children }: MenuItemProps) {
+  return (
+    <div className='flex flex-row items-center cursor-pointer' onClick={onClick}>
+      <FaIcon className='w-8' type={iconType} title={title} />
+      <span className='whitespace-no-wrap'>{children}</span>
+    </div>
+  )
+}
+
 export default function Sidebar() {
   let mapData = useStore(state => state.mapData)
   let toggleTileBuilder = useStore(state => state.toggleTileBuilder)
@@ -32,29 +48,14 @@ export default function Sidebar() {
   return (
     <div className='bg-gray-900 text-xl text-white p-3 pr-8 flex flex-col justify-between font-mono'>
       <div className='flex flex-col'>
-        <div className='flex flex-row items-center cursor-pointer' onClick={toggleTileBuilder}>
-          <FaIcon className='w-8' type='fa-magic' title='Create New Tile' />
-          <span className='whitespace-no-wrap'>Build Tile</span>
-        </div>
-        <div className='flex flex-row items-center cursor-pointer' onClick={toggleColorPicker}>
-          <FaIcon className='w-8' type='fa-eye-dropper' title='Choose tile color' />
-          <span className='whitespace-no-wrap'>Tile Color</span>
-        </div>
+        <MenuItem onClick={toggleTileBuilder} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem>
+        <MenuItem onClick={toggleColorPicker} iconType='fa-eye-dropper' title='Choose tile color'>Tile Color</MenuItem>
       </div>
       <div className='flex flex-col'>
-        <div className='flex flex-row items-center cursor-pointer' onClick={() => saveLocal(mapData)}>
-          <FaIcon className='w-8' type='fa-save' title='Save' />
-          <span className='whitespace-no-wrap'>Save</span>
-        </div>
-        <div className='flex flex-row items-center cursor-pointer' onClick={toggleSavedMapPane}>
-          <FaIcon className='w-8' type='fa-map' title='View Maps' />
-          <span className='whitespace-no-wrap'>View Maps</span>
-        </div>
+        <MenuItem onClick={() => saveLocal(mapData)} iconType='fa-save' title='Save'>Save</MenuItem>
+        <MenuItem onClick={toggleSavedMapPane} iconType='fa-map' title='View Maps'>View Maps</MenuItem>
         <div className='h-1 border-b-2 border-gray-800 m-2' />
-        <div className='flex flex-row items-center cursor-pointer' onClick={() => saveAsFile(mapData, 'map.json')}>
-          <FaIcon className='w-8' type='fa-save' title='Export' />
-          <span className='whitespace-no-wrap'>Export</span>
-        </div>
+        <MenuItem onClick={() => saveAsFile(mapData, 'map.json')} iconType='fa-save' title='Export'>Export</MenuItem>
         <div>
           <input className='hidden' id={saveInputId} type='file' onChange={e => onMapLoad(mapLoad, e.target.files)} />
           <label className='flex flex-row items-center cursor-pointer' htmlFor={saveInputId}>

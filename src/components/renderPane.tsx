@@ -1,14 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
-
 import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 // import PixiFps from "pixi-fps";
-
 import range from 'lodash/range'
 
 import { useStore, tileKey, TileOptions } from '../store'
 import { TextureAtlas } from './atlasRegion'
-
 import ColorUtils from '../colorUtils'
 import { HexagonGrid, HexagonGridOptions } from '../hexagonGrid'
 
