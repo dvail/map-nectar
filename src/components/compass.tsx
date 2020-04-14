@@ -5,7 +5,11 @@ import { RotationIncrement, useStore } from '../store'
 
 let rotationMarkers = range(0, 360, RotationIncrement)
 
-export default function Compass({ className } : { className: string }) {
+export interface CompassProps {
+  className: string
+}
+
+export default function Compass({ className } : CompassProps) {
   let rotation = useStore(state => state.rotation)
   let setRotation = useStore(state => state.setRotation)
 
