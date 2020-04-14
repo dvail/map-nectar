@@ -260,7 +260,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 
     if (orientation === ORIENTATION.FLAT) {
       spriteContainer.x += radius
-      spriteContainer.y += dimensions(radius, orientation).height * angle / 2
+      spriteContainer.y += (dimensions(radius, orientation).height * angle) / 2
       imageSprite.rotation = Math.PI / 6
     }
 

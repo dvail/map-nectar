@@ -1,4 +1,3 @@
-import noop from 'lodash/noop'
 import * as PIXI from 'pixi.js'
 import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions } from './hexagon'
 
@@ -59,8 +58,8 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
   tileSize,
   viewAngle = 1.0,
   gridRotation = 0,
-  onTileClick = noop,
-  onTileRightClick = noop,
+  onTileClick,
+  onTileRightClick,
   tileTextures = {},
 }: HexagonGridOptions) {
   let container = new PIXI.Container()

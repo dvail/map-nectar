@@ -6,6 +6,8 @@ import flow from 'lodash/fp/flow'
 import keys from 'lodash/fp/keys'
 import max from 'lodash/fp/max'
 import map from 'lodash/fp/map'
+import { fromNullable, fold } from 'fp-ts/es6/Option'
+
 
 export type TileMap = {
   [key: string]: TileCoords & TileData
@@ -154,14 +156,16 @@ export const [useStore] = create<Store>((set, get) => ({
 
   addMapTileSet: (tileSet: TileSet) => {
     let mapData = produce(get().mapData, (next: MapData) => {
-      // TODO Handle undefined here more gracefully
-      let highestId = flow(
+      let nextId = flow(
         keys,
         map(Number),
         max,
+        fromNullable,
+        fold(
+          () => 1,
+          (n) => n + 1,
+        ),
       )(next.tileSets)
-
-      let nextId = highestId ? highestId + 1 : 1
 
       next.tileSets[nextId] = tileSet
     })

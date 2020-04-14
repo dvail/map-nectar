@@ -15,6 +15,7 @@ export default function TileSetPane() {
   let mapData = useStore(state => state.mapData)
   let addMapTileSet = useStore(state => state.addMapTileSet)
 
+  // TODO Clear file inputs as well
   function addNewTileSet() {
     addMapTileSet({
       image,
