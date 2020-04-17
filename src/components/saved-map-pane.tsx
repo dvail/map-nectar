@@ -1,9 +1,9 @@
 import * as React from 'react'
 
-import FaIcon from './faIcon'
+import FaIcon from './fa-icon'
 import { useStore } from '../store'
 import { getSavedMaps, loadLocal } from '../util'
-import Button, { ButtonType } from './bricks/Button'
+import Button, { ButtonType } from './bricks/button'
 
 export default function SavedMapPane() {
   let mapLoad = useStore(state => state.mapLoad)

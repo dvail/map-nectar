@@ -2,9 +2,9 @@ import React from "react"
 import { ChromePicker } from "react-color"
 
 import { useStore, Widget } from "../store"
-import TileBuilder from "./tileBuilder"
-import SavedMapPane from "./savedMapPane"
-import TileSetPane from "./tileSetPane"
+import TileBuilder from "./tile-builder"
+import SavedMapPane from "./saved-map-pane"
+import TileSetPane from "./tile-set-pane"
 
 export default function WidgetPane() {
   let selectedTileColor = useStore(state => state.selectedTileColor)

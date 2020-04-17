@@ -1,6 +1,6 @@
 import React from 'react'
-import FaIcon from './faIcon'
-import AtlasRegion from './atlasRegion'
+import FaIcon from './fa-icon'
+import AtlasRegion from './atlas-region'
 import completePng from '../../res/hexagonTerrain_sheet.png'
 import completeJson from '../../res/hexagonTerrain_sheet.json'
 import { useStore } from '../store'

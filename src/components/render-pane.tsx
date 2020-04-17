@@ -5,9 +5,9 @@ import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
 import { useStore, tileKey, TileOptions } from '../store'
-import { TextureAtlas } from './atlasRegion'
-import ColorUtils from '../colorUtils'
-import { HexagonGrid, HexagonGridOptions } from '../hexagonGrid'
+import { TextureAtlas } from './atlas-region'
+import ColorUtils from '../color-utils'
+import { HexagonGrid, HexagonGridOptions } from '../hexagon-grid'
 
 // TODO Need to work with these URLs in a reliable way
 const completePng = '../../res/hexagonTerrain_sheet.png'

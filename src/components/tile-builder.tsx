@@ -1,5 +1,5 @@
 import React from 'react'
-import FaIcon from './faIcon'
+import FaIcon from './fa-icon'
 
 export default function TileBuilder() {
   return (

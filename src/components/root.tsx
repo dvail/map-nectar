@@ -2,13 +2,13 @@ import * as React from 'react'
 
 import { GetState } from 'zustand'
 
-import RenderPane from './renderPane'
+import RenderPane from './render-pane'
 import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
-import MapName from './mapName'
+import MapName from './map-name'
 import { Store, useStore } from '../store'
-import WidgetPane from './widgetPane'
+import WidgetPane from './widget-pane'
 
 declare global {
   interface Window {

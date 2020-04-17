@@ -3,8 +3,8 @@ import first from 'lodash/first'
 
 import { MapData, useStore, Widget } from '../store'
 import { saveAsFile, saveLocal } from '../util'
-import FaIcon from './faIcon'
-import FileInput from './bricks/FileInput'
+import FaIcon from './fa-icon'
+import FileInput from './bricks/file-input'
 
 function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList) {
   let file = first(files)

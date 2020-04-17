@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { useState } from 'react'
 
-import FileInput from './bricks/FileInput'
-import Button, { ButtonType } from './bricks/Button'
-import FaIcon from './faIcon'
+import FileInput from './bricks/file-input'
+import Button, { ButtonType } from './bricks/button'
+import FaIcon from './fa-icon'
 import { useStore } from '../store'
 
 let { Weak, Action, Default } = ButtonType

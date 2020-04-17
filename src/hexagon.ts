@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js'
 import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
-import ColorUtils from './colorUtils'
+import ColorUtils from './color-utils'
 
 enum ORIENTATION {
   POINTY = 'POINTY',
