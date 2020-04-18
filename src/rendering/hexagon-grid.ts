@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js'
 import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions, TileSetTextureMap } from './hexagon'
 
-import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from './store'
+import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from '../store'
 
 function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
   if (orientation === ORIENTATION.POINTY) {
@@ -52,6 +52,14 @@ export interface HexagonGridOptions {
   tileTextures?: TileSetTextureMap
 }
 
+export interface HexagonGrid {
+  container: PIXI.Container
+  renderTile: ({ q, r }: TileCoords, { altitude, opts }: TileData) => void
+  setRotation: (degrees: RotationInterval) => void
+  setAngle: (newAngle: number) => void
+  renderTiles: (newTiles: TileMap) => void
+}
+
 export function HexagonGrid(renderer: PIXI.Renderer, {
   gridX,
   gridY,
@@ -61,7 +69,7 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
   onTileClick,
   onTileRightClick,
   tileTextures = {},
-}: HexagonGridOptions) {
+}: HexagonGridOptions): HexagonGrid {
   let container = new PIXI.Container()
   let radius = tileSize
   let tiles: {

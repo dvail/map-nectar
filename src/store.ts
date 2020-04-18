@@ -74,7 +74,7 @@ export enum Widget {
 
 export interface Store {
   getAll: GetState<Store>
-  rotation: number
+  rotation: RotationInterval
   viewAngle: number
   mapData: MapData
   openWidget?: Widget
@@ -130,14 +130,14 @@ export const [useStore] = create<Store>((set, get) => ({
     let { rotation } = get()
     rotation += RotationIncrement
     rotation %= 360
-    set({ rotation })
+    set({ rotation: rotation as RotationInterval })
   },
   rotateCounter: () => {
     let { rotation } = get()
     rotation -= RotationIncrement
     rotation += 360 // Don't rotate below 0 degrees
     rotation %= 360
-    set({ rotation })
+    set({ rotation: rotation as RotationInterval })
   },
   increaseAngle: () => {
     set({ viewAngle: Math.min(get().viewAngle + 0.05, 1.0) })
@@ -190,7 +190,7 @@ export const [useStore] = create<Store>((set, get) => ({
   },
 
   setRotation: (rotation: number) => {
-    set({ rotation })
+    set({ rotation: rotation as RotationInterval })
   },
 
   setMapId: (id: string) => {

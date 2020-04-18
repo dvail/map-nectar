@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js'
 import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
-import ColorUtils from './color-utils'
+import ColorUtils from '../color-utils'
 
 enum ORIENTATION {
   POINTY = 'POINTY',
@@ -313,7 +313,6 @@ export default function Hexagon(renderer: PIXI.Renderer, {
       drawFromImage(altitude, radius, orientation, angle, tileSet, tileImage, tileTextures)
     }
   }
-
 
   function destroy() {
     hexContainer.children.forEach(child => child.destroy())
