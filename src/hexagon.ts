@@ -186,6 +186,7 @@ interface HexagonDrawParams {
   orientation?: ORIENTATION
   angle?: number
   tileImage?: string
+  tileSet?: string
   tileTextures?: TileSetTextureMap
 }
 
@@ -237,20 +238,19 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     radius: number,
     orientation: ORIENTATION,
     angle: number,
+    tileSet: string,
     tileImage: string,
     tileTextures: TileSetTextureMap,
   ) {
     // A container is required so that we can scale the image and then rotate
     // inside the container to prevent skewing
-    // TODO File tileSet ID HERE
-    let scale = (radius * 2) / tileTextures['1'][tileImage].height
+    let scale = (radius * 2) / tileTextures[tileSet][tileImage].height
     let vertHeight = 1.0 - angle
     spriteContainer = new PIXI.Container()
     spriteContainer.scale = new PIXI.Point(scale, scale * angle)
     spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
 
-    // TODO File tileSet ID HERE
-    imageSprite = new PIXI.Sprite(tileTextures['1'][tileImage])
+    imageSprite = new PIXI.Sprite(tileTextures[tileSet][tileImage])
     imageSprite.anchor.set(0.5, 0.5)
     imageSprite.width += 2 // TODO This is a hack to prevent spacing between tiles
     imageSprite.height += 2 // TODO This is a hack to prevent spacing between tiles
@@ -287,6 +287,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     orientation = ORIENTATION.POINTY,
     angle = 1.0,
     tileImage,
+    tileSet,
     tileTextures = {},
   }: HexagonDrawParams) {
     hexContainer.x = x
@@ -308,8 +309,8 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 
     drawFromGraphics(altitude, radius, orientation, angle, fillColor)
 
-    if (tileImage && tileTextures['1'][tileImage]) {
-      drawFromImage(altitude, radius, orientation, angle, tileImage, tileTextures)
+    if (tileImage && tileSet && tileTextures[tileSet][tileImage]) {
+      drawFromImage(altitude, radius, orientation, angle, tileSet, tileImage, tileTextures)
     }
   }
 

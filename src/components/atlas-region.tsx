@@ -11,12 +11,11 @@ export interface TextureRegion {
 interface AtlasRegionProps {
   tileSet: string
   region: TextureRegion
-  image: string
   scale: number
   onClick(event: React.MouseEvent): void
 }
 
-export default function AtlasRegion({ tileSet, region, image, scale, onClick }: AtlasRegionProps) {
+export default function AtlasRegion({ tileSet, region, scale, onClick }: AtlasRegionProps) {
   let { x, y, w, h } = region
 
   let wrapperStyle = {

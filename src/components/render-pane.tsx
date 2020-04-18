@@ -5,14 +5,9 @@ import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
 import { useStore, tileKey, TileOptions, TileSet, TileSetMap } from '../store'
-import { TextureRegion } from './atlas-region'
 import ColorUtils from '../color-utils'
 import { HexagonGrid, HexagonGridOptions } from '../hexagon-grid'
 import { TileSetTextureMap } from '../hexagon'
-
-// TODO Need to work with these URLs in a reliable way
-const completePng = '../../res/hexagonTerrain_sheet.png'
-const completeJson = '../../res/hexagonTerrain_sheet.json'
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
 const baseGridOptions: HexagonGridOptions = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
@@ -46,9 +41,11 @@ export default function RenderPane() {
   const shiftDragCoordsRef = useRef(shiftDragCoords)
 
   // TODO Update the type signature here to support multiple tile sets
-  let tileSetTexturesRef: React.MutableRefObject<TileSetTextureMap> = useRef({
+  let tileSetTexturesRef = useRef({
     '1': {},
-  })
+    '2': {},
+    '3': {},
+  } as TileSetTextureMap)
 
   useEffect(() => {
     initializePixi(renderPaneRef.current)
@@ -83,23 +80,41 @@ export default function RenderPane() {
   }, [shiftKey])
   */
 
+  // NOTE: It is important that this `useEffect` runs first, so that the underlying
+  // tilsets and textures are correct before rendering tiles from the mapData
+  useEffect(() => {
+    // TODO Handle this in a cleaner way, currently it destroys tilesets/textures needlessly
+    removeTileSets(tileSetTexturesRef.current)
+    addTileSets(mapData.tileSets)
+  }, [mapData.tileSets])
+
   useEffect(() => {
     hexGrid?.renderTiles(mapData.tiles)
   }, [mapData])
 
-  useEffect(() => {
-    let oldTileSetIds = tileSetTexturesRef.current
-    addTileSets(mapData.tileSets)
-  }, [mapData.id])
-
-  useEffect(() => {
-    console.log(mapData.tileSets)
-  }, [mapData.tileSets])
-
   function addTileSets(tileSets: TileSetMap) {
+    for (let [id, tileSet] of Object.entries(tileSets)) {
+      let image = new Image()
+      image.src = tileSet.image
+
+      let baseTexture = new PIXI.BaseTexture(image);
+
+      Object.entries(tileSet.atlas).forEach(([region, { x, y, w, h }]) => {
+        tileSetTexturesRef.current[id][region] = new PIXI.Texture(baseTexture, new PIXI.Rectangle(x, y, w, h))
+      })
+    }
+
+    console.warn(tileSetTexturesRef)
   }
 
-  function removeTileSets(tileSets: TileSetMap) {
+  function removeTileSets(tileSets: TileSetTextureMap) {
+    let oldTileSetIds = tileSetTexturesRef.current
+    for (let [id, tileset] of Object.entries(oldTileSetIds)) {
+      for (let [name, texture] of Object.entries(tileset)) {
+        texture.destroy()
+        delete tileSetTexturesRef.current[id][name]
+      }
+    }
   }
 
   function onTileClick(ev: any, q: number, r: number) {
@@ -119,8 +134,8 @@ export default function RenderPane() {
 
     opts.fillColor = ColorUtils.fromRGB(selectedTileColorRef.current)
 
-    opts.tileSet = selectedTileImageRef.current.tileSet
-    opts.tileImage = selectedTileImageRef.current.tileImage
+    opts.tileSet = selectedTileImageRef.current?.tileSet
+    opts.tileImage = selectedTileImageRef.current?.tileImage
 
     // TODO Maybe do away with trying to do declarative rendering to the PIXI canvas
     // ans create and imperitive/declarative bridge between this and the rest of the UI
@@ -188,34 +203,12 @@ export default function RenderPane() {
     app.stage.addChild(viewport)
     // app.stage.addChild(new PixiFps());
 
-    // TODO
-    // TODO This relies on a race condition to get textures to the rest of the app
-    // TODO Fix this to handle async loading and asset storage in a real way
-    // TODO
-    app.loader
-      .add('tile-spritesheet', completeJson)
-      .add('tile-spritesheet-png', completePng)
-      .load((loader, resources) => {
-        let sheet = resources['tile-spritesheet']
-        let sheetPng = resources['tile-spritesheet-png']
-
-        let sheetData = sheet.data as {
-          [region: string]: TextureRegion
-        }
-
-        let ID = '1'
-        Object.entries(sheetData).forEach(([region, { x, y, w, h }]) => {
-          tileSetTexturesRef.current[ID][region] = new PIXI.Texture(sheetPng.texture.baseTexture, new PIXI.Rectangle(x, y, w, h))
-        })
-      })
-
     viewport.drag().wheel()
     viewport.on('drag-start', () => setDragging(true))
     viewport.on('drag-end', () => setDragging(false))
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
     let baseGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick })
-
     let tileGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTexturesRef.current })
 
     range(-20, 20).forEach(q => {

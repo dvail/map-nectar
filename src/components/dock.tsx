@@ -12,8 +12,8 @@ export default function Dock() {
   let setSelectedTileImage = useStore(state => state.setSelectedTileSprite)
   let tiles = flow(
     Object.entries,
-    map(([tileSet, { atlas, image }]) =>
-      map(([name, region]) => ({ tileSet, name, region, image }))(Object.entries(atlas))
+    map(([tileSet, { atlas }]) =>
+      map(([name, region]) => ({ tileSet, name, region }))(Object.entries(atlas))
     ),
     flatten
   )(tileSets)
@@ -24,9 +24,9 @@ export default function Dock() {
         <style>
           {Object.entries(tileSets).map(([id, tileSet]) => ` .tileset-bg-${id} { background-image: url('${tileSet.image}');} `)}
         </style>
-        {tiles.map(({ tileSet, name, region, image }) => (
+        {tiles.map(({ tileSet, name, region }) => (
           <div className='cursor-pointer m-1' key={name}>
-            <AtlasRegion tileSet={tileSet} region={region} image={image} scale={0.3} onClick={() => setSelectedTileImage({ tileSet, tileImage: name })} />
+            <AtlasRegion tileSet={tileSet} region={region} scale={0.3} onClick={() => setSelectedTileImage({ tileSet, tileImage: name })} />
           </div>
         ))}
         <Icon type='fa-bars' />

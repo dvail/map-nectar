@@ -55,7 +55,7 @@ export interface TileSet {
 }
 
 export interface TileSetMap {
-  [id: number]: TileSet
+  [id: string]: TileSet
 }
 
 export interface MapData {
@@ -80,7 +80,7 @@ export interface Store {
   openWidget?: Widget
   dockDrawerOpen: boolean
 
-  selectedTileSprite: TileSprite
+  selectedTileSprite?: TileSprite
   selectedTileColor: {
     r: number, b: number, g: number
   }
