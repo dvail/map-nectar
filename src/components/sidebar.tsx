@@ -3,7 +3,7 @@ import first from 'lodash/first'
 
 import { MapData, useStore, Widget } from '../store'
 import { saveAsFile, saveLocal } from '../util'
-import FaIcon from './fa-icon'
+import Icon from './bricks/icon'
 import FileInput from './bricks/file-input'
 
 function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList) {
@@ -28,7 +28,7 @@ interface MenuItemProps {
 function MenuItem({ onClick, iconType, title, children }: MenuItemProps) {
   return (
     <div className='flex flex-row items-center cursor-pointer hover:text-pink-300' onClick={onClick}>
-      <FaIcon className='w-8' type={iconType} title={title} />
+      <Icon className='w-8' type={iconType} title={title} />
       <span className='whitespace-no-wrap'>{children}</span>
     </div>
   )
@@ -59,7 +59,7 @@ export default function Sidebar() {
         <div className='h-1 border-b-2 border-gray-800 m-2' />
         <MenuItem onClick={() => saveAsFile(mapData, 'map.json')} iconType='fa-save' title='Export'>Export</MenuItem>
         <FileInput className='hover:text-pink-300' onChange={e => onMapLoad(mapLoad, e.target.files)}>
-          <FaIcon className='text-xl w-8' type='fa-file-upload' title='Import' />
+          <Icon className='text-xl w-8' type='fa-file-upload' title='Import' />
           <span className='whitespace-no-wrap'>Import</span>
         </FileInput>
       </div>

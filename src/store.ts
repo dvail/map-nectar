@@ -23,6 +23,8 @@ export interface TileOptions {
   fillAlpha: number
   strokeColor?: number
   strokeAlpha?: number
+  // TODO Figure out how to enforce (tileSet & tileImage) are both null/non-null with the type system
+  tileSet?: string
   tileImage?: string
 }
 
@@ -30,6 +32,11 @@ export interface TileOptions {
 export interface TileData {
   altitude: number
   opts: TileOptions
+}
+
+export interface TileSprite {
+  tileSet: string
+  tileImage: string
 }
 
 export interface TileRegion {
@@ -47,13 +54,15 @@ export interface TileSet {
   }
 }
 
+export interface TileSetMap {
+  [id: number]: TileSet
+}
+
 export interface MapData {
   id: string
   name: string
   tiles: TileMap
-  tileSets?: {
-    [id: number]: TileSet
-  }
+  tileSets?: TileSetMap
 }
 
 export enum Widget {
@@ -71,7 +80,7 @@ export interface Store {
   openWidget?: Widget
   dockDrawerOpen: boolean
 
-  selectedTileImage: string
+  selectedTileSprite: TileSprite
   selectedTileColor: {
     r: number, b: number, g: number
   }
@@ -89,7 +98,7 @@ export interface Store {
   mapLoad(payload: MapData): void
   setRotation(rotation: number): void
   setSelectedTileColor(color: ColorResult): void
-  setSelectedTileImage(imageName: string): void
+  setSelectedTileSprite(tileSprite: TileSprite): void
   toggleWidget(widgetType: Widget): void
   setMapName(name: string): void
 }
@@ -114,7 +123,7 @@ export const [useStore] = create<Store>((set, get) => ({
   openWidget: null,
   dockDrawerOpen: false,
 
-  selectedTileImage: null,
+  selectedTileSprite: null,
   selectedTileColor: { r: 187, g: 128, b: 68 },
 
   rotateClock: () => {
@@ -173,8 +182,8 @@ export const [useStore] = create<Store>((set, get) => ({
     set({ mapData })
   },
 
-  setSelectedTileImage: (imageName: string) => {
-    set({ selectedTileImage: imageName })
+  setSelectedTileSprite: (tileSprite: TileSprite) => {
+    set({ selectedTileSprite: tileSprite })
   },
   setSelectedTileColor: (color: ColorResult) => {
     set({ selectedTileColor: color.rgb })

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 // TODO Is this better defined or inferred from somewhere else?
-export interface TextureAtlas {
+export interface TextureRegion {
   x: number
   y: number
   w: number
@@ -9,17 +9,15 @@ export interface TextureAtlas {
 }
 
 interface AtlasRegionProps {
-  atlas: {
-    [region: string]: TextureAtlas
-  }
-  region: string
+  tileSet: string
+  region: TextureRegion
   image: string
   scale: number
   onClick(event: React.MouseEvent): void
 }
 
-export default function AtlasRegion({ atlas, region, image, scale, onClick }: AtlasRegionProps) {
-  let { x, y, w, h } = atlas[region]
+export default function AtlasRegion({ tileSet, region, image, scale, onClick }: AtlasRegionProps) {
+  let { x, y, w, h } = region
 
   let wrapperStyle = {
     height: `${h * scale}px`,
@@ -30,13 +28,15 @@ export default function AtlasRegion({ atlas, region, image, scale, onClick }: At
     height: `${h}px`,
     width: `${w}px`,
     transform: `scale(${scale})`,
-    backgroundImage: `url('${image}')`,
+    // The background image is  set as a global CSS
+    // class that is passed in here as a store value in order to avoid multiple parses
+    // of base64 image data.
     backgroundPosition: `-${x}px -${y}px`,
   }
 
   return (
     <div style={wrapperStyle} onClick={onClick}>
-      <div style={style} className='transform-origin-tl bg-no-repeat' />
+      <div style={style} className={`tileset-bg-${tileSet} transform-origin-tl bg-no-repeat`} />
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import FileInput from './bricks/file-input'
 import Button, { ButtonType } from './bricks/button'
-import FaIcon from './fa-icon'
+import Icon from './bricks/icon'
 import { useStore } from '../store'
 
 let { Weak, Action, Default } = ButtonType
@@ -50,13 +50,13 @@ export default function TileSetPane() {
       <div className='flex flex-row'>
         <Button type={image ? Default : Weak}>
           <FileInput onChange={onImageChange}>
-            <FaIcon className='text-xl w-8' type='fa-file-upload' title='Load Image' />
+            <Icon className='text-xl w-8' type='fa-file-upload' title='Load Image' />
             <span>Load Image</span>
           </FileInput>
         </Button>
         <Button type={atlas ? Default : Weak}>
           <FileInput onChange={onAtlasChange}>
-            <FaIcon className='text-xl w-8' type='fa-file-upload' title='Load Atlas' />
+            <Icon className='text-xl w-8' type='fa-file-upload' title='Load Atlas' />
             <span>Load Atlas</span>
           </FileInput>
         </Button>

@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions } from './hexagon'
+import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions, TileSetTextureMap } from './hexagon'
 
 import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from './store'
 
@@ -49,7 +49,7 @@ export interface HexagonGridOptions {
   gridRotation?: RotationInterval
   onTileClick?: any
   onTileRightClick?: any
-  tileTextures?: TextureMap
+  tileTextures?: TileSetTextureMap
 }
 
 export function HexagonGrid(renderer: PIXI.Renderer, {

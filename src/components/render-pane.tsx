@@ -4,10 +4,11 @@ import { Viewport } from 'pixi-viewport'
 // import PixiFps from "pixi-fps";
 import range from 'lodash/range'
 
-import { useStore, tileKey, TileOptions } from '../store'
-import { TextureAtlas } from './atlas-region'
+import { useStore, tileKey, TileOptions, TileSet, TileSetMap } from '../store'
+import { TextureRegion } from './atlas-region'
 import ColorUtils from '../color-utils'
 import { HexagonGrid, HexagonGridOptions } from '../hexagon-grid'
+import { TileSetTextureMap } from '../hexagon'
 
 // TODO Need to work with these URLs in a reliable way
 const completePng = '../../res/hexagonTerrain_sheet.png'
@@ -20,7 +21,7 @@ export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
   let viewAngle = useStore(state => state.viewAngle)
   let mapData = useStore(state => state.mapData)
-  let selectedTileImage = useStore(state => state.selectedTileImage)
+  let selectedTileImage = useStore(state => state.selectedTileSprite)
   let selectedTileColor = useStore(state => state.selectedTileColor)
 
   let removeTile = useStore(state => state.removeTile)
@@ -43,6 +44,11 @@ export default function RenderPane() {
   const selectedTileColorRef = useRef(selectedTileColor)
   const draggingRef = useRef(dragging)
   const shiftDragCoordsRef = useRef(shiftDragCoords)
+
+  // TODO Update the type signature here to support multiple tile sets
+  let tileSetTexturesRef: React.MutableRefObject<TileSetTextureMap> = useRef({
+    '1': {},
+  })
 
   useEffect(() => {
     initializePixi(renderPaneRef.current)
@@ -81,6 +87,21 @@ export default function RenderPane() {
     hexGrid?.renderTiles(mapData.tiles)
   }, [mapData])
 
+  useEffect(() => {
+    let oldTileSetIds = tileSetTexturesRef.current
+    addTileSets(mapData.tileSets)
+  }, [mapData.id])
+
+  useEffect(() => {
+    console.log(mapData.tileSets)
+  }, [mapData.tileSets])
+
+  function addTileSets(tileSets: TileSetMap) {
+  }
+
+  function removeTileSets(tileSets: TileSetMap) {
+  }
+
   function onTileClick(ev: any, q: number, r: number) {
     console.warn('left click', q, r)
   }
@@ -98,9 +119,10 @@ export default function RenderPane() {
 
     opts.fillColor = ColorUtils.fromRGB(selectedTileColorRef.current)
 
-    opts.tileImage = selectedTileImageRef.current
+    opts.tileSet = selectedTileImageRef.current.tileSet
+    opts.tileImage = selectedTileImageRef.current.tileImage
 
-    // TODO Maybe do away with trying to do delcarative rendering to the PIXI canvas
+    // TODO Maybe do away with trying to do declarative rendering to the PIXI canvas
     // ans create and imperitive/declarative bridge between this and the rest of the UI
     if (altitude < 0) {
       removeTile({ q, r })
@@ -166,10 +188,6 @@ export default function RenderPane() {
     app.stage.addChild(viewport)
     // app.stage.addChild(new PixiFps());
 
-    let tileTextures: {
-      [region: string]: PIXI.Texture
-    } = {}
-
     // TODO
     // TODO This relies on a race condition to get textures to the rest of the app
     // TODO Fix this to handle async loading and asset storage in a real way
@@ -182,13 +200,12 @@ export default function RenderPane() {
         let sheetPng = resources['tile-spritesheet-png']
 
         let sheetData = sheet.data as {
-          [region: string]: TextureAtlas
+          [region: string]: TextureRegion
         }
 
+        let ID = '1'
         Object.entries(sheetData).forEach(([region, { x, y, w, h }]) => {
-          // TODO Does this work/ (TS)
-          tileTextures[region] = new PIXI.Texture(sheetPng.texture.baseTexture, new PIXI.Rectangle(x, y, w, h))
-          // tileTextures[region] = new PIXI.Texture(sheetPng.texture, new PIXI.Rectangle(x, y, w, h))
+          tileSetTexturesRef.current[ID][region] = new PIXI.Texture(sheetPng.texture.baseTexture, new PIXI.Rectangle(x, y, w, h))
         })
       })
 
@@ -199,7 +216,7 @@ export default function RenderPane() {
 
     let baseGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick })
 
-    let tileGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures })
+    let tileGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTexturesRef.current })
 
     range(-20, 20).forEach(q => {
       range(-20, 20).forEach(r => {

@@ -151,7 +151,7 @@ let Texture = memoize(({ renderer, orientation, radius, angle, altitude }: HexVi
     hex.endFill()
 
     hex.beginFill(ColorUtils.darken(0xffffff, 20))
-    hex.drawPolygon((coords as FlatHexGeometry).CENTER_VERT)
+    hex.drawPolygon(coords.CENTER_VERT)
     hex.endFill()
   }
 
@@ -186,7 +186,13 @@ interface HexagonDrawParams {
   orientation?: ORIENTATION
   angle?: number
   tileImage?: string
-  tileTextures?: TextureMap
+  tileTextures?: TileSetTextureMap
+}
+
+export interface TileSetTextureMap {
+  [tileSetId: string]: {
+    [region: string]: PIXI.Texture
+  }
 }
 
 export default function Hexagon(renderer: PIXI.Renderer, {
@@ -232,17 +238,19 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     orientation: ORIENTATION,
     angle: number,
     tileImage: string,
-    tileTextures: TextureMap,
+    tileTextures: TileSetTextureMap,
   ) {
     // A container is required so that we can scale the image and then rotate
     // inside the container to prevent skewing
-    let scale = (radius * 2) / tileTextures[tileImage].height
+    // TODO File tileSet ID HERE
+    let scale = (radius * 2) / tileTextures['1'][tileImage].height
     let vertHeight = 1.0 - angle
     spriteContainer = new PIXI.Container()
     spriteContainer.scale = new PIXI.Point(scale, scale * angle)
     spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
 
-    imageSprite = new PIXI.Sprite(tileTextures[tileImage])
+    // TODO File tileSet ID HERE
+    imageSprite = new PIXI.Sprite(tileTextures['1'][tileImage])
     imageSprite.anchor.set(0.5, 0.5)
     imageSprite.width += 2 // TODO This is a hack to prevent spacing between tiles
     imageSprite.height += 2 // TODO This is a hack to prevent spacing between tiles
@@ -300,7 +308,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 
     drawFromGraphics(altitude, radius, orientation, angle, fillColor)
 
-    if (tileImage && tileTextures[tileImage]) {
+    if (tileImage && tileTextures['1'][tileImage]) {
       drawFromImage(altitude, radius, orientation, angle, tileImage, tileTextures)
     }
   }

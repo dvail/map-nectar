@@ -1,5 +1,5 @@
 import React from 'react'
-import FaIcon from './fa-icon'
+import Icon from './bricks/icon'
 
 export default function TileBuilder() {
   return (
@@ -12,7 +12,7 @@ export default function TileBuilder() {
           <div className='bg-gray-100 h-8 w-12' />
         </div>
         <div>
-          <FaIcon type='fa-table' onClick={() => console.warn('open tile props table')} />
+          <Icon type='fa-table' onClick={() => console.warn('open tile props table')} />
         </div>
       </div>
     </div>

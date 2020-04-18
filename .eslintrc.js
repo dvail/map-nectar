@@ -29,10 +29,10 @@ module.exports = {
     "no-use-before-define": ["error", { "functions": false }],
     "object-curly-newline": 0,
     "prefer-const": 0,
-    "function-paren-newline": 0, // Disabled for cleaner hyperscript
-    "no-unused-expressions": 0, // Not compatible with pipeline operator
     "semi": 0,
     "@typescript-eslint/semi": 0,
+    "@typescript-eslint/no-implicit-any": 2,
+    "@typescript-eslint/no-explicit-any": 2,
     "import/prefer-default-export": 0,
     "jsx-quotes": 0,
     "react/prop-types": 0,
