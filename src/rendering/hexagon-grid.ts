@@ -11,7 +11,7 @@ function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
   }
 }
 
-function orientationFromDegrees(degrees: number) {
+export function orientationFromDegrees(degrees: number) {
   return (degrees / 30) % 2 === 0
     ? ORIENTATION.POINTY
     : ORIENTATION.FLAT;
@@ -42,9 +42,7 @@ function getAxialViewCoords(q: number, r: number, rotation: RotationInterval): V
 }
 
 export interface HexagonGridOptions {
-  gridX: number
-  gridY: number
-  tileSize: number
+  tileRadius: number
   viewAngle?: number
   gridRotation?: RotationInterval
   onTileClick?: any
@@ -61,9 +59,7 @@ export interface HexagonGrid {
 }
 
 export function HexagonGrid(renderer: PIXI.Renderer, {
-  gridX,
-  gridY,
-  tileSize,
+  tileRadius,
   viewAngle = 1.0,
   gridRotation = 0,
   onTileClick,
@@ -71,7 +67,7 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
   tileTextures = {},
 }: HexagonGridOptions): HexagonGrid {
   let container = new PIXI.Container()
-  let radius = tileSize
+  let radius = tileRadius
   let tiles: {
     [key: string]: TileCoords & TileData & { hexagon: IHexagon }
   } = {}
@@ -85,17 +81,17 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
     const orientation = orientationFromDegrees(rotation)
     const { width, height } = dimensions(radius, orientation)
 
-    let xOffset = width * (viewQ + (viewR / 2))
-    let yOffset = ((height * 3) / 4) * viewR * angle
+    let xOffset = width * (viewQ + (viewR / 2)) - (width / 2)
+    let yOffset = height * (3 / 4) * viewR * angle - (radius * angle)
 
     if (orientation === ORIENTATION.FLAT) {
-      xOffset = width * viewQ * (3 / 4)
-      yOffset = height * (viewR + (viewQ / 2)) * angle
+      xOffset = width * viewQ * (3 / 4) - radius
+      yOffset = height * (viewR + (viewQ / 2)) * angle - (height / 2 * angle)
     }
 
     return {
-      x: gridX + xOffset,
-      y: gridY + yOffset,
+      x: xOffset,
+      y: yOffset,
       zIndex: getZIndex(viewQ, viewR, 0 - viewQ - viewR, orientation),
       orientation,
     }

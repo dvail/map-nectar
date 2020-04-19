@@ -3,13 +3,16 @@ import * as PIXI from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import range from 'lodash/range'
 
-import { HexagonGridOptions, HexagonGrid } from './hexagon-grid'
+import { HexagonGridOptions, HexagonGrid, orientationFromDegrees } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
 import ColorUtils from '../color-utils'
-import { TileSetTextureMap } from './hexagon'
+import { TileSetTextureMap, ORIENTATION } from './hexagon'
+
+const tileRadius = 64
+const startingViewAngle = 0.65
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const baseGridOptions: HexagonGridOptions = { gridX: 0, gridY: 0, tileSize: 64, viewAngle: 0.65 }
+const baseGridOptions: HexagonGridOptions = { tileRadius: tileRadius, viewAngle: startingViewAngle }
 
 export interface StoreActions {
   removeTile(tile: TileCoords): void
@@ -26,17 +29,23 @@ export default function MapView(store: StoreActions) {
   let hexGrid: HexagonGrid = null
   let skeletonGrid: HexagonGrid = null
 
+  let viewAngle = startingViewAngle
+  let rotation: RotationInterval = 0
+  let orientation = ORIENTATION.POINTY
   let dragging = false
   let mapData: MapData = null
   let shiftDragCoords: { x: number, y: number } = null
   let selectedTileColor: { r: number, g: number, b: number } = null
   let selectedTileImage: TileSprite = null
 
-  // TODO Update the type signature here to support multiple tile sets
+  // TODO Update the handling of this to better support dynamic adding/removing of tilesets
   let tileSetTextures = {
     '1': {},
     '2': {},
     '3': {},
+    '4': {},
+    '5': {},
+    '6': {},
   } as TileSetTextureMap
 
   function initialize(element: HTMLDivElement) {
@@ -68,6 +77,22 @@ export default function MapView(store: StoreActions) {
       .on('pointerup', onDragEnd)
       .on('pointerupoutside', onDragEnd)
       .on('pointermove', onDragMove)
+
+    viewport.on('clicked', ({ world }) => {
+      // TODO - These numbers are WRONG!
+      let tileHeight = orientation === ORIENTATION.POINTY
+        ? tileRadius * 2 * viewAngle
+        : tileRadius * 2 * viewAngle
+
+      let tileWidth = orientation === ORIENTATION.POINTY
+        ? tileRadius * 2
+        : tileRadius * 2
+
+      let x = Math.round(world.x / tileWidth)
+      let y = Math.round(world.y / tileHeight)
+
+      console.log(x, y, world);
+    })
 
     viewport.addChild(hexGrid.container)
   }
@@ -147,12 +172,16 @@ export default function MapView(store: StoreActions) {
     }
   }
 
-  function setRotation(rotation: RotationInterval) {
+  function setRotation(newRotation: RotationInterval) {
+    rotation = newRotation
+    orientation = orientationFromDegrees(rotation)
+
     hexGrid?.setRotation(rotation)
     skeletonGrid?.setRotation(rotation)
   }
 
-  function setAngle(viewAngle: number) {
+  function setAngle(newViewAngle: number) {
+    viewAngle = newViewAngle
     hexGrid?.setAngle(viewAngle)
     skeletonGrid?.setAngle(viewAngle)
   }
