@@ -238,7 +238,6 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     tileImage: string,
     tileTextures: TileSetTextureMap,
   ) {
-
     console.warn(angle)
     // A container is required so that we can scale the image and then rotate
     // inside the container to prevent skewing
