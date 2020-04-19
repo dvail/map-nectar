@@ -109,10 +109,12 @@ export const RotationIncrement = 360 / 12
 export const AngleIncrement = 0.05
 export const tileKey = (q: number, r: number) => [q, r].toString()
 
+const startingViewAngle = 0.65
+
 export const [useStore] = create<Store>((set, get) => ({
   getAll: get,
   rotation: 0,
-  viewAngle: 0.65,
+  viewAngle: startingViewAngle,
   mapData: {
     id: uuidv4(),
     name: 'New Map',

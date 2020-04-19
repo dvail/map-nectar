@@ -1,4 +1,4 @@
-import { MapData } from './store'
+import { MapData } from '../store'
 
 const MAP_STORAGE_KEY = "MAP_STORAGE"
 

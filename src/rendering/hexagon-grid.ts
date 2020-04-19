@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js'
-import Hexagon, { TextureMap, IHexagon, ORIENTATION, dimensions, TileSetTextureMap } from './hexagon'
+import Hexagon, { TextureMap, IHexagon, dimensions, TileSetTextureMap } from './hexagon'
 
 import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from '../store'
+import { getAxialViewCoords, ORIENTATION } from '../util/math';
 
 function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
   if (orientation === ORIENTATION.POINTY) {
@@ -15,30 +16,6 @@ export function orientationFromDegrees(degrees: number) {
   return (degrees / 30) % 2 === 0
     ? ORIENTATION.POINTY
     : ORIENTATION.FLAT;
-}
-
-interface ViewCoordinate {
-  viewQ: number
-  viewR: number
-}
-
-function getAxialViewCoords(q: number, r: number, rotation: RotationInterval): ViewCoordinate {
-  const s = -q - r
-
-  return {
-    0: { viewQ: q, viewR: r },
-    30: { viewQ: q, viewR: r },
-    60: { viewQ: -r, viewR: -s },
-    90: { viewQ: -r, viewR: -s },
-    120: { viewQ: s, viewR: q },
-    150: { viewQ: s, viewR: q },
-    180: { viewQ: -q, viewR: -r },
-    210: { viewQ: -q, viewR: -r },
-    240: { viewQ: r, viewR: s },
-    270: { viewQ: r, viewR: s },
-    300: { viewQ: -s, viewR: -q },
-    330: { viewQ: -s, viewR: -q },
-  }[rotation]
 }
 
 export interface HexagonGridOptions {

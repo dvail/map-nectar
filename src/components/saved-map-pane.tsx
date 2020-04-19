@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import Icon from './bricks/icon'
 import { useStore } from '../store'
-import { getSavedMaps, loadLocal } from '../util'
+import { getSavedMaps, loadLocal } from '../util/misc'
 import Button, { ButtonType } from './bricks/button'
 
 export default function SavedMapPane() {

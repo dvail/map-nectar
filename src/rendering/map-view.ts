@@ -5,14 +5,14 @@ import range from 'lodash/range'
 
 import { HexagonGridOptions, HexagonGrid, orientationFromDegrees } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
-import ColorUtils from '../color-utils'
-import { TileSetTextureMap, ORIENTATION } from './hexagon'
+import ColorUtils from '../util/color'
+import { TileSetTextureMap } from './hexagon'
+import { hexFromWorldCoords, ORIENTATION } from '../util/math'
 
 const tileRadius = 64
-const startingViewAngle = 0.65
 
 const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const baseGridOptions: HexagonGridOptions = { tileRadius: tileRadius, viewAngle: startingViewAngle }
+const baseGridOptions: HexagonGridOptions = { tileRadius: tileRadius }
 
 export interface StoreActions {
   removeTile(tile: TileCoords): void
@@ -29,7 +29,7 @@ export default function MapView(store: StoreActions) {
   let hexGrid: HexagonGrid = null
   let skeletonGrid: HexagonGrid = null
 
-  let viewAngle = startingViewAngle
+  let viewAngle = 0
   let rotation: RotationInterval = 0
   let orientation = ORIENTATION.POINTY
   let dragging = false
@@ -79,19 +79,9 @@ export default function MapView(store: StoreActions) {
       .on('pointermove', onDragMove)
 
     viewport.on('clicked', ({ world }) => {
-      // TODO - These numbers are WRONG!
-      let tileHeight = orientation === ORIENTATION.POINTY
-        ? tileRadius * 2 * viewAngle
-        : tileRadius * 2 * viewAngle
-
-      let tileWidth = orientation === ORIENTATION.POINTY
-        ? tileRadius * 2
-        : tileRadius * 2
-
-      let x = Math.round(world.x / tileWidth)
-      let y = Math.round(world.y / tileHeight)
-
-      console.log(x, y, world);
+      // Unrotate the world point based on camera rotation
+      let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
+      console.warn(q, r)
     })
 
     viewport.addChild(hexGrid.container)
@@ -146,11 +136,12 @@ export default function MapView(store: StoreActions) {
   }
 
   function onTileClick(ev: any, q: number, r: number) {
-    console.warn('left click', q, r)
+    console.warn('left click [INCORRECT]', q, r)
   }
 
   function onTileRightClick(ev: any, q: number, r: number) {
     if (dragging) return
+    // ev.stopPropagation()
 
     let shift = ev.data.originalEvent.shiftKey
     let tile = mapData.tiles[tileKey(q, r)]

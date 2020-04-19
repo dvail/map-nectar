@@ -2,7 +2,7 @@ import * as React from 'react'
 import first from 'lodash/first'
 
 import { MapData, useStore, Widget } from '../store'
-import { saveAsFile, saveLocal } from '../util'
+import { saveAsFile, saveLocal } from '../util/misc'
 import Icon from './bricks/icon'
 import FileInput from './bricks/file-input'
 

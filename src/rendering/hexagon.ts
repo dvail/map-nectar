@@ -2,12 +2,8 @@ import * as PIXI from 'pixi.js'
 import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
-import ColorUtils from '../color-utils'
-
-enum ORIENTATION {
-  POINTY = 'POINTY',
-  FLAT = 'FLAT',
-}
+import ColorUtils from '../util/color'
+import { ORIENTATION } from '../util/math'
 
 interface HexView {
   radius: number
@@ -242,6 +238,8 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     tileImage: string,
     tileTextures: TileSetTextureMap,
   ) {
+
+    console.warn(angle)
     // A container is required so that we can scale the image and then rotate
     // inside the container to prevent skewing
     let scale = (radius * 2) / tileTextures[tileSet][tileImage].height
