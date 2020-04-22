@@ -10,8 +10,6 @@ import { TileSetTextureMap } from './hexagon'
 
 const tileRadius = 64
 
-const baseGridOptions = { tileRadius }
-
 export interface StoreProperties {
   selectedTileColor: RGBColor
   removeTile(tile: TileCoords): void
@@ -52,7 +50,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
 
   let app = new PIXI.Application({ resizeTo: element })
   let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
-  let hexGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
+  let hexGrid = HexagonGrid(app.renderer, { tileRadius, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
 
   let viewAngle = 0
   let rotation: RotationInterval = 0

@@ -93,7 +93,7 @@ interface ViewCoordinate {
 }
 
 export function getAxialViewCoords(q: number, r: number, rotation: RotationInterval): ViewCoordinate {
-  const s = -q - r
+  const s = 0 - q - r
 
   let defaultCoords = { viewQ: q, viewR: r }
 
@@ -132,7 +132,8 @@ export function hexFromWorldCoords(x: number, y: number, tileRadius: number, vie
   let r = viewCords.viewR
 
   if (orientation === ORIENTATION.FLAT) {
-    [q, r] = [r, q]
+    // q + r is effectively -s (need to document why this works more clearly)
+    [q, r] = [-r, q + r]
   }
 
   return [q, r]
