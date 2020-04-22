@@ -87,8 +87,6 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
     tile = { q, r, altitude, opts, hexagon }
     tiles[key] = tile
 
-    console.warn(tileTextures['1'])
-
     tile.hexagon.draw({ x, y, zIndex, altitude, orientation, angle, radius, tileTextures, ...opts })
   }
 

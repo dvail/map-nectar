@@ -83,6 +83,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     let rightClick = (event.data.originalEvent as MouseEvent).button === 2
     if (rightClick) {
       let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
+
+      console.warn(q, r)
       adjustHexTile(q, r, AltitudeChange.UP)
     }
   })

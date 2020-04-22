@@ -112,8 +112,8 @@ export function getAxialViewCoords(q: number, r: number, rotation: RotationInter
     330: { viewQ: -s, viewR: -q },
   }[rotation] ?? defaultCoords
 
-  if (viewCoords.viewQ === -0) viewCoords.viewQ = 0
-  if (viewCoords.viewR === -0) viewCoords.viewR = 0
+  if (Object.is(viewCoords.viewQ, -0)) viewCoords.viewQ = 0
+  if (Object.is(viewCoords.viewR, -0)) viewCoords.viewR = 0
 
   return viewCoords
 }
