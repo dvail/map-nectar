@@ -1,50 +1,38 @@
 import * as PIXI from 'pixi.js'
 
-import { altitudePixelOffsetRatio, HexCoords } from "./hexagon"
+import { HexCoords } from "./hexagon"
 import { RotationInterval } from "../store"
 import { getTileCoords } from "./hexagon-grid"
+import { ORIENTATION } from '../util/math'
 
-export default function CursorHighlight(renderer: PIXI.Renderer) {
-  let hexContainer = new PIXI.Container()
-  let hexSprite = new PIXI.Sprite()
+export default function CursorHighlight() {
+  let hex = new PIXI.Graphics()
 
   function drawAt(q: number, r: number, rotation: RotationInterval, radius: number, angle: number, altitude: number) {
     let { x, y, zIndex, orientation } = getTileCoords(q, r, rotation, angle, radius)
-    hexContainer.x = x
-    hexContainer.y = y
-    // TODO zIndex is screwed up because the highlight exists outside of the HexGrid container
-    hexContainer.zIndex = zIndex + 0.5
-
-    hexContainer.removeChild(hexSprite)
-    hexSprite.destroy()
-
-    // TODO Optimize this, refactor Hexagon.ts memoization to allow more flexibility with outlines/fill
     let coords = HexCoords[orientation]({ angle, radius, altitude })
-    let hex = new PIXI.Graphics()
 
+    hex.clear()
     hex.lineStyle(3, 0xffffff, 0.7, 0, false)
     hex.drawPolygon(coords.TILE_FACE)
 
-    let texture = renderer.generateTexture(hex, PIXI.SCALE_MODES.LINEAR, 1)
-    hexSprite = new PIXI.Sprite(texture)
-    let vertHeight = 1.0 - angle
-
-    hexSprite.y = -(altitude * altitudePixelOffsetRatio * vertHeight)
-
-    // Hacks :(
-    hexSprite.x -= 2
-    hexSprite.y -= 2
-
-    hexContainer.addChild(hexSprite)
+    if (orientation === ORIENTATION.POINTY) {
+      hex.x = x + (radius * Math.sqrt(3)) / 2
+      hex.y = y + radius * angle
+    } else {
+      hex.x = x + radius
+      hex.y = y + ((radius * Math.sqrt(3)) * angle) / 2
+    }
+    hex.zIndex = zIndex + 0.5
   }
 
   function destroy() {
-    hexContainer.destroy()
+    hex.destroy()
   }
 
   return {
     drawAt,
     destroy,
-    container: hexContainer,
+    container: hex,
   }
 }

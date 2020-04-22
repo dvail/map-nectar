@@ -52,7 +52,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   let app = new PIXI.Application({ resizeTo: element })
   let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
   let hexGrid = HexagonGrid(app.renderer, { tileRadius, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
-  let cursorHighlight = CursorHightlight(app.renderer)
+  let cursorHighlight = CursorHightlight()
 
   let viewAngle = 0
   let rotation: RotationInterval = 0
@@ -91,10 +91,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   viewport.on('mousemove', e => {
     let world = viewport.toWorld(e.data.global);
     let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
-
     let altitude = mapData.tiles[tileKey(q, r)]?.altitude ?? 0
 
-    // TODO Make altitude reference tile altitude instead of 0
     cursorHighlight.drawAt(q, r, rotation, tileRadius, viewAngle, altitude)
   })
 
@@ -151,7 +149,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   }
 
   function onTileClick(ev: any, q: number, r: number) {
-    console.warn('left click [INCORRECT]', q, r)
+    console.warn('left click', q, r)
   }
 
   function onTileRightClick(ev: any, q: number, r: number) {
@@ -163,6 +161,10 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     let direction = shift ? AltitudeChange.DOWN : AltitudeChange.UP
 
     adjustHexTile(q, r, direction)
+
+    let currAltitude = mapData.tiles[tileKey(q, r)]?.altitude ?? 0
+    let altitude = currAltitude + (direction === AltitudeChange.DOWN ? -1 : 1) || 0
+    cursorHighlight.drawAt(q, r, rotation, tileRadius, viewAngle, altitude)
   }
 
   function adjustHexTile(q: number, r: number, direction: AltitudeChange) {
