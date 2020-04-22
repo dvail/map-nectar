@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import Hexagon, { TextureMap, IHexagon, dimensions, TileSetTextureMap } from './hexagon'
+import Hexagon, { IHexagon, dimensions, TileSetTextureMap } from './hexagon'
 
 import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from '../store'
 import { getAxialViewCoords, ORIENTATION } from '../util/math';
@@ -35,6 +35,28 @@ export interface HexagonGrid {
   renderTiles: (newTiles: TileMap) => void
 }
 
+export function getTileCoords(q: number, r: number, rotation: RotationInterval, angle: number, radius: number) {
+  const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
+  const orientation = orientationFromDegrees(rotation)
+  const { width, height } = dimensions(radius, orientation)
+
+  let xOffset = width * (viewQ + (viewR / 2)) - (width / 2)
+  let yOffset = height * (3 / 4) * viewR * angle - (radius * angle)
+
+  if (orientation === ORIENTATION.FLAT) {
+    xOffset = width * viewQ * (3 / 4) - radius
+    yOffset = height * (viewR + (viewQ / 2)) * angle - ((height / 2) * angle)
+  }
+
+  return {
+    x: xOffset,
+    y: yOffset,
+    zIndex: getZIndex(viewQ, viewR, 0 - viewQ - viewR, orientation),
+    orientation,
+  }
+}
+
+
 export function HexagonGrid(renderer: PIXI.Renderer, {
   tileRadius,
   viewAngle = 1.0,
@@ -53,32 +75,11 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
 
   container.sortableChildren = true
 
-  function getTileCoords(q: number, r: number) {
-    const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
-    const orientation = orientationFromDegrees(rotation)
-    const { width, height } = dimensions(radius, orientation)
-
-    let xOffset = width * (viewQ + (viewR / 2)) - (width / 2)
-    let yOffset = height * (3 / 4) * viewR * angle - (radius * angle)
-
-    if (orientation === ORIENTATION.FLAT) {
-      xOffset = width * viewQ * (3 / 4) - radius
-      yOffset = height * (viewR + (viewQ / 2)) * angle - ((height / 2) * angle)
-    }
-
-    return {
-      x: xOffset,
-      y: yOffset,
-      zIndex: getZIndex(viewQ, viewR, 0 - viewQ - viewR, orientation),
-      orientation,
-    }
-  }
-
   function renderTile({ q, r }: TileCoords, { altitude, opts }: TileData) {
     let key = tileKey(q, r)
     let tile = tiles[key]
     let hexagon = tile?.hexagon
-    let { x, y, zIndex, orientation } = getTileCoords(q, r)
+    let { x, y, zIndex, orientation } = getTileCoords(q, r, rotation, angle, radius)
 
     if (!tile) {
       hexagon = Hexagon(renderer, { container, q, r, onTileClick, onTileRightClick })

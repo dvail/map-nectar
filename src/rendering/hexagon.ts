@@ -26,7 +26,8 @@ function dimensions(radius: number, orientation: ORIENTATION) {
 }
 
 // For an altitude of '1' - how far up should the tile be shifted
-const altitudePixelOffsetRatio = 40
+// TODO Make this configurable?
+export const altitudePixelOffsetRatio = 40
 
 interface PointyHexGeometry {
   TILE_FACE: number[]
@@ -43,7 +44,7 @@ interface FlatHexGeometry {
 
 const coordinateMemoKey = ({ radius, angle, altitude }: HexPosition) => `${radius}:${angle}:${altitude}`
 
-let COORDS = {
+export const HexCoords = {
   /* eslint-disable @typescript-eslint/indent */
   POINTY: memoize(({ radius, angle, altitude }) => {
     let { width } = dimensions(radius, ORIENTATION.POINTY)
@@ -121,8 +122,8 @@ let COORDS = {
 
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
-let Texture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
-  let coords = COORDS[orientation]({ angle, radius, altitude }) as FlatHexGeometry
+export const MakeHexTexture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
+  let coords = HexCoords[orientation]({ angle, radius, altitude }) as FlatHexGeometry
   let hex = new PIXI.Graphics()
 
   hex.lineStyle(0, 0, 0, 0, false)
@@ -161,8 +162,8 @@ export interface HexagonProps {
   container: PIXI.Container
   q: number
   r: number
-  onTileClick: any
-  onTileRightClick: any
+  onTileClick?: any
+  onTileRightClick?: any
 }
 
 export interface TextureMap {
@@ -214,7 +215,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     angle: number,
     fillColor: number,
   ) {
-    let texture = Texture({ renderer, orientation, radius, angle, altitude })
+    let texture = MakeHexTexture({ renderer, orientation, radius, angle, altitude })
     let hexSprite = new PIXI.Sprite(texture)
     let vertHeight = 1.0 - angle
     hexSprite.tint = fillColor
@@ -288,7 +289,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     hexContainer.zIndex = zIndex
 
     hexContainer.children.forEach(child => {
-      // TODO Don't destory these - keep in cache!
+      // TODO Don't destroy these - keep in cache!
       hexContainer.removeChild(child)
       child.destroy()
     })

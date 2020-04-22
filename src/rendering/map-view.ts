@@ -7,6 +7,7 @@ import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, 
 import ColorUtils from '../util/color'
 import { hexFromWorldCoords, ORIENTATION } from '../util/math'
 import { TileSetTextureMap } from './hexagon'
+import CursorHightlight from './cursor-highlight'
 
 const tileRadius = 64
 
@@ -51,6 +52,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   let app = new PIXI.Application({ resizeTo: element })
   let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
   let hexGrid = HexagonGrid(app.renderer, { tileRadius, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
+  let cursorHighlight = CursorHightlight(app.renderer)
 
   let viewAngle = 0
   let rotation: RotationInterval = 0
@@ -82,11 +84,21 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     if (rightClick) {
       let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
 
-      console.warn(q, r)
       adjustHexTile(q, r, AltitudeChange.UP)
     }
   })
 
+  viewport.on('mousemove', e => {
+    let world = viewport.toWorld(e.data.global);
+    let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
+
+    let altitude = mapData.tiles[tileKey(q, r)]?.altitude ?? 0
+
+    // TODO Make altitude reference tile altitude instead of 0
+    cursorHighlight.drawAt(q, r, rotation, tileRadius, viewAngle, altitude)
+  })
+
+  hexGrid.container.addChild(cursorHighlight.container)
   viewport.addChild(hexGrid.container)
 
   function onDragStart(e: any) {
