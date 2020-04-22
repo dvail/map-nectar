@@ -29,13 +29,7 @@ function dimensions(radius: number, orientation: ORIENTATION) {
 // TODO Make this configurable?
 export const altitudePixelOffsetRatio = 40
 
-interface PointyHexGeometry {
-  TILE_FACE: number[]
-  LEFT_VERT: number[]
-  RIGHT_VERT: number[]
-}
-
-interface FlatHexGeometry {
+interface HexGeometry {
   TILE_FACE: number[]
   LEFT_VERT: number[]
   RIGHT_VERT: number[]
@@ -46,7 +40,7 @@ const coordinateMemoKey = ({ radius, angle, altitude }: HexPosition) => `${radiu
 
 export const HexCoords = {
   /* eslint-disable @typescript-eslint/indent */
-  POINTY: memoize(({ radius, angle, altitude }) => {
+  POINTY: memoize(({ radius, angle, altitude }): HexGeometry => {
     let { width } = dimensions(radius, ORIENTATION.POINTY)
     let tileAltitude = altitudePixelOffsetRatio * altitude
     let halfWidth = width / 2
@@ -76,9 +70,11 @@ export const HexCoords = {
       TILE_FACE[8],  TILE_FACE[9],
     ]
 
-    return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
+    let CENTER_VERT: number[] = []
+
+    return { TILE_FACE, LEFT_VERT, RIGHT_VERT, CENTER_VERT }
   }, coordinateMemoKey),
-  FLAT: memoize(({ radius, angle, altitude }) => {
+  FLAT: memoize(({ radius, angle, altitude }): HexGeometry => {
     let { height } = dimensions(radius, ORIENTATION.FLAT)
     let tileAltitude = altitudePixelOffsetRatio * altitude
     let halfHeight = height / 2
@@ -123,7 +119,7 @@ export const HexCoords = {
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
 export const MakeHexTexture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
-  let coords = HexCoords[orientation]({ angle, radius, altitude }) as FlatHexGeometry
+  let coords = HexCoords[orientation]({ angle, radius, altitude })
   let hex = new PIXI.Graphics()
 
   hex.lineStyle(0, 0, 0, 0, false)

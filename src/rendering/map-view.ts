@@ -178,7 +178,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     opts.fillColor = ColorUtils.fromRGB(selectedTileColor)
 
     opts.tileSet = selectedTileImage?.tileSet ?? opts.tileSet
-    opts.tileImage = selectedTileImage?.tileImage ?? opts.tileSet
+    opts.tileImage = selectedTileImage?.tileImage ?? opts.tileImage
 
     if (altitude < 0) {
       store.removeTile({ q, r })
