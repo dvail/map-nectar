@@ -1,18 +1,16 @@
 import * as PIXI from 'pixi.js'
 // import PixiFps from "pixi-fps";
 import { Viewport } from 'pixi-viewport'
-import range from 'lodash/range'
 
 import { HexagonGridOptions, HexagonGrid, orientationFromDegrees } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
 import ColorUtils from '../util/color'
-import { TileSetTextureMap } from './hexagon'
 import { hexFromWorldCoords, ORIENTATION } from '../util/math'
+import { TileSetTextureMap } from './hexagon'
 
 const tileRadius = 64
 
-const skeletonTileOpts = { strokeColor: 0xbbbbbb, fillColor: 0x111111, strokeAlpha: 0.1, fillAlpha: 0.1 }
-const baseGridOptions: HexagonGridOptions = { tileRadius: tileRadius }
+const baseGridOptions: HexagonGridOptions = { tileRadius }
 
 export interface StoreActions {
   removeTile(tile: TileCoords): void
@@ -23,11 +21,30 @@ export interface StoreActions {
   decreaseAngle(): void
 }
 
-export default function MapView(store: StoreActions) {
+enum AltitudeChange {
+  UP,
+  DOWN,
+}
+
+interface RGBColor {
+  r: number, g: number, b: number
+}
+
+export interface MapViewType {
+  initialize(element: HTMLDivElement): void
+  setRotation(newRotation: RotationInterval): void
+  setAngle(newViewAngle: number): void
+  setMapData(mapData: MapData): void,
+  setSelectedTileColor(color: RGBColor): void,
+  setSelectedTileImage(image: TileSprite): void
+  renderTiles(tiles: TileMap): void
+  loadTileSets(tileSet: TileSetMap): void
+}
+
+export default function MapView(store: StoreActions): MapViewType {
   let app: PIXI.Application = null
   let viewport: Viewport = null
   let hexGrid: HexagonGrid = null
-  let skeletonGrid: HexagonGrid = null
 
   let viewAngle = 0
   let rotation: RotationInterval = 0
@@ -40,14 +57,16 @@ export default function MapView(store: StoreActions) {
 
   // TODO Update the handling of this to better support dynamic adding/removing of tilesets
   let tileSetTextures = {
-    '1': {},
-    '2': {},
-    '3': {},
-    '4': {},
-    '5': {},
-    '6': {},
+    1: {},
+    2: {},
+    3: {},
+    4: {},
+    5: {},
+    6: {},
   } as TileSetTextureMap
 
+  // TODO
+  console.warn("TODO Handle initialization automatically to avoid all the null property issues")
   function initialize(element: HTMLDivElement) {
     app = new PIXI.Application({ resizeTo: element })
     element.appendChild(app.view)
@@ -57,31 +76,25 @@ export default function MapView(store: StoreActions) {
     app.stage.addChild(viewport)
     // app.stage.addChild(new PixiFps());
 
-    viewport.drag().wheel()
+    viewport.drag({ mouseButtons: 'left' }).wheel()
     viewport.on('drag-start', () => { dragging = true })
     viewport.on('drag-end', () => { dragging = false })
     viewport.moveCenter(275, 50) // TODO These are magic values...
 
-    skeletonGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick })
     hexGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
-
-    range(-20, 20).forEach(q => {
-      range(-20, 20).forEach(r => {
-        skeletonGrid.renderTile({ q, r }, { altitude: 0, opts: skeletonTileOpts })
-      })
-    })
-
-    viewport.addChild(skeletonGrid.container)
 
     viewport.on('pointerdown', onDragStart)
       .on('pointerup', onDragEnd)
       .on('pointerupoutside', onDragEnd)
       .on('pointermove', onDragMove)
 
-    viewport.on('clicked', ({ world }) => {
+    viewport.on('clicked', ({ world, event }) => {
       // Unrotate the world point based on camera rotation
-      let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
-      console.warn(q, r)
+      let rightClick = (event.data.originalEvent as MouseEvent).button === 2
+      if (rightClick) {
+        let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
+        adjustHexTile(q, r, AltitudeChange.UP)
+      }
     })
 
     viewport.addChild(hexGrid.container)
@@ -140,21 +153,28 @@ export default function MapView(store: StoreActions) {
   }
 
   function onTileRightClick(ev: any, q: number, r: number) {
+    ev.stopPropagation()
+
     if (dragging) return
-    // ev.stopPropagation()
 
     let shift = ev.data.originalEvent.shiftKey
+    let direction = shift ? AltitudeChange.DOWN : AltitudeChange.UP
+
+    adjustHexTile(q, r, direction)
+  }
+
+  function adjustHexTile(q: number, r: number, direction: AltitudeChange) {
     let tile = mapData.tiles[tileKey(q, r)]
 
-    if (shift && !tile) return
+    if (direction === AltitudeChange.DOWN && !tile) return
 
-    let altitude = tile?.altitude + (shift ? -1 : 1) || 0
+    let altitude = tile?.altitude + (direction === AltitudeChange.DOWN ? -1 : 1) || 0
     let opts = tile?.opts ?? {} as TileOptions
 
     opts.fillColor = ColorUtils.fromRGB(selectedTileColor)
 
-    opts.tileSet = selectedTileImage?.tileSet
-    opts.tileImage = selectedTileImage?.tileImage
+    opts.tileSet = selectedTileImage?.tileSet ?? opts.tileSet
+    opts.tileImage = selectedTileImage?.tileImage ?? opts.tileSet
 
     if (altitude < 0) {
       store.removeTile({ q, r })
@@ -168,13 +188,11 @@ export default function MapView(store: StoreActions) {
     orientation = orientationFromDegrees(rotation)
 
     hexGrid?.setRotation(rotation)
-    skeletonGrid?.setRotation(rotation)
   }
 
   function setAngle(newViewAngle: number) {
     viewAngle = newViewAngle
     hexGrid?.setAngle(viewAngle)
-    skeletonGrid?.setAngle(viewAngle)
   }
 
   function renderTiles(tiles: TileMap) {
@@ -188,17 +206,17 @@ export default function MapView(store: StoreActions) {
   }
 
   function removeTileSets(tileSets: TileSetTextureMap) {
-    let oldTileSetIds = tileSetTextures
-    for (let [id, tileset] of Object.entries(oldTileSetIds)) {
-      for (let [name, texture] of Object.entries(tileset)) {
+    let oldTileSetIds = tileSets
+    Object.entries(oldTileSetIds).forEach(([id, tileset]) => {
+      Object.entries(tileset).forEach(([name, texture]) => {
         texture.destroy()
         delete tileSetTextures[id][name]
-      }
-    }
+      })
+    })
   }
 
   function addTileSets(tileSets: TileSetMap) {
-    for (let [id, tileSet] of Object.entries(tileSets)) {
+    Object.entries(tileSets).forEach(([id, tileSet]) => {
       let image = new Image()
       image.src = tileSet.image
 
@@ -207,8 +225,7 @@ export default function MapView(store: StoreActions) {
       Object.entries(tileSet.atlas).forEach(([region, { x, y, w, h }]) => {
         tileSetTextures[id][region] = new PIXI.Texture(baseTexture, new PIXI.Rectangle(x, y, w, h))
       })
-    }
-
+    })
     console.warn(tileSetTextures)
   }
 
@@ -216,7 +233,7 @@ export default function MapView(store: StoreActions) {
     mapData = data
   }
 
-  function setSelectedTileColor(color: { r: number, g: number, b: number }) {
+  function setSelectedTileColor(color: RGBColor) {
     selectedTileColor = color
   }
 

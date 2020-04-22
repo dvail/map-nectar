@@ -27,6 +27,7 @@ module.exports = {
     "no-else-return": 0,
     "no-param-reassign": 0,
     "no-use-before-define": ["error", { "functions": false }],
+    "@typescript-eslint/no-use-before-define": ["error", { "functions": false }],
     "object-curly-newline": 0,
     "prefer-const": 0,
     "semi": 0,

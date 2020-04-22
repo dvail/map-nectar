@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useRef, useEffect } from 'react'
 
 import { useStore } from '../store'
-import MapView from '../rendering/map-view'
+import MapView, { MapViewType } from '../rendering/map-view'
 
 export default function RenderPane() {
   let rotation = useStore(state => state.rotation)
@@ -20,16 +20,18 @@ export default function RenderPane() {
 
   const renderPaneRef = useRef<HTMLDivElement>(null)
   const mapDataRef = useRef(mapData)
-  const mapViewRef = useRef(MapView({
-    removeTile,
-    updateTile,
-    rotateClock,
-    rotateCounter,
-    increaseAngle,
-    decreaseAngle,
-  }))
+  const mapViewRef: React.MutableRefObject<MapViewType> = useRef()
 
   useEffect(() => {
+    let mapView = MapView({
+      removeTile,
+      updateTile,
+      rotateClock,
+      rotateCounter,
+      increaseAngle,
+      decreaseAngle,
+    })
+    mapViewRef.current = mapView
     mapViewRef.current.initialize(renderPaneRef.current)
   }, [])
 
