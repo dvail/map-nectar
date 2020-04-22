@@ -4,19 +4,21 @@ import { useState } from 'react'
 import FileInput from './bricks/file-input'
 import Button, { ButtonType } from './bricks/button'
 import Icon from './bricks/icon'
-import { useStore } from '../store'
+import { useStore, TileRegion } from '../store'
 
 let { Weak, Action, Default } = ButtonType
 
 export default function TileSetPane() {
-  let [image, setImage] = useState(null)
-  let [atlas, setAtlas] = useState(null)
+  let [image, setImage] = useState<string | null>(null)
+  let [atlas, setAtlas] = useState<{ [name: string]: TileRegion } | null>(null)
 
   let mapData = useStore(state => state.mapData)
   let addMapTileSet = useStore(state => state.addMapTileSet)
 
   // TODO Clear file inputs as well
   function addNewTileSet() {
+    if (!image || !atlas) return
+
     addMapTileSet({
       image,
       atlas,
@@ -30,15 +32,19 @@ export default function TileSetPane() {
 
   // TODO Error handling here
   function onImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return
+
     let reader = new FileReader()
     reader.readAsDataURL(e.target.files[0])
-    reader.onload = () => setImage(reader.result)
+    reader.onload = () => setImage(reader.result as string)
     reader.onerror = error => console.log('Error: ', error)
   }
 
   // TODO Error handling here
   // TODO Validation of incoming JSON format
   function onAtlasChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return
+
     let reader = new FileReader()
     reader.readAsText(e.target.files[0])
     reader.onload = () => setAtlas(JSON.parse(reader.result as string))

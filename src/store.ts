@@ -1,7 +1,7 @@
 import create, { GetState } from 'zustand'
 import produce from 'immer'
 import uuidv4 from 'uuid/v4'
-import { ColorResult } from 'react-color'
+import { ColorResult, RGBColor } from 'react-color'
 import flow from 'lodash/fp/flow'
 import keys from 'lodash/fp/keys'
 import max from 'lodash/fp/max'
@@ -62,7 +62,7 @@ export interface MapData {
   id: string
   name: string
   tiles: TileMap
-  tileSets?: TileSetMap
+  tileSets: TileSetMap
 }
 
 export enum Widget {
@@ -77,13 +77,11 @@ export interface Store {
   rotation: RotationInterval
   viewAngle: number
   mapData: MapData
-  openWidget?: Widget
+  openWidget: Widget | null
   dockDrawerOpen: boolean
 
-  selectedTileSprite?: TileSprite
-  selectedTileColor: {
-    r: number, b: number, g: number
-  }
+  selectedTileSprite: TileSprite | null
+  selectedTileColor: RGBColor,
 
   increaseAngle(): void
   decreaseAngle(): void
@@ -99,7 +97,7 @@ export interface Store {
   setRotation(rotation: number): void
   setSelectedTileColor(color: ColorResult): void
   setSelectedTileSprite(tileSprite: TileSprite): void
-  toggleWidget(widgetType: Widget): void
+  toggleWidget(widgetType: Widget | null): void
   setMapName(name: string): void
 }
 

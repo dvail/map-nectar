@@ -6,13 +6,15 @@ import { saveAsFile, saveLocal } from '../util/misc'
 import Icon from './bricks/icon'
 import FileInput from './bricks/file-input'
 
-function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList) {
+function onMapLoad(mapLoad: (payload: MapData) => void, files: FileList | null) {
   let file = first(files)
+  if (!file) return
+
   let reader = new FileReader()
 
   reader.onload = event => {
     // TODO Validate parsed input here
-    mapLoad(JSON.parse(event.target.result as string))
+    mapLoad(JSON.parse(event.target?.result as string))
   }
 
   reader.readAsText(file)

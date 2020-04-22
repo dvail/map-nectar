@@ -9,8 +9,10 @@ interface HexView {
   radius: number
   angle: number
   altitude: number
-  orientation?: ORIENTATION
+  orientation: ORIENTATION
 }
+
+type HexPosition = Omit<HexView, 'orientation'>
 
 function dimensions(radius: number, orientation: ORIENTATION) {
   let width = Math.sqrt(3) * radius
@@ -39,86 +41,82 @@ interface FlatHexGeometry {
   CENTER_VERT: number[]
 }
 
-let COORDS: {
-  POINTY?(view: HexView): PointyHexGeometry
-  FLAT?(view: HexView): FlatHexGeometry
-} = {}
+const coordinateMemoKey = ({ radius, angle, altitude }: HexPosition) => `${radius}:${angle}:${altitude}`
 
-const coordinateMemoKey = ({ radius, angle, altitude }: HexView) => `${radius}:${angle}:${altitude}`
+let COORDS = {
+  /* eslint-disable @typescript-eslint/indent */
+  POINTY: memoize(({ radius, angle, altitude }) => {
+    let { width } = dimensions(radius, ORIENTATION.POINTY)
+    let tileAltitude = altitudePixelOffsetRatio * altitude
+    let halfWidth = width / 2
+    let halfRadius = radius / 2
+    let vertHeight = 1.0 - angle
 
-/* eslint-disable @typescript-eslint/indent */
-COORDS.POINTY = memoize(({ radius, angle, altitude }: HexView) => {
-  let { width } = dimensions(radius, ORIENTATION.POINTY)
-  let tileAltitude = altitudePixelOffsetRatio * altitude
-  let halfWidth = width / 2
-  let halfRadius = radius / 2
-  let vertHeight = 1.0 - angle
+    let TILE_FACE = [
+      -halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
+      -halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
+              0,     -radius * angle - tileAltitude * vertHeight,
+      halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
+      halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
+              0,      radius * angle - tileAltitude * vertHeight,
+    ]
 
-  let TILE_FACE = [
-    -halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
-    -halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
-             0,     -radius * angle - tileAltitude * vertHeight,
-     halfWidth, -halfRadius * angle - tileAltitude * vertHeight,
-     halfWidth,  halfRadius * angle - tileAltitude * vertHeight,
-             0,      radius * angle - tileAltitude * vertHeight,
-  ]
+    let LEFT_VERT = [
+      TILE_FACE[0],  TILE_FACE[1],
+      TILE_FACE[0],  TILE_FACE[1]  + tileAltitude * vertHeight,
+      TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
+      TILE_FACE[10], TILE_FACE[11],
+    ]
 
-  let LEFT_VERT = [
-    TILE_FACE[0],  TILE_FACE[1],
-    TILE_FACE[0],  TILE_FACE[1]  + tileAltitude * vertHeight,
-    TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
-    TILE_FACE[10], TILE_FACE[11],
-  ]
+    let RIGHT_VERT = [
+      TILE_FACE[10], TILE_FACE[11],
+      TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
+      TILE_FACE[8],  TILE_FACE[9]  + tileAltitude * vertHeight,
+      TILE_FACE[8],  TILE_FACE[9],
+    ]
 
-  let RIGHT_VERT = [
-    TILE_FACE[10], TILE_FACE[11],
-    TILE_FACE[10], TILE_FACE[11] + tileAltitude * vertHeight,
-    TILE_FACE[8],  TILE_FACE[9]  + tileAltitude * vertHeight,
-    TILE_FACE[8],  TILE_FACE[9],
-  ]
+    return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
+  }, coordinateMemoKey),
+  FLAT: memoize(({ radius, angle, altitude }) => {
+    let { height } = dimensions(radius, ORIENTATION.FLAT)
+    let tileAltitude = altitudePixelOffsetRatio * altitude
+    let halfHeight = height / 2
+    let halfRadius = radius / 2
+    let vertHeight = 1.0 - angle
 
-  return { TILE_FACE, LEFT_VERT, RIGHT_VERT }
-}, coordinateMemoKey)
+    let TILE_FACE = [
+          -radius,                  0 - tileAltitude * vertHeight,
+      -halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
+      halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
+          radius,                  0 - tileAltitude * vertHeight,
+      halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
+      -halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
+    ]
 
-COORDS.FLAT = memoize(({ radius, angle, altitude }: HexView) => {
-  let { height } = dimensions(radius, ORIENTATION.FLAT)
-  let tileAltitude = altitudePixelOffsetRatio * altitude
-  let halfHeight = height / 2
-  let halfRadius = radius / 2
-  let vertHeight = 1.0 - angle
+    let LEFT_VERT = [
+      TILE_FACE[0], TILE_FACE[1],
+      TILE_FACE[2], TILE_FACE[3],
+      TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
+      TILE_FACE[0], TILE_FACE[1] + tileAltitude * vertHeight,
+    ]
 
-  let TILE_FACE = [
-        -radius,                  0 - tileAltitude * vertHeight,
-    -halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
-     halfRadius,  halfHeight * angle - tileAltitude * vertHeight,
-         radius,                  0 - tileAltitude * vertHeight,
-     halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
-    -halfRadius, -halfHeight * angle - tileAltitude * vertHeight,
-  ]
+    let CENTER_VERT = [
+      TILE_FACE[2], TILE_FACE[3],
+      TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
+      TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
+      TILE_FACE[4], TILE_FACE[5],
+    ]
 
-  let LEFT_VERT = [
-    TILE_FACE[0], TILE_FACE[1],
-    TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
-    TILE_FACE[0], TILE_FACE[1] + tileAltitude * vertHeight,
-  ]
+    let RIGHT_VERT = [
+      TILE_FACE[6], TILE_FACE[7],
+      TILE_FACE[4], TILE_FACE[5],
+      TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
+      TILE_FACE[6], TILE_FACE[7] + tileAltitude * vertHeight,
+    ]
 
-  let CENTER_VERT = [
-    TILE_FACE[2], TILE_FACE[3],
-    TILE_FACE[2], TILE_FACE[3] + tileAltitude * vertHeight,
-    TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
-    TILE_FACE[4], TILE_FACE[5],
-  ]
-
-  let RIGHT_VERT = [
-    TILE_FACE[6], TILE_FACE[7],
-    TILE_FACE[4], TILE_FACE[5],
-    TILE_FACE[4], TILE_FACE[5] + tileAltitude * vertHeight,
-    TILE_FACE[6], TILE_FACE[7] + tileAltitude * vertHeight,
-  ]
-
-  return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
-}, coordinateMemoKey)
+    return { TILE_FACE, LEFT_VERT, CENTER_VERT, RIGHT_VERT }
+  }, coordinateMemoKey),
+}
 /* eslint-enable @typescript-eslint/indent */
 
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
@@ -182,7 +180,7 @@ interface HexagonDrawParams {
   angle?: number
   tileImage?: string
   tileSet?: string
-  tileTextures?: TileSetTextureMap
+  tileTextures: TileSetTextureMap
 }
 
 export interface TileSetTextureMap {
@@ -200,7 +198,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 }: HexagonProps): IHexagon {
   let hexContainer = new PIXI.Container()
   let imageSprite: PIXI.Sprite | null
-  let spriteContainer: PIXI.Container | null
+  let spriteContainer = new PIXI.Container()
 
   hexContainer.interactive = true
 
@@ -283,7 +281,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     angle = 1.0,
     tileImage,
     tileSet,
-    tileTextures = {},
+    tileTextures,
   }: HexagonDrawParams) {
     hexContainer.x = x
     hexContainer.y = y
@@ -299,11 +297,9 @@ export default function Hexagon(renderer: PIXI.Renderer, {
       imageSprite.destroy()
       imageSprite = null
       spriteContainer.destroy()
-      spriteContainer = null
     }
 
     drawFromGraphics(altitude, radius, orientation, angle, fillColor)
-
     if (tileImage && tileSet && tileTextures[tileSet][tileImage]) {
       drawFromImage(altitude, radius, orientation, angle, tileSet, tileImage, tileTextures)
     }
@@ -321,6 +317,5 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 }
 
 export {
-  ORIENTATION,
   dimensions,
 }

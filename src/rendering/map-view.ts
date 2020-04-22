@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js'
 // import PixiFps from "pixi-fps";
 import { Viewport } from 'pixi-viewport'
 
-import { HexagonGridOptions, HexagonGrid, orientationFromDegrees } from './hexagon-grid'
+import { HexagonGrid, orientationFromDegrees } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
 import ColorUtils from '../util/color'
 import { hexFromWorldCoords, ORIENTATION } from '../util/math'
@@ -10,9 +10,10 @@ import { TileSetTextureMap } from './hexagon'
 
 const tileRadius = 64
 
-const baseGridOptions: HexagonGridOptions = { tileRadius }
+const baseGridOptions = { tileRadius }
 
-export interface StoreActions {
+export interface StoreProperties {
+  selectedTileColor: RGBColor
   removeTile(tile: TileCoords): void
   updateTile(tile: TileCoords & Partial<TileData>): void
   rotateClock(): void
@@ -30,75 +31,63 @@ interface RGBColor {
   r: number, g: number, b: number
 }
 
+interface Point2D {
+  x: number
+  y: number
+}
+
 export interface MapViewType {
-  initialize(element: HTMLDivElement): void
   setRotation(newRotation: RotationInterval): void
   setAngle(newViewAngle: number): void
   setMapData(mapData: MapData): void,
   setSelectedTileColor(color: RGBColor): void,
-  setSelectedTileImage(image: TileSprite): void
+  setSelectedTileImage(image: TileSprite | null): void
   renderTiles(tiles: TileMap): void
   loadTileSets(tileSet: TileSetMap): void
 }
 
-export default function MapView(store: StoreActions): MapViewType {
-  let app: PIXI.Application = null
-  let viewport: Viewport = null
-  let hexGrid: HexagonGrid = null
+export default function MapView(element: HTMLDivElement, initialMapData: MapData, store: StoreProperties): MapViewType {
+  // TODO Update the handling of this to better support dynamic adding/removing of tilesets
+  let tileSetTextures = { 1: {}, 2: {}, 3: {}, 4: {} } as TileSetTextureMap
+
+  let app = new PIXI.Application({ resizeTo: element })
+  let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
+  let hexGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
 
   let viewAngle = 0
   let rotation: RotationInterval = 0
   let orientation = ORIENTATION.POINTY
   let dragging = false
-  let mapData: MapData = null
-  let shiftDragCoords: { x: number, y: number } = null
-  let selectedTileColor: { r: number, g: number, b: number } = null
-  let selectedTileImage: TileSprite = null
+  let mapData = initialMapData
+  let shiftDragCoords: Point2D | null = null
+  let { selectedTileColor } = store
+  let selectedTileImage: TileSprite | null = null
 
-  // TODO Update the handling of this to better support dynamic adding/removing of tilesets
-  let tileSetTextures = {
-    1: {},
-    2: {},
-    3: {},
-    4: {},
-    5: {},
-    6: {},
-  } as TileSetTextureMap
+  element.appendChild(app.view)
 
-  // TODO
-  console.warn("TODO Handle initialization automatically to avoid all the null property issues")
-  function initialize(element: HTMLDivElement) {
-    app = new PIXI.Application({ resizeTo: element })
-    element.appendChild(app.view)
+  app.stage.addChild(viewport)
+  // app.stage.addChild(new PixiFps());
 
-    viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
+  viewport.drag({ mouseButtons: 'left' }).wheel()
+  viewport.on('drag-start', () => { dragging = true })
+  viewport.on('drag-end', () => { dragging = false })
+  viewport.moveCenter(275, 50) // TODO These are magic values...
 
-    app.stage.addChild(viewport)
-    // app.stage.addChild(new PixiFps());
+  viewport.on('pointerdown', onDragStart)
+    .on('pointerup', onDragEnd)
+    .on('pointerupoutside', onDragEnd)
+    .on('pointermove', onDragMove)
 
-    viewport.drag({ mouseButtons: 'left' }).wheel()
-    viewport.on('drag-start', () => { dragging = true })
-    viewport.on('drag-end', () => { dragging = false })
-    viewport.moveCenter(275, 50) // TODO These are magic values...
+  viewport.on('clicked', ({ world, event }) => {
+    // Unrotate the world point based on camera rotation
+    let rightClick = (event.data.originalEvent as MouseEvent).button === 2
+    if (rightClick) {
+      let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
+      adjustHexTile(q, r, AltitudeChange.UP)
+    }
+  })
 
-    hexGrid = HexagonGrid(app.renderer, { ...baseGridOptions, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
-
-    viewport.on('pointerdown', onDragStart)
-      .on('pointerup', onDragEnd)
-      .on('pointerupoutside', onDragEnd)
-      .on('pointermove', onDragMove)
-
-    viewport.on('clicked', ({ world, event }) => {
-      // Unrotate the world point based on camera rotation
-      let rightClick = (event.data.originalEvent as MouseEvent).button === 2
-      if (rightClick) {
-        let [q, r] = hexFromWorldCoords(world.x, world.y, tileRadius, viewAngle, rotation, orientation)
-        adjustHexTile(q, r, AltitudeChange.UP)
-      }
-    })
-
-    viewport.addChild(hexGrid.container)
-  }
+  viewport.addChild(hexGrid.container)
 
   function onDragStart(e: any) {
     let { x, y } = e.data.global
@@ -119,7 +108,8 @@ export default function MapView(store: StoreActions): MapViewType {
       return
     }
 
-    let { x: ox, y: oy } = shiftDragCoords
+    let ox = (shiftDragCoords as Point2D).x
+    let oy = (shiftDragCoords as Point2D).y
     let deltaX = x - ox
     let deltaY = y - oy
 
@@ -226,7 +216,6 @@ export default function MapView(store: StoreActions): MapViewType {
         tileSetTextures[id][region] = new PIXI.Texture(baseTexture, new PIXI.Rectangle(x, y, w, h))
       })
     })
-    console.warn(tileSetTextures)
   }
 
   function setMapData(data: MapData) {
@@ -242,7 +231,6 @@ export default function MapView(store: StoreActions): MapViewType {
   }
 
   return {
-    initialize,
     setRotation,
     setAngle,
     renderTiles,

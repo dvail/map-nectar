@@ -24,7 +24,7 @@ export interface HexagonGridOptions {
   gridRotation?: RotationInterval
   onTileClick?: any
   onTileRightClick?: any
-  tileTextures?: TileSetTextureMap
+  tileTextures: TileSetTextureMap
 }
 
 export interface HexagonGrid {
@@ -41,7 +41,7 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
   gridRotation = 0,
   onTileClick,
   onTileRightClick,
-  tileTextures = {},
+  tileTextures,
 }: HexagonGridOptions): HexagonGrid {
   let container = new PIXI.Container()
   let radius = tileRadius
@@ -63,7 +63,7 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
 
     if (orientation === ORIENTATION.FLAT) {
       xOffset = width * viewQ * (3 / 4) - radius
-      yOffset = height * (viewR + (viewQ / 2)) * angle - (height / 2 * angle)
+      yOffset = height * (viewR + (viewQ / 2)) * angle - ((height / 2) * angle)
     }
 
     return {
@@ -86,6 +86,8 @@ export function HexagonGrid(renderer: PIXI.Renderer, {
 
     tile = { q, r, altitude, opts, hexagon }
     tiles[key] = tile
+
+    console.warn(tileTextures['1'])
 
     tile.hexagon.draw({ x, y, zIndex, altitude, orientation, angle, radius, tileTextures, ...opts })
   }

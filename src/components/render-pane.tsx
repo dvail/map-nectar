@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useLayoutEffect } from 'react'
 
 import { useStore } from '../store'
 import MapView, { MapViewType } from '../rendering/map-view'
@@ -18,12 +18,17 @@ export default function RenderPane() {
   let increaseAngle = useStore(state => state.increaseAngle)
   let decreaseAngle = useStore(state => state.decreaseAngle)
 
-  const renderPaneRef = useRef<HTMLDivElement>(null)
+  const renderPaneRef = useRef<HTMLDivElement | null>(null)
   const mapDataRef = useRef(mapData)
-  const mapViewRef: React.MutableRefObject<MapViewType> = useRef()
+  const mapViewRef: React.MutableRefObject<MapViewType | null> = useRef(null)
 
-  useEffect(() => {
-    let mapView = MapView({
+  useLayoutEffect(() => {
+    if (renderPaneRef.current === null) {
+      throw new Error("Main map view pane element is null!")
+    }
+
+    mapViewRef.current = MapView(renderPaneRef.current, mapData, {
+      selectedTileColor,
       removeTile,
       updateTile,
       rotateClock,
@@ -31,29 +36,27 @@ export default function RenderPane() {
       increaseAngle,
       decreaseAngle,
     })
-    mapViewRef.current = mapView
-    mapViewRef.current.initialize(renderPaneRef.current)
   }, [])
 
   useEffect(() => {
     mapDataRef.current = mapData
-    mapViewRef.current.setMapData(mapData)
+    mapViewRef.current?.setMapData(mapData)
   }, [mapData])
 
   useEffect(() => {
-    mapViewRef.current.setSelectedTileColor(selectedTileColor)
+    mapViewRef.current?.setSelectedTileColor(selectedTileColor)
   }, [selectedTileColor])
 
   useEffect(() => {
-    mapViewRef.current.setSelectedTileImage(selectedTileImage)
+    mapViewRef.current?.setSelectedTileImage(selectedTileImage)
   }, [selectedTileImage])
 
   useEffect(() => {
-    mapViewRef.current.setRotation(rotation)
+    mapViewRef.current?.setRotation(rotation)
   }, [rotation])
 
   useEffect(() => {
-    mapViewRef.current.setAngle(viewAngle)
+    mapViewRef.current?.setAngle(viewAngle)
   }, [viewAngle])
 
   /*
@@ -66,14 +69,14 @@ export default function RenderPane() {
   }, [shiftKey])
   */
 
-  // NOTE: It is important that this `useEffect` runs first, so that the underlying
+  // NOTE: It is important that this runs first, before MapView.renderTiles(), so that the underlying
   // tilsets and textures are correct before rendering tiles from the mapData
   useEffect(() => {
-    mapViewRef.current.loadTileSets(mapDataRef.current.tileSets)
+    mapViewRef.current?.loadTileSets(mapDataRef.current.tileSets)
   }, [mapData.tileSets])
 
   useEffect(() => {
-    mapViewRef.current.renderTiles(mapDataRef.current.tiles)
+    mapViewRef.current?.renderTiles(mapDataRef.current.tiles)
   }, [mapData])
 
   return (
