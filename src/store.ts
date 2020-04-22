@@ -8,7 +8,6 @@ import max from 'lodash/fp/max'
 import map from 'lodash/fp/map'
 import { fromNullable, fold } from 'fp-ts/es6/Option'
 
-
 export type TileMap = {
   [key: string]: TileCoords & TileData
 }
@@ -74,6 +73,7 @@ export enum Widget {
 
 export interface Store {
   getAll: GetState<Store>
+  shiftKey: boolean
   rotation: RotationInterval
   viewAngle: number
   mapData: MapData
@@ -83,6 +83,7 @@ export interface Store {
   selectedTileSprite: TileSprite | null
   selectedTileColor: RGBColor,
 
+  setShiftKey(isPressed: boolean): void
   increaseAngle(): void
   decreaseAngle(): void
   rotateClock(): void
@@ -112,6 +113,7 @@ const startingViewAngle = 0.65
 export const [useStore] = create<Store>((set, get) => ({
   getAll: get,
   rotation: 0,
+  shiftKey: false,
   viewAngle: startingViewAngle,
   mapData: {
     id: uuidv4(),
@@ -126,6 +128,9 @@ export const [useStore] = create<Store>((set, get) => ({
   selectedTileSprite: null,
   selectedTileColor: { r: 187, g: 128, b: 68 },
 
+  setShiftKey: (isPressed: boolean) => {
+    set({ shiftKey: isPressed })
+  },
   rotateClock: () => {
     let { rotation } = get()
     rotation += RotationIncrement

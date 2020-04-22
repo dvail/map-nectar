@@ -10,6 +10,7 @@ export default function RenderPane() {
   let mapData = useStore(state => state.mapData)
   let selectedTileImage = useStore(state => state.selectedTileSprite)
   let selectedTileColor = useStore(state => state.selectedTileColor)
+  let shiftKey = useStore(state => state.shiftKey)
 
   let removeTile = useStore(state => state.removeTile)
   let updateTile = useStore(state => state.updateTile)
@@ -59,15 +60,13 @@ export default function RenderPane() {
     mapViewRef.current?.setAngle(viewAngle)
   }, [viewAngle])
 
-  /*
   useEffect(() => {
     if (shiftKey) {
-      pixiViewport?.plugins.pause('drag')
+      mapViewRef.current?.pauseDrag()
     } else {
-      pixiViewport?.plugins.resume('drag')
+      mapViewRef.current?.resumeDrag()
     }
   }, [shiftKey])
-  */
 
   // NOTE: It is important that this runs first, before MapView.renderTiles(), so that the underlying
   // tilsets and textures are correct before rendering tiles from the mapData

@@ -20,12 +20,13 @@ let { useEffect } = React
 
 export default function Root() {
   let getAll = useStore(state => state.getAll)
+  let setShiftKey = useStore(state => state.setShiftKey)
 
   // Expose state view to console
   useEffect(() => { window.getAll = getAll }, [])
 
   return (
-    <div className='h-full flex flex-row bg-black'>
+    <div className='h-full flex flex-row bg-black' onMouseMove={e => setShiftKey(e.shiftKey)}>
       <Sidebar />
       <div className='h-full w-full flex flex-col relative'>
         <WidgetPane />

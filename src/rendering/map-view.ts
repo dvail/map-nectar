@@ -43,6 +43,8 @@ export interface MapViewType {
   setSelectedTileImage(image: TileSprite | null): void
   renderTiles(tiles: TileMap): void
   loadTileSets(tileSet: TileSetMap): void
+  pauseDrag(): void
+  resumeDrag(): void
 }
 
 export default function MapView(element: HTMLDivElement, initialMapData: MapData, store: StoreProperties): MapViewType {
@@ -108,18 +110,16 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   }
 
   function onDragMove(e: any) {
-    // TODO Re-implement
-    if (true) return
-
     let { x, y } = e.data.global
+    let shift = e.data.originalEvent.shiftKey
 
-    if (!shiftDragCoords) {
+    if (!shiftDragCoords || !shift) {
       shiftDragCoords = { x, y }
       return
     }
 
-    let ox = (shiftDragCoords as Point2D).x
-    let oy = (shiftDragCoords as Point2D).y
+    let ox = shiftDragCoords.x
+    let oy = shiftDragCoords.y
     let deltaX = x - ox
     let deltaY = y - oy
 
@@ -252,5 +252,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     setMapData,
     setSelectedTileColor,
     setSelectedTileImage,
+    pauseDrag: () => viewport?.plugins.pause('drag'),
+    resumeDrag: () => viewport?.plugins.resume('drag'),
   }
 }
