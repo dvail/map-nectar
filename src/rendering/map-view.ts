@@ -5,7 +5,7 @@ import { Viewport } from 'pixi-viewport'
 import { HexagonGrid } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
 import ColorUtils from '../util/color'
-import { hexFromWorldCoords, ORIENTATION, orientationFromDegrees, getTileCoords } from '../util/math'
+import { hexFromWorldCoords, ORIENTATION, orientationFromDegrees, getTileCoords, dimensions } from '../util/math'
 import { TileSetTextureMap } from './hexagon'
 import CursorHightlight from './cursor-highlight'
 
@@ -115,6 +115,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   }
 
   function onDragMove(e: any) {
+    if (!dragging) return
+
     let { x, y } = e.data.global
     let shift = e.data.originalEvent.shiftKey
 
@@ -205,9 +207,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     hexGrid?.setRotation(rotation)
 
     let tileCoords = getTileCoords(q, r, rotation, viewAngle, tileRadius)
-    // TODO - The (tileRadius / 2) piece forces the new coords to the center of the tile to prevent drift
-    // TODO - This isn't an exact science and may need to be adjusted based on view angle
-    viewport.moveCenter(tileCoords.x + tileRadius / 2, tileCoords.y + tileRadius / 2)
+    let { width, height } = dimensions(tileRadius, orientation)
+    viewport.moveCenter(tileCoords.x + width / 2, tileCoords.y + height / 2)
   }
 
   function setAngle(newViewAngle: number) {
