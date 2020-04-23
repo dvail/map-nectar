@@ -1,22 +1,8 @@
 import * as PIXI from 'pixi.js'
-import Hexagon, { IHexagon, dimensions, TileSetTextureMap } from './hexagon'
+import Hexagon, { IHexagon, TileSetTextureMap } from './hexagon'
 
 import { tileKey, TileCoords, TileData, TileMap, RotationInterval } from '../store'
-import { getAxialViewCoords, ORIENTATION } from '../util/math';
-
-function getZIndex(q: number, r: number, s: number, orientation: ORIENTATION) {
-  if (orientation === ORIENTATION.POINTY) {
-    return r;
-  } else {
-    return q + r + r
-  }
-}
-
-export function orientationFromDegrees(degrees: number) {
-  return (degrees / 30) % 2 === 0
-    ? ORIENTATION.POINTY
-    : ORIENTATION.FLAT;
-}
+import { getTileCoords } from '../util/math'
 
 export interface HexagonGridOptions {
   tileRadius: number
@@ -34,28 +20,6 @@ export interface HexagonGrid {
   setAngle: (newAngle: number) => void
   renderTiles: (newTiles: TileMap) => void
 }
-
-export function getTileCoords(q: number, r: number, rotation: RotationInterval, angle: number, radius: number) {
-  const { viewQ, viewR } = getAxialViewCoords(q, r, rotation)
-  const orientation = orientationFromDegrees(rotation)
-  const { width, height } = dimensions(radius, orientation)
-
-  let xOffset = width * (viewQ + (viewR / 2)) - (width / 2)
-  let yOffset = height * (3 / 4) * viewR * angle - (radius * angle)
-
-  if (orientation === ORIENTATION.FLAT) {
-    xOffset = width * viewQ * (3 / 4) - radius
-    yOffset = height * (viewR + (viewQ / 2)) * angle - ((height / 2) * angle)
-  }
-
-  return {
-    x: xOffset,
-    y: yOffset,
-    zIndex: getZIndex(viewQ, viewR, 0 - viewQ - viewR, orientation),
-    orientation,
-  }
-}
-
 
 export function HexagonGrid(renderer: PIXI.Renderer, {
   tileRadius,

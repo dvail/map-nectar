@@ -2,10 +2,10 @@ import * as PIXI from 'pixi.js'
 // import PixiFps from "pixi-fps";
 import { Viewport } from 'pixi-viewport'
 
-import { HexagonGrid, orientationFromDegrees } from './hexagon-grid'
+import { HexagonGrid } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
 import ColorUtils from '../util/color'
-import { hexFromWorldCoords, ORIENTATION } from '../util/math'
+import { hexFromWorldCoords, ORIENTATION, orientationFromDegrees, getTileCoords } from '../util/math'
 import { TileSetTextureMap } from './hexagon'
 import CursorHightlight from './cursor-highlight'
 
@@ -52,7 +52,11 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   let tileSetTextures = { 1: {}, 2: {}, 3: {}, 4: {} } as TileSetTextureMap
 
   let app = new PIXI.Application({ resizeTo: element })
-  let viewport = new Viewport({ interaction: app.renderer.plugins.interaction })
+  let viewport = new Viewport({
+    interaction: app.renderer.plugins.interaction,
+    worldWidth: app.renderer.width,
+    worldHeight: app.renderer.height,
+  })
   let hexGrid = HexagonGrid(app.renderer, { tileRadius, onTileClick, onTileRightClick, tileTextures: tileSetTextures })
   let cursorHighlight = CursorHightlight()
 
@@ -73,7 +77,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   viewport.drag({ mouseButtons: 'left' }).wheel()
   viewport.on('drag-start', () => { dragging = true })
   viewport.on('drag-end', () => { dragging = false })
-  viewport.moveCenter(275, 50) // TODO These are magic values...
+  viewport.fitWorld()
+  viewport.moveCenter(0, 0)
 
   viewport.on('pointerdown', onDragStart)
     .on('pointerup', onDragEnd)
@@ -187,11 +192,22 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     }
   }
 
+  // 'pick' the tile coordinates currently in the center of the viewport, then rotate, then un-project
+  // the new coordinates from that tile and move the viewport center to keep rotation around the middle
   function setRotation(newRotation: RotationInterval) {
+    if (viewAngle === 0) return
+
+    let currCenter = viewport.center
+    let [q, r] = hexFromWorldCoords(currCenter.x, currCenter.y, tileRadius, viewAngle, rotation, orientation)
+
     rotation = newRotation
     orientation = orientationFromDegrees(rotation)
-
     hexGrid?.setRotation(rotation)
+
+    let tileCoords = getTileCoords(q, r, rotation, viewAngle, tileRadius)
+    // TODO - The (tileRadius / 2) piece forces the new coords to the center of the tile to prevent drift
+    // TODO - This isn't an exact science and may need to be adjusted based on view angle
+    viewport.moveCenter(tileCoords.x + tileRadius / 2, tileCoords.y + tileRadius / 2)
   }
 
   function setAngle(newViewAngle: number) {

@@ -3,7 +3,7 @@ import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
 import ColorUtils from '../util/color'
-import { ORIENTATION } from '../util/math'
+import { ORIENTATION, dimensions } from '../util/math'
 
 interface HexView {
   radius: number
@@ -13,17 +13,6 @@ interface HexView {
 }
 
 type HexPosition = Omit<HexView, 'orientation'>
-
-function dimensions(radius: number, orientation: ORIENTATION) {
-  let width = Math.sqrt(3) * radius
-  let height = radius * 2
-
-  if (orientation === ORIENTATION.FLAT) {
-    [width, height] = [height, width]
-  }
-
-  return { radius, width, height }
-}
 
 // For an altitude of '1' - how far up should the tile be shifted
 // TODO Make this configurable?
@@ -311,8 +300,4 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     draw,
     destroy,
   }
-}
-
-export {
-  dimensions,
 }

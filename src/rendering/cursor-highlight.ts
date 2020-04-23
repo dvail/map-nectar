@@ -2,8 +2,7 @@ import * as PIXI from 'pixi.js'
 
 import { HexCoords } from "./hexagon"
 import { RotationInterval } from "../store"
-import { getTileCoords } from "./hexagon-grid"
-import { ORIENTATION } from '../util/math'
+import { ORIENTATION, getTileCoords } from '../util/math'
 
 export default function CursorHighlight() {
   let hex = new PIXI.Graphics()
