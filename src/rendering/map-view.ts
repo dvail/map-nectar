@@ -107,6 +107,9 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   viewport.addChild(hexGrid.container)
 
   function onDragStart(e: any) {
+    // Don't start drag events with right click
+    dragging =  (e.data.originalEvent as MouseEvent).button !== 2
+
     let { x, y } = e.data.global
 
     if (!shiftDragCoords) {
@@ -152,6 +155,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
   }
 
   function onDragEnd() {
+    dragging = false
     shiftDragCoords = null
   }
 
@@ -161,8 +165,6 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
 
   function onTileRightClick(ev: any, q: number, r: number) {
     ev.stopPropagation()
-
-    if (dragging) return
 
     let shift = ev.data.originalEvent.shiftKey
     let direction = shift ? AltitudeChange.DOWN : AltitudeChange.UP

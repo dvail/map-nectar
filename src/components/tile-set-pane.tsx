@@ -9,7 +9,7 @@ import { useStore, TileRegion } from '../store'
 let { Weak, Action, Default } = ButtonType
 
 export default function TileSetPane() {
-  let [image, setImage] = useState<string | null>(null)
+  let [image, setImage] = useState<string | undefined>()
   let [atlas, setAtlas] = useState<{ [name: string]: TileRegion } | null>(null)
 
   let mapData = useStore(state => state.mapData)
@@ -68,11 +68,12 @@ export default function TileSetPane() {
         </Button>
         <Button disabled={!(image && atlas)} type={Action} onClick={addNewTileSet}>Add To Map</Button>
       </div>
-      <ul className='flex flex-row'>
+      <ul className='flex flex-col mt-2 font-mono font-semibold'>
         {Object.entries(mapData.tileSets).map(([id, ts]) => (
-          <li key={id}>
-            <span>{id}</span>
-            <span>{ts.meta.imageFileName}</span>
+          <li key={id} className='py-2 flex flex-row flex-grow justify-between items-center'>
+            <span className='flex-shrink-0 px-2'>{id}</span>
+            <span className='flex-shrink-0 px-2'>{ts.meta.imageFileName}</span>
+            <div className='flex-grow h-16 bg-no-repeat bg-center bg-cover' style={{ backgroundImage: `url(${ts.image})` }} />
           </li>
         ))}
       </ul>
