@@ -2,8 +2,8 @@ import * as PIXI from 'pixi.js'
 import noop from 'lodash/noop'
 import memoize from 'lodash/memoize'
 
-import ColorUtils from '../util/color'
 import { ORIENTATION, dimensions } from '../util/math'
+import { darken, shift } from '../util/color'
 
 interface HexView {
   radius: number
@@ -117,20 +117,20 @@ export const MakeHexTexture = memoize(({ renderer, orientation, radius, angle, a
   hex.endFill()
 
   if (orientation === ORIENTATION.POINTY) {
-    hex.beginFill(ColorUtils.darken(0xffffff, 20))
+    hex.beginFill(darken(0xffffff, 20))
     hex.drawPolygon(coords.LEFT_VERT)
     hex.endFill()
 
-    hex.beginFill(ColorUtils.darken(0xffffff, 40))
+    hex.beginFill(darken(0xffffff, 40))
     hex.drawPolygon(coords.RIGHT_VERT)
     hex.endFill()
   } else if (orientation === ORIENTATION.FLAT) {
-    hex.beginFill(ColorUtils.darken(0xffffff, 40))
+    hex.beginFill(darken(0xffffff, 40))
     hex.drawPolygon(coords.LEFT_VERT)
     hex.drawPolygon(coords.RIGHT_VERT)
     hex.endFill()
 
-    hex.beginFill(ColorUtils.darken(0xffffff, 20))
+    hex.beginFill(darken(0xffffff, 20))
     hex.drawPolygon(coords.CENTER_VERT)
     hex.endFill()
   }
@@ -236,7 +236,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
 
     // Darken lower tiles to give some illusion of depth
     let darkenRate = (altitude * 2 - 10) * 8
-    imageSprite.tint = ColorUtils.shift(0xffffff, darkenRate, darkenRate, darkenRate)
+    imageSprite.tint = shift(0xffffff, darkenRate, darkenRate, darkenRate)
 
     if (orientation === ORIENTATION.POINTY) {
       imageSprite.x += imageSprite.width / 2

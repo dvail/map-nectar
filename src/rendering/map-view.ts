@@ -4,10 +4,10 @@ import { Viewport } from 'pixi-viewport'
 
 import { HexagonGrid } from './hexagon-grid'
 import { tileKey, TileOptions, MapData, RotationInterval, TileCoords, TileData, TileMap, TileSetMap, TileSprite } from '../store'
-import ColorUtils from '../util/color'
 import { hexFromWorldCoords, ORIENTATION, orientationFromDegrees, getTileCoords, dimensions } from '../util/math'
 import { TileSetTextureMap } from './hexagon'
 import CursorHightlight from './cursor-highlight'
+import { fromRGB } from '../util/color'
 
 const tileRadius = 64
 
@@ -184,7 +184,7 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     let altitude = tile?.altitude + (direction === AltitudeChange.DOWN ? -1 : 1) || 0
     let opts = tile?.opts ?? {} as TileOptions
 
-    opts.fillColor = ColorUtils.fromRGB(selectedTileColor)
+    opts.fillColor = fromRGB(selectedTileColor)
 
     opts.tileSet = selectedTileImage?.tileSet ?? opts.tileSet
     opts.tileImage = selectedTileImage?.tileImage ?? opts.tileImage

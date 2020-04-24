@@ -1,4 +1,5 @@
 import * as React from 'react'
+import noop from 'lodash/fp/noop'
 
 // TODO Is this better defined or inferred from somewhere else?
 export interface TextureRegion {
@@ -12,10 +13,10 @@ interface AtlasRegionProps {
   tileSet: string
   region: TextureRegion
   scale: number
-  onClick(event: React.MouseEvent): void
+  onClick?(event: React.MouseEvent): void
 }
 
-export default function AtlasRegion({ tileSet, region, scale, onClick }: AtlasRegionProps) {
+export default function AtlasRegion({ tileSet, region, scale, onClick = noop }: AtlasRegionProps) {
   let { x, y, w, h } = region
 
   let wrapperStyle = {
