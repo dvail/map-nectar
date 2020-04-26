@@ -8,15 +8,8 @@ import max from 'lodash/fp/max'
 import map from 'lodash/fp/map'
 import { fromNullable, fold } from 'fp-ts/es6/Option'
 
-export type TileMap = {
-  [key: string]: TileCoords & TileData
-}
-
-export interface TileCoords {
-  q: number
-  r: number
-}
-
+// TODO At some point this should be refactored to optionally point to a "favorite"
+// in order to reduce storage size and allow for mass updates to "favorited" tiles
 export interface TileOptions {
   fillColor: number
   fillAlpha: number
@@ -27,18 +20,28 @@ export interface TileOptions {
   tileImage?: string
 }
 
-// TODO These interfaces need to be defined more robustly (altitude should probably not be optional)
-export interface TileData {
-  altitude: number
-  opts: TileOptions
-}
-
 export interface TileSprite {
   tileSet: string
   tileImage: string
 }
 
-export interface TileRegion {
+// Tile Metadata can be a generic key value store of any associated scalar tile data
+export interface TileMetadata {
+  [key: string]: string | number | boolean
+}
+
+export interface TileFavorite {
+  visual: TileOptions
+  meta: TileMetadata
+}
+
+export interface EditorData {
+  // `favorites` are a list of re-useable tile config options, containing the visuals
+  // to draw the tile as well as any user defined key-value metadata related to the tile
+  favorites: TileFavorite[]
+}
+
+export interface AtlasRegion {
   x: number, y: number, w: number, h: number
 }
 
@@ -49,7 +52,7 @@ export interface TileSet {
   }
   image: string // A base64 encoding of a tileset image
   atlas: {
-    [name: string]: TileRegion
+    [name: string]: AtlasRegion
   }
 }
 
@@ -57,11 +60,27 @@ export interface TileSetMap {
   [id: string]: TileSet
 }
 
+export type TileMap = {
+  [key: string]: TileCoords & TileData
+}
+
+export interface TileCoords {
+  q: number
+  r: number
+}
+
+// TODO These interfaces need to be defined more robustly (altitude should probably not be optional)
+export interface TileData {
+  altitude: number
+  opts: TileOptions
+}
+
 export interface MapData {
   id: string
   name: string
   tiles: TileMap
   tileSets: TileSetMap
+  editor: EditorData
 }
 
 export enum Widget {
@@ -97,7 +116,7 @@ export interface Store {
   mapLoad(payload: MapData): void
   setRotation(rotation: number): void
   setSelectedTileColor(color: ColorResult): void
-  setSelectedTileSprite(tileSprite: TileSprite): void
+  setSelectedTileSprite(tileSprite: TileSprite | undefined): void
   toggleWidget(widgetType: Widget | null): void
   setMapName(name: string): void
 }
@@ -120,6 +139,9 @@ export const [useStore] = create<Store>((set, get) => ({
     name: 'New Map',
     tiles: {},
     tileSets: {},
+    editor: {
+      favorites: [],
+    },
   },
 
   openWidget: null,

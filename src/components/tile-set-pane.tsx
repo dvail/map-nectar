@@ -4,13 +4,13 @@ import { useState } from 'react'
 import FileInput from './bricks/file-input'
 import Button, { ButtonType } from './bricks/button'
 import Icon from './bricks/icon'
-import { useStore, TileRegion } from '../store'
+import { useStore, AtlasRegion } from '../store'
 
 let { Weak, Action, Default } = ButtonType
 
 export default function TileSetPane() {
   let [image, setImage] = useState<string | undefined>()
-  let [atlas, setAtlas] = useState<{ [name: string]: TileRegion } | null>(null)
+  let [atlas, setAtlas] = useState<{ [name: string]: AtlasRegion } | null>(null)
 
   let mapData = useStore(state => state.mapData)
   let addMapTileSet = useStore(state => state.addMapTileSet)

@@ -1,22 +1,16 @@
 import * as React from 'react'
 import noop from 'lodash/fp/noop'
 
-// TODO Is this better defined or inferred from somewhere else?
-export interface TextureRegion {
-  x: number
-  y: number
-  w: number
-  h: number
-}
+import { AtlasRegion } from '../store'
 
 interface AtlasRegionProps {
   tileSet: string
-  region: TextureRegion
+  region: AtlasRegion
   scale: number
   onClick?(event: React.MouseEvent): void
 }
 
-export default function AtlasRegion({ tileSet, region, scale, onClick = noop }: AtlasRegionProps) {
+export default function AtlasImage({ tileSet, region, scale, onClick = noop }: AtlasRegionProps) {
   let { x, y, w, h } = region
 
   let wrapperStyle = {
