@@ -36,3 +36,12 @@ export function getSavedMaps(): StoredMapObject {
 
   return maps ?? {}
 }
+
+export function deleteMap(id: string) {
+  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '';
+  let maps = JSON.parse(json) ?? {}
+
+  delete maps[id]
+
+  localStorage.setItem(MAP_STORAGE_KEY, JSON.stringify(maps));
+}
