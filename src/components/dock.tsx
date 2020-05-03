@@ -5,7 +5,7 @@ import flow from 'lodash/fp/flow'
 
 import Icon from './bricks/icon'
 import AtlasImage from './atlas-region'
-import { useStore, Widget, TileSetMap } from '../store'
+import { useStore, selectedInFavorites, Widget, TileSetMap } from '../store'
 import { toHexString } from '../util/color'
 import HexagonElement from './bricks/hexagon'
 
@@ -14,19 +14,37 @@ interface CurrentTileProps {
 }
 
 function CurrentTile({ tileSets }: CurrentTileProps) {
+  let favorites = useStore(state => state.mapData.editor.favorites)
   let selectedTileColor = useStore(state => state.selectedTileColor)
   let selectedTileSprite = useStore(state => state.selectedTileSprite)
+  let toggleFavorite = useStore(state => state.toggleFavorite)
   let toggleWidget = useStore(state => state.toggleWidget)
 
+  let inFavorites = selectedInFavorites(selectedTileColor, selectedTileSprite, favorites)
+
   return (
-    <div className='flex flex-col bg-gray-800 h-24 w-24 mb-1 rounded-full p-3 items-center'>
-      <div className=''>
-        {selectedTileSprite ? (
-          <AtlasImage
-            tileSet={selectedTileSprite.tileSet}
-            region={tileSets[selectedTileSprite.tileSet].atlas[selectedTileSprite.tileImage]}
-            scale={0.4}
-          />
+    <div className='bg-gray-800 h-32 w-32 p-3 pt-2 mb-1 rounded-full'>
+      <div className='text-right'>
+        <Icon
+          type='fa fa-heart'
+          className={
+            `rounded-full p-2 text-xl bg-gray-800 cursor-pointer
+          ${inFavorites
+              ? 'text-pink-500'
+              : 'text-gray-700 hover:text-pink-400'}`
+          }
+          title='Add to Favorites'
+          onClick={() => toggleFavorite(selectedTileColor, selectedTileSprite)}
+        />
+      </div>
+      <div className='flex flex-col items-center' style={{ marginTop: '-8px' }}>
+        <div className=''>
+          {selectedTileSprite ? (
+            <AtlasImage
+              tileSet={selectedTileSprite.tileSet}
+              region={tileSets[selectedTileSprite.tileSet]?.atlas[selectedTileSprite.tileImage]}
+              scale={0.4}
+            />
         ) : (
           <HexagonElement
             size={48}
@@ -36,13 +54,14 @@ function CurrentTile({ tileSets }: CurrentTileProps) {
             onClick={() => toggleWidget(Widget.ColorPicker)}
           />
         )}
+        </div>
+        <div
+          className='mt-1 w-8 h-6 cursor-pointer'
+          title='Base Tile Color'
+          style={{ backgroundColor: `#${toHexString(selectedTileColor)}` }}
+          onClick={() => toggleWidget(Widget.ColorPicker)}
+        />
       </div>
-      <div
-        className='mt-1 w-8 h-6 cursor-pointer'
-        title='Base Tile Color'
-        style={{ backgroundColor: `#${toHexString(selectedTileColor)}` }}
-        onClick={() => toggleWidget(Widget.ColorPicker)}
-      />
     </div>
   )
 }

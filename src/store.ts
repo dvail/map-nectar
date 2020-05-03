@@ -6,6 +6,8 @@ import flow from 'lodash/fp/flow'
 import keys from 'lodash/fp/keys'
 import max from 'lodash/fp/max'
 import map from 'lodash/fp/map'
+import isEqual from 'lodash/fp/isEqual'
+import some from 'lodash/fp/some'
 import { fromNullable, fold } from 'fp-ts/es6/Option'
 
 // TODO At some point this should be refactored to optionally point to a "favorite"
@@ -31,7 +33,10 @@ export interface TileMetadata {
 }
 
 export interface TileFavorite {
-  visual: TileOptions
+  visual: {
+    color: RGBColor
+    tileSprite: TileSprite | null
+  }
   meta: TileMetadata
 }
 
@@ -90,6 +95,19 @@ export enum Widget {
   ColorPicker
 }
 
+
+function equalToFavorite(selectedTileColor: RGBColor, selectedTileSprite: TileSprite | null, favorite: TileFavorite): boolean {
+  return isEqual(favorite.visual.color, selectedTileColor) &&
+    isEqual(favorite.visual.tileSprite, selectedTileSprite)
+}
+
+export function selectedInFavorites(selectedTileColor: RGBColor, selectedTileSprite: TileSprite | null, favorites: TileFavorite[]) {
+  return some<TileFavorite>(f => (
+    isEqual(f.visual.color, selectedTileColor) &&
+    isEqual(f.visual.tileSprite, selectedTileSprite)
+  ))(favorites)
+}
+
 export interface Store {
   getAll: GetState<Store>
   shiftKey: boolean
@@ -109,6 +127,10 @@ export interface Store {
   rotateCounter(): void
 
   addMapTileSet(tileSet: TileSet): void
+
+  addToFavorites(color: RGBColor, tileSprite?: TileSprite | null): void
+  removeFromFavorites(color: RGBColor, tileSprite?: TileSprite | null): void
+  toggleFavorite(color: RGBColor, tileSprite?: TileSprite | null): void
 
   removeTile(tile: TileCoords): void
   updateTile(tile: TileCoords & Partial<TileData>): void
@@ -185,6 +207,7 @@ export const [useStore] = create<Store>((set, get) => ({
       next.tiles = payload.tiles
       next.name = payload.name ?? next.name
       next.id = payload.id ?? next.id
+      next.editor = payload.editor ?? { favorites: [] }
     })
 
     set({ mapData })
@@ -207,6 +230,36 @@ export const [useStore] = create<Store>((set, get) => ({
     })
 
     set({ mapData })
+  },
+ addToFavorites: (color: RGBColor, tileSprite: TileSprite | null) => {
+    let oldMapData = get().mapData
+    let mapData = produce(oldMapData, (next: MapData) => {
+      next.editor.favorites = [
+        ...next.editor.favorites,
+        {
+          visual: { color, tileSprite: tileSprite ?? null },
+          meta: {},
+        },
+      ]
+    })
+
+    set({ mapData })
+  },
+  removeFromFavorites: (color: RGBColor, tileSprite: TileSprite | null) => {
+    let mapData = produce(get().mapData, (next: MapData) => {
+      next.editor.favorites = next.editor.favorites.filter(f => !equalToFavorite(color, tileSprite, f))
+    })
+
+    set({ mapData })
+  },
+
+  toggleFavorite: (color: RGBColor, tileSprite: TileSprite | null) => {
+    let oldMapData = get().mapData
+    if (selectedInFavorites(color, tileSprite, oldMapData.editor.favorites)) {
+      get().removeFromFavorites(color, tileSprite)
+    } else {
+      get().addToFavorites(color, tileSprite)
+    }
   },
 
   setSelectedTileSprite: (tileSprite: TileSprite) => {
