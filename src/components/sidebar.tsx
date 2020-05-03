@@ -44,7 +44,8 @@ export default function Sidebar() {
   return (
     <div className='bg-gray-900 text-xl text-white p-3 flex flex-col justify-between font-mono'>
       <div className='flex flex-col'>
-        <MenuItem onClick={() => setOpenWidget(Widget.TileBuilder)} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem>
+        {/* <MenuItem onClick={() => setOpenWidget(Widget.TileBuilder)} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem> */}
+        <MenuItem onClick={() => setOpenWidget(Widget.ImagePicker)} iconType='fa-image' title='Choose tile image'>Tile Image</MenuItem>
         <MenuItem onClick={() => setOpenWidget(Widget.ColorPicker)} iconType='fa-eye-dropper' title='Choose tile color'>Tile Color</MenuItem>
         <MenuItem onClick={() => setOpenWidget(Widget.TileSetPane)} iconType='fa-th-large' title='Tile Sets'>
           <div className='flex flex-row justify-around'>

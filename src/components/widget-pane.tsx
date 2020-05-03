@@ -2,9 +2,10 @@ import React from "react"
 import { ChromePicker } from "react-color"
 
 import { useStore, Widget } from "../store"
-import TileBuilder from "./tile-builder"
+// import TileBuilder from "./tile-builder"
 import SavedMapPane from "./saved-map-pane"
 import TileSetPane from "./tile-set-pane"
+import ImagePicker from "./image-picker"
 
 export default function WidgetPane() {
   let selectedTileColor = useStore(state => state.selectedTileColor)
@@ -13,10 +14,11 @@ export default function WidgetPane() {
   let toggleWidget = useStore(state => state.toggleWidget)
 
   let widgetComponent =
-    (openWidget === Widget.TileBuilder)  ? <TileBuilder /> :
+    // (openWidget === Widget.TileBuilder)  ? <TileBuilder /> :
     (openWidget === Widget.SavedMapPane) ? <SavedMapPane /> :
     (openWidget === Widget.TileSetPane)  ? <TileSetPane /> :
-    (openWidget === Widget.ColorPicker)  ? <ChromePicker color={selectedTileColor} onChangeComplete={setSelectedTileColor} /> :
+    (openWidget === Widget.ImagePicker)  ? <ImagePicker /> :
+    (openWidget === Widget.ColorPicker)  ? <ChromePicker color={selectedTileColor} onChangeComplete={colorResult => setSelectedTileColor(colorResult.rgb)} /> :
                                            null
 
   return widgetComponent && (

@@ -2,7 +2,7 @@ let tailwindAnimations = require('tailwindcss-animations');
 
 module.exports = {
   theme: {
-    extend: {},
+    extend: { },
     fontFamily: {
       mono: ['Inconsolata', 'monospace'],
     },

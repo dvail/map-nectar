@@ -92,7 +92,8 @@ export enum Widget {
   TileBuilder,
   SavedMapPane,
   TileSetPane,
-  ColorPicker
+  ImagePicker,
+  ColorPicker,
 }
 
 
@@ -137,7 +138,7 @@ export interface Store {
 
   mapLoad(payload: MapData): void
   setRotation(rotation: number): void
-  setSelectedTileColor(color: ColorResult): void
+  setSelectedTileColor(color: RGBColor): void
   setSelectedTileSprite(tileSprite: TileSprite | undefined): void
   toggleWidget(widgetType: Widget | null): void
   setMapName(name: string): void
@@ -265,8 +266,8 @@ export const [useStore] = create<Store>((set, get) => ({
   setSelectedTileSprite: (tileSprite: TileSprite) => {
     set({ selectedTileSprite: tileSprite })
   },
-  setSelectedTileColor: (color: ColorResult) => {
-    set({ selectedTileColor: color.rgb })
+  setSelectedTileColor: (color: RGBColor) => {
+    set({ selectedTileColor: color })
   },
 
   setRotation: (rotation: number) => {

@@ -1,16 +1,59 @@
 import * as React from 'react'
+import noop from 'lodash/noop'
 import flatten from 'lodash/fp/flatten'
 import map from 'lodash/fp/map'
 import flow from 'lodash/fp/flow'
 
+import { RGBColor } from 'react-color'
 import Icon from './bricks/icon'
 import AtlasImage from './atlas-region'
-import { useStore, selectedInFavorites, Widget, TileSetMap } from '../store'
+import { useStore, selectedInFavorites, Widget, TileSetMap, TileSprite } from '../store'
 import { toHexString } from '../util/color'
 import HexagonElement from './bricks/hexagon'
 
 interface CurrentTileProps {
   tileSets: TileSetMap
+}
+
+interface HexTileProps {
+  tileSets: TileSetMap
+  tileSprite: TileSprite | null
+  tileColor: RGBColor
+  className?: string
+  onClick?(event: React.MouseEvent): void
+  onHexClick?(event: React.MouseEvent): void
+  onSideClick?(event: React.MouseEvent): void
+}
+
+function HexTile({ className = '', tileSets, tileSprite, tileColor, onClick = noop, onHexClick = noop, onSideClick = noop }: HexTileProps) {
+  return (
+    <div onClick={onClick} className={`${className} flex flex-col items-center`}>
+      <div className=''>
+        {tileSprite ? (
+          <AtlasImage
+            tileSet={tileSprite.tileSet}
+            region={tileSets[tileSprite.tileSet]?.atlas[tileSprite.tileImage]}
+            scale={0.4}
+            onClick={onHexClick}
+          />
+        ) : (
+          <HexagonElement
+            size={48}
+            cssColor={`#${toHexString(tileColor)}`}
+            className='cursor-pointer'
+            title='Tile Image'
+            onClick={onHexClick}
+          />
+          )}
+      </div>
+      <div
+        className='mt-1 w-8 h-6 cursor-pointer'
+        title='Base Tile Color'
+        style={{ backgroundColor: `#${toHexString(tileColor)}` }}
+        onClick={onSideClick}
+      />
+    </div>
+  )
 }
 
 function CurrentTile({ tileSets }: CurrentTileProps) {
@@ -37,29 +80,13 @@ function CurrentTile({ tileSets }: CurrentTileProps) {
           onClick={() => toggleFavorite(selectedTileColor, selectedTileSprite)}
         />
       </div>
-      <div className='flex flex-col items-center' style={{ marginTop: '-8px' }}>
-        <div className=''>
-          {selectedTileSprite ? (
-            <AtlasImage
-              tileSet={selectedTileSprite.tileSet}
-              region={tileSets[selectedTileSprite.tileSet]?.atlas[selectedTileSprite.tileImage]}
-              scale={0.4}
-            />
-        ) : (
-          <HexagonElement
-            size={48}
-            cssColor={`#${toHexString(selectedTileColor)}`}
-            className='cursor-pointer'
-            title='Base Tile Color'
-            onClick={() => toggleWidget(Widget.ColorPicker)}
-          />
-        )}
-        </div>
-        <div
-          className='mt-1 w-8 h-6 cursor-pointer'
-          title='Base Tile Color'
-          style={{ backgroundColor: `#${toHexString(selectedTileColor)}` }}
-          onClick={() => toggleWidget(Widget.ColorPicker)}
+      <div style={{ marginTop: '-8px' }}>
+        <HexTile
+          tileSets={tileSets}
+          tileSprite={selectedTileSprite}
+          tileColor={selectedTileColor}
+          onHexClick={() => toggleWidget(Widget.ImagePicker)}
+          onSideClick={() => toggleWidget(Widget.ColorPicker)}
         />
       </div>
     </div>
@@ -68,15 +95,9 @@ function CurrentTile({ tileSets }: CurrentTileProps) {
 
 export default function Dock() {
   let tileSets = useStore(state => state.mapData.tileSets)
+  let favorites = useStore(state => state.mapData.editor.favorites)
   let setSelectedTileImage = useStore(state => state.setSelectedTileSprite)
-
-  let tiles = flow(
-    Object.entries,
-    map(([tileSet, { atlas }]) => (
-      map(([name, region]) => ({ tileSet, name, region }))(Object.entries(atlas))
-    )),
-    flatten,
-  )(tileSets)
+  let setSelectedTileColor = useStore(state => state.setSelectedTileColor)
 
   return (
     <div className='flex flex-row justify-around w-2/3 m-auto absolute left-0 right-0 bottom-0 items-end'>
@@ -85,15 +106,21 @@ export default function Dock() {
       </style>
       <CurrentTile tileSets={tileSets} />
       <div className='w-2/3 flex-grow ml-2 mb-3 p-2 rounded-sm bg-gray-900 flex flex-row justify-between items-center'>
-        <Icon className='cursor-pointer text-gray-400 text-2xl px-2 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(undefined)} />
+        <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(undefined)} />
         <div className='w-full flex flex-row items-left overflow-x-scroll'>
-          {tiles.map(({ tileSet, name, region }) => (
-            <div className='cursor-pointer m-1' key={name}>
-              <AtlasImage tileSet={tileSet} region={region} scale={0.3} onClick={() => setSelectedTileImage({ tileSet, tileImage: name })} />
-            </div>
+          {favorites.map(({ visual }) => (
+            <HexTile
+              className='mx-2 mb-2'
+              tileSets={tileSets}
+              tileSprite={visual.tileSprite}
+              tileColor={visual.color}
+              onClick={() => {
+                setSelectedTileImage(visual.tileSprite ?? undefined)
+                setSelectedTileColor(visual.color)
+              }}
+            />
           ))}
         </div>
-        <Icon className='cursor-pointer text-gray-400 text-2xl px-3 hover:text-gray-200' type='fa-bars' />
       </div>
     </div>
   )
