@@ -18,7 +18,6 @@ export default function ImagePicker() {
     flatten,
   )(tileSets)
 
-
   return (
     <div style={{ height: 'calc(100vh - 200px)' }} className='w-64 h-64 flex flex-row flex-wrap items-left overflow-y-scroll' onScroll={e => e.stopPropagation()}>
       {tiles.map(({ tileSet, name, region }) => (

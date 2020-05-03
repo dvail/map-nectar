@@ -1,13 +1,10 @@
 import * as React from 'react'
 import noop from 'lodash/noop'
-import flatten from 'lodash/fp/flatten'
-import map from 'lodash/fp/map'
-import flow from 'lodash/fp/flow'
-
 import { RGBColor } from 'react-color'
+
 import Icon from './bricks/icon'
 import AtlasImage from './atlas-region'
-import { useStore, selectedInFavorites, Widget, TileSetMap, TileSprite } from '../store'
+import { useStore, tileInFavorites, Widget, TileSetMap, TileSprite } from '../store'
 import { toHexString } from '../util/color'
 import HexagonElement from './bricks/hexagon'
 
@@ -63,7 +60,7 @@ function CurrentTile({ tileSets }: CurrentTileProps) {
   let toggleFavorite = useStore(state => state.toggleFavorite)
   let toggleWidget = useStore(state => state.toggleWidget)
 
-  let inFavorites = selectedInFavorites(selectedTileColor, selectedTileSprite, favorites)
+  let inFavorites = tileInFavorites(selectedTileColor, selectedTileSprite, favorites)
 
   return (
     <div className='bg-gray-800 h-32 w-32 p-3 pt-2 mb-1 rounded-full'>
@@ -106,17 +103,19 @@ export default function Dock() {
       </style>
       <CurrentTile tileSets={tileSets} />
       <div className='w-2/3 flex-grow ml-2 mb-3 p-2 rounded-sm bg-gray-900 flex flex-row justify-between items-center'>
-        <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(undefined)} />
+        <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(null)} />
         <div className='w-full flex flex-row items-left overflow-x-scroll'>
-          {favorites.map(({ visual }) => (
+          {/* TODO This is a sign that the way favorites are handled needs to change - possibly use an actual ID */}
+          {favorites.map(({ visual: { tileSprite, color } }) => (
             <HexTile
+              key={`${tileSprite?.tileSet ?? ''}${tileSprite?.tileImage ?? ''}${color.r}${color.g}${color.b}`}
               className='mx-2 mb-2'
               tileSets={tileSets}
-              tileSprite={visual.tileSprite}
-              tileColor={visual.color}
+              tileSprite={tileSprite}
+              tileColor={color}
               onClick={() => {
-                setSelectedTileImage(visual.tileSprite ?? undefined)
-                setSelectedTileColor(visual.color)
+                setSelectedTileImage(tileSprite)
+                setSelectedTileColor(color)
               }}
             />
           ))}

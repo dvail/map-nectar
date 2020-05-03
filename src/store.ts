@@ -1,7 +1,7 @@
 import create, { GetState } from 'zustand'
 import produce from 'immer'
 import uuidv4 from 'uuid/v4'
-import { ColorResult, RGBColor } from 'react-color'
+import { RGBColor } from 'react-color'
 import flow from 'lodash/fp/flow'
 import keys from 'lodash/fp/keys'
 import max from 'lodash/fp/max'
@@ -102,10 +102,10 @@ function equalToFavorite(selectedTileColor: RGBColor, selectedTileSprite: TileSp
     isEqual(favorite.visual.tileSprite, selectedTileSprite)
 }
 
-export function selectedInFavorites(selectedTileColor: RGBColor, selectedTileSprite: TileSprite | null, favorites: TileFavorite[]) {
+export function tileInFavorites(color: RGBColor, sprite: TileSprite | null, favorites: TileFavorite[]) {
   return some<TileFavorite>(f => (
-    isEqual(f.visual.color, selectedTileColor) &&
-    isEqual(f.visual.tileSprite, selectedTileSprite)
+    isEqual(f.visual.color, color) &&
+    isEqual(f.visual.tileSprite, sprite)
   ))(favorites)
 }
 
@@ -139,7 +139,7 @@ export interface Store {
   mapLoad(payload: MapData): void
   setRotation(rotation: number): void
   setSelectedTileColor(color: RGBColor): void
-  setSelectedTileSprite(tileSprite: TileSprite | undefined): void
+  setSelectedTileSprite(tileSprite: TileSprite | null): void
   toggleWidget(widgetType: Widget | null): void
   setMapName(name: string): void
 }
@@ -256,7 +256,7 @@ export const [useStore] = create<Store>((set, get) => ({
 
   toggleFavorite: (color: RGBColor, tileSprite: TileSprite | null) => {
     let oldMapData = get().mapData
-    if (selectedInFavorites(color, tileSprite, oldMapData.editor.favorites)) {
+    if (tileInFavorites(color, tileSprite, oldMapData.editor.favorites)) {
       get().removeFromFavorites(color, tileSprite)
     } else {
       get().addToFavorites(color, tileSprite)
