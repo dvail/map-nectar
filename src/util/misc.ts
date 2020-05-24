@@ -15,14 +15,14 @@ export function saveAsFile(mapData: MapData, filename: string) {
 }
 
 export function loadLocal(id: string) {
-  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '';
-  let maps = JSON.parse(json)
+  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '{}';
+  let maps = JSON.parse(json) ?? {}
 
   return maps[id]
 }
 
 export function saveLocal(mapData: MapData) {
-  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '';
+  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '{}';
   let maps = JSON.parse(json) ?? {}
 
   maps[mapData.id] = mapData
@@ -31,14 +31,14 @@ export function saveLocal(mapData: MapData) {
 }
 
 export function getSavedMaps(): StoredMapObject {
-  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '';
-  let maps = JSON.parse(json)
+  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '{}';
+  let maps = JSON.parse(json) ?? {}
 
   return maps ?? {}
 }
 
 export function deleteMap(id: string) {
-  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '';
+  let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '{}';
   let maps = JSON.parse(json) ?? {}
 
   delete maps[id]
