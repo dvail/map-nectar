@@ -182,7 +182,8 @@ export default function MapView(element: HTMLDivElement, initialMapData: MapData
     if (direction === AltitudeChange.DOWN && !tile) return
 
     let altitude = tile?.altitude + (direction === AltitudeChange.DOWN ? -1 : 1) || 0
-    let opts = tile?.opts ?? {} as TileOptions
+    let oldOpts = tile?.opts ?? {} as TileOptions
+    let opts = { ...oldOpts }
 
     opts.fillColor = fromRGB(selectedTileColor)
 

@@ -69,7 +69,7 @@ export default function RenderPane() {
   }, [shiftKey])
 
   // NOTE: It is important that this runs first, before MapView.renderTiles(), so that the underlying
-  // tilsets and textures are correct before rendering tiles from the mapData
+  // tilesets and textures are correct before rendering tiles from the mapData
   useEffect(() => {
     mapViewRef.current?.loadTileSets(mapDataRef.current.tileSets)
   }, [mapData.tileSets])
