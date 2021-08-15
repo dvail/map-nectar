@@ -107,7 +107,7 @@ export const HexCoords = {
 
 const textureMemoKey = ({ orientation, radius, angle, altitude }: HexView) => `${orientation}:${radius}:${angle}:${altitude}`
 
-export const MakeHexTexture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.Renderer }) => {
+export const MakeHexTexture = memoize(({ renderer, orientation, radius, angle, altitude }: HexView & { renderer: PIXI.AbstractRenderer }) => {
   let coords = HexCoords[orientation]({ angle, radius, altitude })
   let hex = new PIXI.Graphics()
 
@@ -175,7 +175,7 @@ export interface TileSetTextureMap {
   }
 }
 
-export default function Hexagon(renderer: PIXI.Renderer, {
+export default function Hexagon(renderer: PIXI.AbstractRenderer, {
   container,
   q,
   r,
@@ -226,7 +226,7 @@ export default function Hexagon(renderer: PIXI.Renderer, {
     let scale = (radius * 2) / tileTextures[tileSet][tileImage].height
     let vertHeight = 1.0 - angle
     spriteContainer = new PIXI.Container()
-    spriteContainer.scale = new PIXI.Point(scale, scale * angle)
+    spriteContainer.scale = new PIXI.ObservablePoint(() => {}, null, scale, scale * angle)
     spriteContainer.y = (altitudePixelOffsetRatio * altitude * -vertHeight)
 
     imageSprite = new PIXI.Sprite(tileTextures[tileSet][tileImage])

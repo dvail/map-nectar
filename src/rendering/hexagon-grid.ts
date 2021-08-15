@@ -21,7 +21,7 @@ export interface HexagonGrid {
   renderTiles: (newTiles: TileMap) => void
 }
 
-export function HexagonGrid(renderer: PIXI.Renderer, {
+export function HexagonGrid(renderer: PIXI.AbstractRenderer, {
   tileRadius,
   viewAngle = 1.0,
   gridRotation = 0,
