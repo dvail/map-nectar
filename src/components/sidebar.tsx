@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useState } from 'react'
 import first from 'lodash/first'
 
 import { MapData, useStore, Widget } from '../store'
@@ -40,6 +41,13 @@ export default function Sidebar() {
   let mapData = useStore(state => state.mapData)
   let setOpenWidget = useStore(state => state.toggleWidget)
   let mapLoad = useStore(state => state.mapLoad)
+  let [justSaved, setJustSaved] = useState(false)
+
+  function onSaveClick() {
+    saveLocal(mapData)
+    setJustSaved(true)
+    setTimeout(() => setJustSaved(false), 2000)
+  }
 
   return (
     <div className='bg-gray-800 text-lg text-white p-3 flex flex-col justify-between font-sans'>
@@ -57,7 +65,7 @@ export default function Sidebar() {
         </MenuItem>
       </div>
       <div className='flex flex-col'>
-        <MenuItem onClick={() => saveLocal(mapData)} iconType='fa-save' title='Save'>Save</MenuItem>
+        <MenuItem onClick={onSaveClick} iconType='fa-save' title='Save'>{ justSaved ? 'Saved!' : 'Save' }</MenuItem>
         <MenuItem onClick={() => setOpenWidget(Widget.SavedMapPane)} iconType='fa-map' title='View Maps'>View Maps</MenuItem>
         <div className='h-1 border-b-2 border-gray-700 my-2' />
         <MenuItem onClick={() => saveAsFile(mapData, 'map.json')} iconType='fa-save' title='Export'>Export</MenuItem>
