@@ -1,5 +1,6 @@
 import { MapData } from '../store'
 
+const CURRENT_MAP = "CURRENT_MAP"
 const MAP_STORAGE_KEY = "MAP_STORAGE"
 
 interface StoredMapObject {
@@ -14,9 +15,14 @@ export function saveAsFile(mapData: MapData, filename: string) {
   a.click()
 }
 
+export function getCurrentMap() {
+  return localStorage.getItem(CURRENT_MAP)
+}
+
 export function loadLocal(id: string) {
   let json = localStorage.getItem(MAP_STORAGE_KEY) ?? '{}';
   let maps = JSON.parse(json) ?? {}
+  localStorage.setItem(CURRENT_MAP, id)
 
   return maps[id]
 }
@@ -27,7 +33,8 @@ export function saveLocal(mapData: MapData) {
 
   maps[mapData.id] = mapData
 
-  localStorage.setItem(MAP_STORAGE_KEY, JSON.stringify(maps));
+  localStorage.setItem(MAP_STORAGE_KEY, JSON.stringify(maps))
+  localStorage.setItem(CURRENT_MAP, mapData.id)
 }
 
 export function getSavedMaps(): StoredMapObject {

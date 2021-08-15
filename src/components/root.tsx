@@ -9,6 +9,7 @@ import Dock from './dock'
 import MapName from './map-name'
 import { Store, useStore } from '../store'
 import WidgetPane from './widget-pane'
+import { getCurrentMap, loadLocal } from '../util/misc'
 
 declare global {
   interface Window {
@@ -19,11 +20,20 @@ declare global {
 let { useEffect } = React
 
 export default function Root() {
+  let mapLoad = useStore(state => state.mapLoad)
   let getAll = useStore(state => state.getAll)
   let setShiftKey = useStore(state => state.setShiftKey)
 
-  // Expose state view to console
-  useEffect(() => { window.getAll = getAll }, [])
+  useEffect(() => {
+    // Expose state view to console
+    window.getAll = getAll
+
+    // Auto-load the most recent map, if available
+    let currentMap = getCurrentMap()
+    if (currentMap) {
+      mapLoad(loadLocal(currentMap))
+    }
+  }, [])
 
   return (
     <div className='h-full flex flex-row bg-black' onMouseMove={e => setShiftKey(e.shiftKey)}>
