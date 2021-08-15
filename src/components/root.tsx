@@ -7,8 +7,9 @@ import Sidebar from './sidebar'
 import Compass from './compass'
 import Dock from './dock'
 import MapName from './map-name'
-import { Store, useStore } from '../store'
+import HelpPanel from './help-panel'
 import WidgetPane from './widget-pane'
+import { Store, useStore } from '../store'
 import { getCurrentMap, loadLocal } from '../util/misc'
 
 declare global {
@@ -43,6 +44,7 @@ export default function Root() {
         <RenderPane />
         <MapName />
         <Dock />
+        <HelpPanel />
         <Compass className='m-2' />
       </div>
     </div>

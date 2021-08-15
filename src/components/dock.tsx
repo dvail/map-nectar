@@ -97,12 +97,12 @@ export default function Dock() {
   let setSelectedTileColor = useStore(state => state.setSelectedTileColor)
 
   return (
-    <div className='flex flex-row justify-around w-2/3 m-auto absolute left-0 right-0 bottom-0 items-end'>
+    <div className='flex flex-row justify-around w-1/2 m-auto absolute left-12 bottom-0 items-end'>
       <style>
         {Object.entries(tileSets).map(([id, tileSet]) => ` .tileset-bg-${id} { background-image: url('${tileSet.image}');} `)}
       </style>
       <CurrentTile tileSets={tileSets} />
-      <div className='w-2/3 flex-grow ml-2 mb-3 p-2 rounded-sm bg-gray-900 flex flex-row justify-between items-center'>
+      <div className='flex-grow ml-2 mb-3 p-2 rounded-sm bg-gray-900 flex flex-row justify-between items-center'>
         <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(null)} />
         <div className='w-full flex flex-row items-left overflow-x-scroll'>
           {/* TODO This is a sign that the way favorites are handled needs to change - possibly use an actual ID */}
