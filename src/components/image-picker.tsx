@@ -19,7 +19,10 @@ export default function ImagePicker() {
   )(tileSets)
 
   return (
-    <div style={{ maxHeight: 'calc(100vh - 250px)' }} className='w-96 flex flex-row flex-wrap items-left overflow-y-scroll' onScroll={e => e.stopPropagation()}>
+    <div
+      style={{ maxHeight: 'calc(100vh - 250px)' }}
+      className='w-96 flex flex-row flex-wrap items-left overflow-y-scroll'
+    >
       {tiles.map(({ tileSet, name, region }) => (
         <div className='cursor-pointer m-2' key={name}>
           <AtlasImage tileSet={tileSet} region={region} scale={0.3} onClick={() => setSelectedTileSprite({ tileSet, tileImage: name })} />
