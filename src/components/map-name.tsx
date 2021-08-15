@@ -10,6 +10,7 @@ export default function MapName() {
       <input
         className='border-none bg-transparent text-center hover:bg-gray-900'
         type='text'
+        title="Map Name"
         value={mapName}
         onChange={e => setMapName(e.target.value)}
       />

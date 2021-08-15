@@ -28,7 +28,7 @@ export default function Root() {
   return (
     <div className='h-full flex flex-row bg-black' onMouseMove={e => setShiftKey(e.shiftKey)}>
       <Sidebar />
-      <div className='h-full w-full flex flex-col relative'>
+      <div className='h-full flex flex-col flex-1 relative'>
         <WidgetPane />
         <RenderPane />
         <MapName />

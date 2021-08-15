@@ -14,7 +14,10 @@ export default function Compass({ className } : CompassProps) {
   let setRotation = useStore(state => state.setRotation)
 
   return (
-    <div className={`w-32 h-32 absolute top-0 right-0 ${className}`}>
+    <div 
+      className={`w-32 h-32 absolute top-0 right-0 ${className}`}
+      title='Map Orientation'
+    >
       {rotationMarkers.map(ri => (
         <div
           key={ri}
@@ -22,7 +25,7 @@ export default function Compass({ className } : CompassProps) {
           style={{ transform: `rotate(${180 - ri}deg)` }}
         >
           <div
-            className={`h-4 w-4 cursor-pointer rounded-full ${rotation === ri ? 'bg-indigo-500' : 'border-2 border-indigo-500'}`}
+            className={`h-4 w-4 cursor-pointer rounded-full ${rotation === ri ? 'bg-indigo-400' : 'border-2 border-indigo-500'}`}
             onClick={() => setRotation(ri)}
           />
         </div>

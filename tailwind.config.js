@@ -1,6 +1,10 @@
 let tailwindAnimations = require('tailwindcss-animations');
 
 module.exports = {
+  purge: [
+    './src/**/*.html',
+    './src/**/*.tsx',
+  ],
   theme: {
     extend: { },
     fontFamily: {

@@ -5,7 +5,6 @@ const path = require('path');
 
 let tailwindcss = require('tailwindcss')
 let autoprefixer = require('autoprefixer')
-let purgecss = require('@fullhuman/postcss-purgecss')
 
 const config = {
   entry: './src/index.tsx',
@@ -39,18 +38,6 @@ const config = {
               plugins: [
                 tailwindcss,
                 autoprefixer,
-                ...process.env.NODE_ENV !== 'development'
-                  ? [purgecss({
-                    content: [
-                      './src/index.html',
-                      './src/**/*.js',
-                      './src/**/*.jsx',
-                      './src/**/*.ts',
-                      './src/**/*.tsx',
-                    ],
-                    defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
-                  })]
-                  : [],
               ],
             },
           },
