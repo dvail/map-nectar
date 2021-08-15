@@ -11,7 +11,7 @@ module.exports = {
       mono: ['Inconsolata', 'monospace'],
     },
     flexGrow: {
-      default: 1,
+      DEFAULT: 1,
       0: 0,
       1: 1,
       2: 2,
