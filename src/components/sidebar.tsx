@@ -42,7 +42,7 @@ export default function Sidebar() {
   let mapLoad = useStore(state => state.mapLoad)
 
   return (
-    <div className='bg-gray-800 text-xl text-white p-3 flex flex-col justify-between font-mono'>
+    <div className='bg-gray-800 text-lg text-white p-3 flex flex-col justify-between font-sans'>
       <div className='flex flex-col'>
         {/* <MenuItem onClick={() => setOpenWidget(Widget.TileBuilder)} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem> */}
         <MenuItem onClick={() => setOpenWidget(Widget.ImagePicker)} iconType='fa-image' title='Choose tile image'>Tile Image</MenuItem>

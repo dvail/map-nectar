@@ -20,7 +20,7 @@ function HelpDisplay() {
   return (
     <div className="relative">
       <div className="absolute top-0 right-0 -mr-2 -mt-4 text-lg">🗙</div>
-      <table className="text-sm">
+      <table>
         <tbody>
           <tr><Cell>Increase Tile Height</Cell><Cell>Right Click</Cell></tr>
           <tr><Cell>Decrease Tile Height</Cell><Cell>Shift + Right Click</Cell></tr>

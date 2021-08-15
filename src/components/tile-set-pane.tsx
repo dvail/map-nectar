@@ -53,7 +53,7 @@ export default function TileSetPane() {
 
   return (
     <div>
-      <div className='flex flex-row'>
+      <div className='flex flex-row gap-2'>
         <Button type={image ? Default : Weak}>
           <FileInput onChange={onImageChange}>
             <Icon className='text-xl w-8' type='fa-file-upload' title='Load Image' />
@@ -68,7 +68,7 @@ export default function TileSetPane() {
         </Button>
         <Button disabled={!(image && atlas)} type={Action} onClick={addNewTileSet}>Add To Map</Button>
       </div>
-      <ul className='flex flex-col mt-2 font-mono font-semibold'>
+      <ul className='flex flex-col mt-2 font-sans font-semibold'>
         {Object.entries(mapData.tileSets).map(([id, ts]) => (
           <li key={id} className='py-2 flex flex-row flex-grow justify-between items-center'>
             <span className='flex-shrink-0 px-2'>{id}</span>

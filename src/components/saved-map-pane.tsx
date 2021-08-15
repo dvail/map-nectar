@@ -32,7 +32,7 @@ export default function SavedMapPane() {
             className={
               `pl-3 text-xl w-8 cursor-pointer
             ${deletePending === map.id
-                ? "text-red-400 hover:text-red-600 animation-pulse animation-200ms"
+                ? "text-red-400 hover:text-red-600 animate-pulse"
                 : "text-gray-400 hover:text-gray-200"}`
             }
             type='fa-trash'

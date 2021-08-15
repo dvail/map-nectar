@@ -44,7 +44,7 @@ function HexTile({ className = '', tileSets, tileSprite, tileColor, onClick = no
           )}
       </div>
       <div
-        className='mt-1 w-8 h-6 cursor-pointer'
+        className='mt-2 w-8 h-6 cursor-pointer rounded'
         title='Base Tile Color'
         style={{ backgroundColor: `#${toHexString(tileColor)}` }}
         onClick={onSideClick}
@@ -102,7 +102,7 @@ export default function Dock() {
         {Object.entries(tileSets).map(([id, tileSet]) => ` .tileset-bg-${id} { background-image: url('${tileSet.image}');} `)}
       </style>
       <CurrentTile tileSets={tileSets} />
-      <div className='max-w-4xl ml-2 mb-3 p-2 pr-8 rounded bg-gray-800 flex flex-row justify-between items-center'>
+      <div className='max-w-4xl ml-2 mb-3 p-2 pb-1 pr-8 rounded bg-gray-800 flex flex-row justify-between items-center'>
         <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(null)} />
         <div className='w-full flex flex-row items-left overflow-x-auto'>
           {/* TODO This is a sign that the way favorites are handled needs to change - possibly use an actual ID */}
