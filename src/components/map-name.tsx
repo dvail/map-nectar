@@ -8,7 +8,7 @@ export default function MapName() {
   return (
     <div className='absolute font-mono top-0 left-0 right-0 max-w-lg m-auto text-center text-white pt-4'>
       <input
-        className='border-none bg-transparent text-center hover:bg-gray-900'
+        className='border-none bg-transparent text-center hover:bg-gray-800'
         type='text'
         title="Map Name"
         value={mapName}

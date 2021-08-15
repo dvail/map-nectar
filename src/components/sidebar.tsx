@@ -42,7 +42,7 @@ export default function Sidebar() {
   let mapLoad = useStore(state => state.mapLoad)
 
   return (
-    <div className='bg-gray-900 text-xl text-white p-3 flex flex-col justify-between font-mono'>
+    <div className='bg-gray-800 text-xl text-white p-3 flex flex-col justify-between font-mono'>
       <div className='flex flex-col'>
         {/* <MenuItem onClick={() => setOpenWidget(Widget.TileBuilder)} iconType='fa-magic' title='Create New Tile'>Build Tile</MenuItem> */}
         <MenuItem onClick={() => setOpenWidget(Widget.ImagePicker)} iconType='fa-image' title='Choose tile image'>Tile Image</MenuItem>
@@ -59,7 +59,7 @@ export default function Sidebar() {
       <div className='flex flex-col'>
         <MenuItem onClick={() => saveLocal(mapData)} iconType='fa-save' title='Save'>Save</MenuItem>
         <MenuItem onClick={() => setOpenWidget(Widget.SavedMapPane)} iconType='fa-map' title='View Maps'>View Maps</MenuItem>
-        <div className='h-1 border-b-2 border-gray-800 m-2' />
+        <div className='h-1 border-b-2 border-gray-700 my-2' />
         <MenuItem onClick={() => saveAsFile(mapData, 'map.json')} iconType='fa-save' title='Export'>Export</MenuItem>
         <FileInput className='hover:text-pink-300' onChange={e => onMapLoad(mapLoad, e.target.files)}>
           <Icon className='text-xl w-8' type='fa-file-upload' title='Import' />

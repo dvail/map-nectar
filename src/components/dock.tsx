@@ -63,7 +63,7 @@ function CurrentTile({ tileSets }: CurrentTileProps) {
   let inFavorites = tileInFavorites(selectedTileColor, selectedTileSprite, favorites)
 
   return (
-    <div className='bg-gray-800 h-32 w-32 p-3 pt-2 mb-1 rounded-full'>
+    <div className='flex-shrink-0 bg-gray-800 h-32 w-32 p-3 pt-2 mb-1 rounded-full'>
       <div className='text-right'>
         <Icon
           type='fa fa-heart'
@@ -97,14 +97,14 @@ export default function Dock() {
   let setSelectedTileColor = useStore(state => state.setSelectedTileColor)
 
   return (
-    <div className='flex flex-row justify-around w-1/2 m-auto absolute left-12 bottom-0 items-end'>
+    <div className='flex flex-row justify-start w-1/2 m-auto absolute left-12 bottom-0 items-end'>
       <style>
         {Object.entries(tileSets).map(([id, tileSet]) => ` .tileset-bg-${id} { background-image: url('${tileSet.image}');} `)}
       </style>
       <CurrentTile tileSets={tileSets} />
-      <div className='flex-grow ml-2 mb-3 p-2 rounded-sm bg-gray-900 flex flex-row justify-between items-center'>
+      <div className='max-w-4xl ml-2 mb-3 p-2 pr-8 rounded bg-gray-800 flex flex-row justify-between items-center'>
         <Icon className='cursor-pointer text-gray-400 text-2xl px-2 pr-4 hover:text-gray-200' type='fa-broom' title='Clear Selected Image' onClick={() => setSelectedTileImage(null)} />
-        <div className='w-full flex flex-row items-left overflow-x-scroll'>
+        <div className='w-full flex flex-row items-left overflow-x-auto'>
           {/* TODO This is a sign that the way favorites are handled needs to change - possibly use an actual ID */}
           {favorites.map(({ visual: { tileSprite, color } }) => (
             <HexTile
