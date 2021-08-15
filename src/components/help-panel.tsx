@@ -27,6 +27,7 @@ function HelpDisplay() {
           <tr><Cell>Move Map</Cell><Cell>Left Click + Drag</Cell></tr>
           <tr><Cell>Rotate Map</Cell><Cell>Shift + Left Click + Drag Left/Right</Cell></tr>
           <tr><Cell>Tilt Map</Cell><Cell>Shift + Left Click + Drag Up/Down</Cell></tr>
+          <tr><Cell>Zoom In/Out</Cell><Cell>Scroll Wheel</Cell></tr>
         </tbody>
       </table>
     </div>
