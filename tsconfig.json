@@ -6,6 +6,11 @@
     "skipLibCheck": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
+    "paths": {
+      "mini-signals": [
+        "./node_modules/mini-signals/index.js"
+      ]
+    },
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
@@ -15,5 +20,7 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": ["./src"]
+  "include": [
+    "./src"
+  ],
 }
