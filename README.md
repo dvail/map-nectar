@@ -5,6 +5,9 @@ Map Nectar is a map building tool build on React and PIXI.js to create 3-dimensi
 based maps in a 2-dimensional environment. The map concept is inspired by the isometric maps 
 from Final Fantasy Tactics, but using hexagonal tiles instead of square tiles.
 
+View the live demo [here](https://map-nectar.dvail.com/), or clone and run the editor locally
+with `npm install` followed by `npm run dev`.
+
 To load a set of textures into the map, click the Tile Sets option, and load the corresponding .png image with the `Load Image` button, followed by the corresponding JSON texture atlas with the `Load Atlas` button. Example textures can be found in the `./res` directory of this repository.
 
 A sample map can be imported with the file downloaded from [./res/sample-map-export.json](./res/sample-map-export.json).
